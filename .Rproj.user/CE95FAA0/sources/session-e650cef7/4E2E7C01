@@ -1,0 +1,27 @@
+{
+    "id": "4E2E7C01",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/raj_resistant_vs_control_de.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1697745600026.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled2",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "27,2",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1697743563,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1697743563,
+    "read_only": false,
+    "read_only_alternatives": []
+}

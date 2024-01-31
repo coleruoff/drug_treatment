@@ -1,0 +1,27 @@
+{
+    "id": "78B5F565",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/find_markers_in_resistant_active_cells.R",
+    "project_path": "source/find_markers_in_resistant_active_cells.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1698178062122.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "tempName": "Untitled3",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "51,42",
+        "scrollLine": "31"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1698182523,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1698182523848,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,28 @@
+{
+    "id": "2A83EC3F",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1697819032699.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "id": "2077f021f9524e27831776413e2d96f7",
+        "name": "raj_cluster_markers",
+        "title": "raj_cluster_markers",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 78039555786516,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1697819032699,
+    "read_only": false,
+    "read_only_alternatives": []
+}

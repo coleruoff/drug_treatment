@@ -1,0 +1,27 @@
+{
+    "id": "5269DCAB",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/trapnell_resistance_active_heatmap.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1698094540941.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "83,0",
+        "scrollLine": "66"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1698101061,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1698101061517,
+    "read_only": false,
+    "read_only_alternatives": []
+}

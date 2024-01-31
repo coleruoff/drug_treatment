@@ -1,0 +1,27 @@
+{
+    "id": "E23D427C",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/seurat_to_anndata.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "4121223776",
+    "contents": "",
+    "dirty": false,
+    "created": 1698096380996.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "2,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1698100362,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1698100362716,
+    "read_only": false,
+    "read_only_alternatives": []
+}

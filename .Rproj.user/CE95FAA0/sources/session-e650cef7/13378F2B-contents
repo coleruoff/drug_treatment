@@ -1,0 +1,32 @@
+library(Seurat)
+library(tidyverse)
+
+watermelon_data <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/watermelon_data/watermelon_pc9_processed.rds")
+
+watermelon_data <- AddMetaData(watermelon_data, metadata = ifelse(watermelon_data$time_point == 0, "pre", "post"), col.name="treatment_stage")
+
+time_points <- unique(watermelon_data$time_point)
+
+Idents(watermelon_data) <- watermelon_data$treatment_stage
+
+
+watermelon_time_point_de <- list()
+for(i in 2:length(time_points)){
+  curr_time_point <- time_points[i]
+  
+  curr_de_res <- FindMarkers(watermelon_data[,watermelon_data$time_point == curr_time_point | watermelon_data$treatment_stage == "pre"], ident.1 = "post")
+  
+  curr_de_genes <- curr_de_res %>% 
+    filter(avg_log2FC > 0 & p_val_adj < 0.05) %>% 
+    rownames()
+  
+  watermelon_time_point_de <- append(watermelon_time_point_de, list(curr_de_genes[1:500]))
+  
+}
+
+names(watermelon_time_point_de) <- paste0("watermelon_",time_points[2:4],"_de_genes")
+
+saveRDS(watermelon_time_point_de, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/watermelon_time_points_de.rds")
+
+
+

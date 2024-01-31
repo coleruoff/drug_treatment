@@ -1,0 +1,111 @@
+source("/data/ruoffcj/projects/aucell_scoring/aucell_thresholding.R")
+library(Seurat)
+library(AUCell)
+library(fgsea)
+library(GSEABase)
+library(data.table)
+library(tidyverse)
+library(foreach)
+library(doMC)
+
+args <- commandArgs(trailingOnly=TRUE)
+
+cat(args[1],"\n")
+cat(args[2],"\n\n")
+
+################################################################################
+#Read in cells to score
+################################################################################
+
+cell_line <- args[1]
+# # Read in cell line data
+#all_data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/sciPlex_data/", cell_line, "_processed.rds"))
+
+#read in data
+CCLE_data <- readRDS("/data/CDSL_hannenhalli/Cole/CCLE_Object_normalized.rds")
+
+
+data_to_use <- CCLE_data
+assay_to_use <- "RNA"
+cellset_title <- "CCLE"
+
+################################################################################
+#Read in genesets to use (named list of genesets)
+################################################################################
+
+#Score all cells with cluster signatures
+cluster_signatures <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/genesets/", cell_line, "_cluster_signatures_", args[2], ".rds"))
+
+# supercluster_markers <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/genesets/supercluster_markers.rds"))
+
+# regulon_genesets <- readRDS("/data/CDSL_hannenhalli/Cole/genesets/collecTRI_regulon_genesets.rds")
+
+genesets <- cluster_signatures
+genesets_title <- paste0(cell_line, "_cluster_signatures_", args[2])
+################################################################################
+#Run parallel AUCell Scoring
+################################################################################
+
+#Make sure that NormalizeData has been run on the Seurat Object
+set.seed(42) #Make sure that a random seed is set to a fixed number. This ensures reproducibility across runs.
+auc_obj <- compute_AUCell_scores(data_to_use, genesets, compute_thresholds=F, nCores = 12, assay_to_use = assay_to_use)
+
+# met_auc_obj$auc_mat contains raw AUCell score matrix
+
+obj_name <- paste0(cellset_title, "_", genesets_title, "_AUCell_scores")
+assign(obj_name, auc_obj$auc_mat)
+
+file_name <- paste0("/data/CDSL_hannenhalli/Cole/AUCell_score_objects/", cellset_title,"_", genesets_title, "_AUC.RData")
+save(list = obj_name, file=file_name)
+
+
+set.seed(532)
+#Compute separate thresholds across time-points
+computed_thresholds_df <- compute_shuffled_gene_set_AUCell_scores(data_to_use, gene_sets=genesets, nCores=12, do_sample_wise=F, q_thresh=0.95, num_controls=10, assay_to_use = assay_to_use)
+
+# print(head(computed_thresholds_df)) #Each row is a threshold for a gene set.
+
+obj_name <- paste0(cellset_title, "_", genesets_title, "_AUCell_thresholds")
+assign(obj_name, computed_thresholds_df)
+
+
+file_name <- paste0("/data/CDSL_hannenhalli/Cole/AUCell_score_objects/", cellset_title,"_", genesets_title, "_AUC_thesholds.RData")
+save(list = obj_name, file=file_name)
+
+################################################################################
+################################################################################
+# n <- length(genesets)
+# 
+# # genesets <- split(genesets,ceiling(seq_along(genesets) / (length(genesets)/n)))
+# 
+# registerDoMC(cores=future::availableCores())
+# 
+# x <- foreach (t = 1:n, .errorhandling="pass", .verbose=T, .combine=rbind) %dopar% {
+#   
+#   curr_geneset <- genesets[[t]]
+#   
+#   cells_AUC <- AUCell_run(as.matrix(data_to_use@assays$originalexp@data), curr_geneset)
+#   
+#   # cells_rankings <- AUCell_buildRankings(lung_data@assays$RNA@data, plotStats=FALSE)
+#   # cells_AUC <- AUCell_calcAUC(curr_geneset, cells_rankings, aucMaxRank=5)
+#   
+#   raw_auc <- cells_AUC@assays@data$AUC
+#   
+#   return(raw_auc) 
+# }
+# 
+# rownames(x) <- names(genesets)
+# 
+# obj_name <- paste0(cellset_title, "_", genesets_title, "_AUCell_scores")
+# 
+# assign(obj_name, x)
+# 
+# rownames(eval(parse(text=obj_name))) <- names(genesets)
+# 
+# file_name <- paste0("/data/CDSL_hannenhalli/Cole/AUCell_score_objects/", cellset_title,"_", genesets_title, "_AUC.RData")
+# 
+# save(list = obj_name, file=file_name)
+# 
+
+
+
