@@ -50,13 +50,13 @@ df <- merge(df,data_metadata,by = "sample")
 
 # Plot boxplots
 
-df$Response <- df$response
+df$Recurrence <- df$response
 
 facet_names <- c("A549 RAC Type 1 Signature","RAC Type 1 Supercluster 1 Signature","RAC Type 1 Supercluster 2 Signature")
 
 p <- ggboxplot(df %>% 
-                 filter(treatment_stage=="pre"), x = "Response", y = "score",
-               color = "Response", palette = "jco",
+                 filter(treatment_stage=="pre"), x = "Recurrence", y = "score",
+               color = "Recurrence", palette = "jco",
                facet.by = "geneset", short.panel.labs = T,
                add="", panel.labs = list(geneset=facet_names), 
                panel.labs.font = list(size=14))
@@ -78,8 +78,8 @@ pre_plot <- p + stat_compare_means(label = "p.format", method = "wilcox")+
 pre_plot
 
 p <- ggboxplot(df %>% 
-                 filter(treatment_stage=="post"), x = "Response", y = "score",
-               color = "Response", palette = "jco",
+                 filter(treatment_stage=="post"), x = "Recurrence", y = "score",
+               color = "Recurrence", palette = "jco",
                facet.by = "geneset", short.panel.labs = T,
                add="", panel.labs = list(geneset=facet_names), 
                panel.labs.font = list(size=14))

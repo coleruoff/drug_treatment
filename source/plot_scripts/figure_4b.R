@@ -85,7 +85,7 @@ get_read_count_data <- function(i){
   
   temp <- gene_metadata %>% 
     filter(gene_id %in% rownames(tcga_matrix_vst)) %>% 
-    select(gene_id,gene_name)
+    dplyr::select(gene_id,gene_name)
   
   
   if(all(temp$gene_id == rownames(tcga_matrix_vst))){
@@ -157,6 +157,8 @@ curr_project <- "TCGA-UCEC"
 
 all_plots <- list()
 
+plot_data <- list()
+
 for(curr_project in tcga_projects){
   
   cat(curr_project, "\n")
@@ -216,7 +218,7 @@ for(curr_project in tcga_projects){
     data_df <- as.data.frame(merge(clinical_df,gene_set_scores_df, by='submitter_id'))
     
     data_df <- data_df %>%
-      select(covariates,names(all_signatures), metric_to_use, paste0(metric_to_use,".time"))
+      dplyr::select(covariates,names(all_signatures), metric_to_use, paste0(metric_to_use,".time"))
     
     data_df$sex <- factor(data_df$sex, levels = c("FEMALE","MALE"))
     
@@ -240,6 +242,10 @@ for(curr_project in tcga_projects){
     
     cox_regression_info$km_df[[signature_to_use]] <- factor(cox_regression_info$km_df[[signature_to_use]], levels = c("High","Medium","Low"))
     
+    
+    plot_data[[curr_project]][["fit"]][[curr_signature]] <- fit
+    plot_data[[curr_project]][["data"]][[curr_signature]] <- cox_regression_info$km_df
+    
     p <- ggsurvplot(fit, data = cox_regression_info$km_df,
                     pval = T, 
                     legend.title="Expression Level:",
@@ -249,7 +255,7 @@ for(curr_project in tcga_projects){
                     font.x=c(28),
                     font.y=c(28),
                     font.tickslab=c(20),
-                    font.legned=c(50),
+                    font.legend=c(50),
                     font.caption=c(30),
                     tables.theme = clean_theme())
     
@@ -257,14 +263,17 @@ for(curr_project in tcga_projects){
       theme(legend.text = element_text(size = 14, color = "black", face = "bold"),
             legend.title = element_text(size = 14, color = "black", face = "bold"))
     
-    p <- p + ggtitle(signatures_title)
+    p <- p + ggtitle(signatures_title)+
+      xlab("")+
+      ylab("")
+      theme(title = element_text(size=5))
     
     plots <- append(plots, list(p$plot))
     
   }
   
   if(metric_to_use == "OS"){
-    main_title <- paste0("RAC Type 1 Supercluster Signatures - Overall Survival (",curr_project,")")
+    main_title <- curr_project
     file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/pan_cancer/",curr_project,"_OS.png")
   } else {
     main_title <- paste0("RAC Type 1 Supercluster Signatures - Progression Free Survival (",curr_project,")")
@@ -274,7 +283,7 @@ for(curr_project in tcga_projects){
   
   project_plot <- ggarrange(plotlist = plots,ncol = 2,nrow=1, common.legend = T)
   
-  project_plot <- annotate_figure(project_plot, top = text_grob(main_title, face = "bold", size = 36))
+  project_plot <- annotate_figure(project_plot, top = text_grob(main_title, face = "bold", size = 14))
   
   all_plots <- append(all_plots, list(project_plot))
   
@@ -283,17 +292,79 @@ for(curr_project in tcga_projects){
 }
 
 
+saveRDS(plot_data, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
+# saveRDS(all_plots, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plotlist.rds")
+# all_plots <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plotlist.rds")
+
+plot_data <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
+
+
+gdcprojects <- getGDCprojects()
+
+tcga_projects <- gdcprojects[grepl("TCGA", gdcprojects$id),]$id
+
+tcga_projects <- tcga_projects
+signatures_titles <- c("Supercluster 1","Supercluster 2")
+
+
+all_plots <- list()
+for(curr_project in tcga_projects){
+  
+  cat(curr_project, "\n")
+  
+  plots <- list()
+  for(curr_signature in 1:2){
+    
+    p <- ggsurvplot(plot_data[[curr_project]][["fit"]][[curr_signature]], data = plot_data[[curr_project]][["data"]][[curr_signature]],
+                    pval = T, 
+                    legend.title="Expression Level:",
+                    legend.labs= c("High","Medium","Low"),
+                    pval.size = 6,
+                    font.title=c(28),
+                    font.x=c(28),
+                    font.y=c(28),
+                    font.tickslab=c(20),
+                    font.legend=c(50),
+                    font.caption=c(30),
+                    tables.theme = clean_theme())
+    
+    p$plot <- p$plot + 
+      theme(legend.text = element_text(size = 14, color = "black", face = "bold"),
+            legend.title = element_text(size = 14, color = "black", face = "bold"))
+    
+    p <- p + ggtitle(signatures_titles[curr_signature])+
+      xlab("")+
+      ylab("")
+    theme(plot.title = element_text(size=18))
+    
+    plots <- append(plots, list(p$plot))
+    
+    
+    
+  }
+  
+  project_plot <- ggarrange(plotlist = plots,ncol = 2,nrow=1, common.legend = T)
+  
+  project_plot <- annotate_figure(project_plot, top = text_grob(curr_project, face = "bold", size = 24))
+  
+  all_plots <- append(all_plots, list(project_plot))
+  
+}
+
+
+
 final_plot <- ggarrange(plotlist = all_plots,ncol = 3,nrow=11, common.legend = T)
 
-final_plot <- annotate_figure(final_plot, top = text_grob(main_title, face = "bold", size = 36))
+final_title <- "RAC Type 1 Supercluster Signatures - Overall Survival\n"
+
+final_plot <- annotate_figure(final_plot, top = text_grob(final_title, face = "bold", size = 60),
+                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),
+                              bottom = text_grob("Time", size=45, face="bold"),)
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4b.png"),
-    width=30, height=500, units= "in", res=300)
+    width=35, height=60, units= "in", res=300)
 
 print(final_plot)
 
 dev.off()
-
-
-# saveRDS(hazard_ratio_df, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios.rds")
 

@@ -1,3 +1,4 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(ComplexHeatmap)
 library(Seurat)
 library(circlize)
@@ -5,6 +6,10 @@ library(ggpubr)
 library(msigdbr)
 library(clusterProfiler)
 library(org.Hs.eg.db)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
 
 dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/"
 
@@ -73,7 +78,11 @@ curr_cell_line <- "MCF7"
 cell_lines <- c("A549","K562","MCF7")
 
 plots <- list()
+
+heatmap_matrices <- list()
 for(curr_cell_line in cell_lines){
+  
+  cat(curr_cell_line, "\n")
   
   data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
   
@@ -106,6 +115,7 @@ for(curr_cell_line in cell_lines){
   
   rownames(heatmap_matrix_up) <- sapply(X = rownames(heatmap_matrix_up), FUN = function(x) {strsplit(x,split = "_")[[1]][1]})
   
+  heatmap_matrices <- append(heatmap_matrices, list(heatmap_matrix_up))
   
   df <- data.frame(cbind(colnames(heatmap_matrix_up),heatmap_matrix_up[1,]))
   
@@ -121,6 +131,10 @@ for(curr_cell_line in cell_lines){
   colnames(heatmap_matrix_up) <- gsub("_1", " (Type 1)", colnames(heatmap_matrix_up))
   colnames(heatmap_matrix_up) <- gsub("_2", " (Type 2)", colnames(heatmap_matrix_up))
   
+  
+  
+  
+  
   ht <- Heatmap(heatmap_matrix_up, name="Z-Score", cluster_rows = F, cluster_columns = T,
                 bottom_annotation = rac_ha, column_title = "", column_title_side = "bottom",
                 row_title = "Antimicrobial Drugs\n", row_title_side = "left", row_title_gp = gpar(fontsize=25),
@@ -131,7 +145,7 @@ for(curr_cell_line in cell_lines){
                                             labels_gp = gpar(fontsize = 14)))
   
   
-  p <- grid.grabExpr(draw(ht, column_title = paste0("                  E. Coli Antimicrobial Resistance Orthologs Mean Cluster AUCell Score (", curr_cell_line, ")\n"), 
+  p <- grid.grabExpr(draw(ht, column_title = curr_cell_line, 
        column_title_gp = gpar(fontsize = 25, fontface = "bold"),  padding = unit(c(2, 2, 10, 2), "mm"),
        heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T))
   
@@ -140,24 +154,87 @@ for(curr_cell_line in cell_lines){
 }
 
 
+# saveRDS(heatmap_matrices, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_5d_heatmap_matrices.rds")
+heatmap_matrices <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_5d_heatmap_matrices.rds")
+
+cell_lines <- c("A549","K562","MCF7")
+
+plots <- list()
+for(i in 1:length(heatmap_matrices)){
+  
+  heatmap_matrix_up <- heatmap_matrices[[1]]
+  
+  curr_cell_line <- cell_lines[i]
+  
+  df <- data.frame(cbind(colnames(heatmap_matrix_up),heatmap_matrix_up[1,]))
+  
+  colnames(df) <- c("cluster","value")
+  df$value <- as.numeric(df$value)
+  
+  rac_ha <- HeatmapAnnotation(cell_group = c(ifelse(grepl("_0",colnames(heatmap_matrix_up)),"Non-RAC", ifelse(grepl("_1",colnames(heatmap_matrix_up)), "RAC Type 1","RAC Type 2"))),
+                              col = list(cell_group = c("RAC Type 1" = "red","RAC Type 2" = "orange", "Non-RAC" = "lightblue")), show_annotation_name = F, show_legend = F)
+  
+  # colnames(heatmap_matrix_up) <- gsub("_0", "", colnames(heatmap_matrix_up))
+  # colnames(heatmap_matrix_up) <- gsub("_1", " (Type 1)", colnames(heatmap_matrix_up))
+  # colnames(heatmap_matrix_up) <- gsub("_2", " (Type 2)", colnames(heatmap_matrix_up))
+  
+  colnames(heatmap_matrix_up) <- gsub("_0", "", colnames(heatmap_matrix_up))
+  colnames(heatmap_matrix_up) <- gsub("_1", "", colnames(heatmap_matrix_up))
+  colnames(heatmap_matrix_up) <- gsub("_2", "", colnames(heatmap_matrix_up))
+  
+  
+  
+  ht <- Heatmap(heatmap_matrix_up, name="Z-Score", cluster_rows = F, cluster_columns = T,
+                bottom_annotation = rac_ha, column_title = "", column_title_side = "bottom",
+                row_title = "", row_title_side = "left", row_title_gp = gpar(fontsize=25),
+                row_names_side = "left", column_names_rot = 45, 
+                row_names_gp = gpar(fontsize=20),
+                column_names_gp = gpar(fontsize=20), show_heatmap_legend = F)
+ 
+ 
+
+  
+  p <- grid.grabExpr(draw(ht, column_title = curr_cell_line, 
+                          column_title_gp = gpar(fontsize = 25),  padding = unit(c(2, 2, 10, 2), "mm"),
+                          heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T))
+  
+  
+  plots <- append(plots,list(p))  
+}
+
+# Create legends
+anno_legend <- Legend(labels = c("RAC Type 1","RAC Type 2","Non-RAC"), title = "Cluster Type",
+                      legend_gp = gpar(fill=c("red","orange","lightblue",fontsize=25)),
+                      grid_height=unit(1,"cm"),grid_width=unit(1,"cm"), 
+                      labels_gp = gpar(fontsize = 14), title_gp = gpar(fontsize=30))
+
+col_fun = colorRamp2(c(-2, 0.5, 2), c("blue", "white", "red"))
+heatmap_legend <- Legend(col_fun=col_fun,title="Z-Score",legend_gp = gpar(fontsize = 12),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
+                         labels_gp = gpar(fontsize = 14), title_gp =gpar(fontsize=30))
+
+legends <- packLegend(heatmap_legend,anno_legend)
+
+legends <- grid.grabExpr(draw(legends))
+
+# Arrange plots and legends
+plots <- append(plots, list(legends))
+lay <- rbind(c(1,1,1,1,4),
+             c(2,2,2,2,4),
+             c(3,3,3,3,4))
+
+
+
+
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5d.png"),
     width=20, height=25, units="in",res = 300)
 
-
-grid.newpage()
-pushViewport(viewport(x=.5,y=.18,width = 1, height = 0.33))
-grid.draw(plots[[3]])
-popViewport()
-
-pushViewport(viewport(x=.5,y=.5,width = 1, height = 0.33))
-grid.draw(plots[[2]])
-popViewport()
-
-pushViewport(viewport(x=.5,y=.825,width = 1, height = 0.33))
-grid.draw(plots[[1]])
-popViewport()
+grid.arrange(grobs = plots, layout_matrix = lay,top=textGrob("E. Coli Antimicrobial Resistance Orthologs Mean Cluster AUCell Score",gp=gpar(fontsize=40, fontface="bold")),
+             left=textGrob("Antimicrobial Drugs\n", rot=90,gp=gpar(fontsize=30, fontface="bold")))
 
 dev.off()
+
+
+
 
 

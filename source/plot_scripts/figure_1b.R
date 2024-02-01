@@ -65,7 +65,7 @@ for(curr_cell_line in cell_lines){
   plot_title <- curr_cell_line
   
   p <- ggboxplot(df, x = "Cluster", y = "curr_geneset", fill="group_median_score")+
-    scale_fill_gradient(low="white", high="red", name="      Median\nCluster Score")+
+    scale_fill_gradient(low="white", high="orange", name="      Median\nCluster Score")+
     ggtitle(plot_title)+
     xlab("")+
     ylab("")+
