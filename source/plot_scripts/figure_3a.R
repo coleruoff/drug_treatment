@@ -1,12 +1,13 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(Seurat)
 library(ComplexHeatmap)
 library(tidyverse)
 
 dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
-A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered.rds"))
-K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered.rds"))
-MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered.rds"))
+A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered2.rds"))
+K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered2.rds"))
+MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered2.rds"))
 
 #################################################################################
 # Cluster based on mean expression of variable genes
@@ -75,9 +76,9 @@ for(cell_line in cell_lines){
   for(curr_cluster in clusters){
     cat(curr_cluster,"\n")
     
-    cluster_mean <- rowMeans(data@assays$RNA@data[all_variable_genes, data$Cluster == curr_cluster])
+    cluster_mean <- rowMeans(data@assays$RNA$data[all_variable_genes, data$Cluster == curr_cluster])
     
-    total_mean <- rowMeans(data@assays$RNA@data[all_variable_genes, data$Cluster != curr_cluster])
+    total_mean <- rowMeans(data@assays$RNA$data[all_variable_genes, data$Cluster != curr_cluster])
     
     #heatmap[,j] <- cluster_mean-total_mean
     heatmap[,j] <- total_mean-cluster_mean
@@ -116,7 +117,7 @@ clusters_of_interest <- append(clusters_of_interest, paste0("K562_",RACs[["K562"
 clusters_of_interest <- append(clusters_of_interest, paste0("MCF7_",RACs[["MCF7"]]))
 
 rac_ha <- rowAnnotation(RAC = c(ifelse(colnames(cor_heatmap) %in% clusters_of_interest,"RAC","Non-RAC")),
-                        col = list(RAC = c("RAC" = "orangered", "Non-RAC" = "lightblue")),show_annotation_name = F,
+                        col = list(RAC = c("RAC" = "orange", "Non-RAC" = "lightblue")),show_annotation_name = F,
                         annotation_legend_param = list(title_gp=gpar(fontsize=22), grid_height=unit(1,"cm"),grid_width=unit(1,"cm"),
                                                        title="Cluster Type", labels_gp = gpar(fontsize = 14)))
 
@@ -131,7 +132,7 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
                                           labels_gp = gpar(fontsize = 14)))
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3a.png"),
-    width = 15,height=15, units = 'in',res = 300)
+    width = 25,height=25, units = 'in',res = 300)
 
 draw(ht, column_title="Correlations of Cluster Differential Mean Expression of Most Variable Genes", 
      column_title_gp = gpar(fontsize = 35, fontface = "bold"),  padding = unit(c(6, 10, 10, 2), "mm"),

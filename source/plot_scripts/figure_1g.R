@@ -171,7 +171,7 @@ for(curr_cell_line in cell_lines){
     ggtitle(plot_title)+
     xlab("")+
     ylab("")+
-    scale_fill_manual(values=c("red","orange", "lightblue"),name = "Cl")+
+    scale_fill_manual(values=c("red","orange", "lightblue"),name = "Cell Groups")+
     theme(legend.position="right",
           title = element_text(size=20, face = "bold"),
           axis.text = element_text(size=20),

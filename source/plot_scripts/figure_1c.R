@@ -76,7 +76,7 @@ for(curr_cell_line in cell_lines){
   
   p <- ggplot(df)+
     geom_col(aes(x=cluster, y=or, fill=color))+
-    scale_fill_manual(name="Cluster Type",values=c("lightblue","orangered"))+
+    scale_fill_manual(name="Cluster Type",values=c("lightblue","orange"))+
     geom_hline(yintercept=1.5, linetype="dashed", color = "red", size=1)+
     xlab("")+
     ylab("")+

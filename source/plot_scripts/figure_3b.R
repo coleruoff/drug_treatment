@@ -106,26 +106,35 @@ names(rac_supercluster_consensus_signature) <- NULL
 
 all_dotplots <- genesets_characterization(rac_supercluster_consensus_signature,universe_to_use = gene_universe_intersection)
 
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/signature_enrichment_dotplots/supercluster_enrichment/supercluster_hallmarks.png"), width = 1000,height = 1000)
-hallmarks_plt <- egg::ggarrange(plots = all_dotplots$hallmarks_dotplots, ncol = 2)
-main_title <- paste0("Cancer Hallmarks Enrichment of Supercluster Signature")
-hallmarks_plt <- annotate_figure(hallmarks_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
-plot(hallmarks_plt)
+hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 1, common.legend = T, legend=c("right"))
+main_title <- paste0("\nCancer Hallmarks")
+hallmarks_plt <- annotate_figure(hallmarks_plt, top = text_grob(main_title, color = "black", face = "bold", size = 24))
+
+
+mps_plt <- ggarrange(plotlist = all_dotplots$mps_dotplots, ncol = 1, common.legend = T,legend=c("right"))
+main_title <- paste0("\nITH Meta-programs")
+mps_plt <- annotate_figure(mps_plt, top = text_grob(main_title, color = "black", face = "bold", size = 24))
+
+
+go_plt <- ggarrange(plotlist = all_dotplots$go_dotplots, ncol = 1, common.legend = T,legend=c("right"))
+main_title <- paste0("\nGO Pathways")
+go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 24))
+
+
+plots <- list(hallmarks_plt, mps_plt, go_plt)
+
+
+png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3b.png"),
+    width=30, height=12, units= "in", res = 300)
+
+
+
+figure <- ggarrange(plotlist = plots, ncol=3, nrow=1, common.legend = T,legend=c("right"))
+
+p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
+                     bottom = text_grob("", size=35, face="bold"),
+                     top=text_grob("RAC Supercluster Signature Enrichment", size=40, face="bold"))
+
+print(p)
+
 dev.off()
-
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/signature_enrichment_dotplots/supercluster_enrichment/supercluster_mps.png"), width = 1000,height = 1000)
-mps_plt <- egg::ggarrange(plots = all_dotplots$mps_dotplots, ncol = 2)
-main_title <- paste0("ITH Meta-programs Enrichment of Supercluster Signature")
-mps_plt <- annotate_figure(mps_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
-plot(mps_plt)
-dev.off()
-
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/signature_enrichment_dotplots/supercluster_enrichment/supercluster_functional_enrichment.png"), width = 1000,height = 1000)
-go_plt <- egg::ggarrange(plots = all_dotplots$go_dotplots, ncol = 3)
-main_title <- paste0("GO Functional Enrichment of Supercluster Signature")
-go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
-plot(go_plt)
-dev.off()
-
-
-

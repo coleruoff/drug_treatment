@@ -1,12 +1,13 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(Seurat)
 library(ComplexHeatmap)
 library(tidyverse)
 
 dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
-A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered.rds"))
-K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered.rds"))
-MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered.rds"))
+A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered2.rds"))
+K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered2.rds"))
+MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered2.rds"))
 
 #################################################################################
 # Cluster based on mean expression of variable genes
@@ -110,9 +111,9 @@ for(cell_line in cell_lines){
   for(curr_cluster in clusters){
     cat(curr_cluster,"\n")
     
-    cluster_mean <- rowMeans(data@assays$RNA@data[all_variable_genes, data$Cluster == curr_cluster])
+    cluster_mean <- rowMeans(data@assays$RNA$data[all_variable_genes, data$Cluster == curr_cluster])
     
-    total_mean <- rowMeans(data@assays$RNA@data[all_variable_genes, data$Cluster != curr_cluster])
+    total_mean <- rowMeans(data@assays$RNA$data[all_variable_genes, data$Cluster != curr_cluster])
     
     #heatmap[,j] <- cluster_mean-total_mean
     heatmap[,j] <- total_mean-cluster_mean
@@ -135,7 +136,8 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
                                           labels_gp = gpar(fontsize = 14)))
 
 
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/supercluster_figures/type1_supercluster_heatmap.png"), width = 1500,height=1200)
+png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3c.png"),
+    width = 20,height=20, units = 'in',res = 300)
 
 draw(ht, column_title="Correlations of RAC Type 1 Cells Differential Mean Expression of Most Variable Genes",
      column_title_gp = gpar(fontsize = 30, fontface = "bold"),  padding = unit(c(6, 20, 10, 2), "mm"),
