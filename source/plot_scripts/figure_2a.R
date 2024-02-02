@@ -103,7 +103,7 @@ cell_lines <- c("A549","K562","MCF7")
 # saveRDS(heatmap_matrices,"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure2a_heatmaps/heatmap_matrices.rds")
 
 
-heatmap_matrices <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure2a_heatmaps/heatmap_matrices.rds")
+heatmap_matrices <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_2a_heatmap_matrices.rds")
 
   
 ht_list <- list()
@@ -138,7 +138,7 @@ ht <- ht_list[[1]] + ht_list[[2]] + ht_list[[3]]
 
 png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_2a.png",width=30,height=12, units = "in", res = 300)
 
-draw(ht, column_title = paste0("Cancer Meta-Programs Mean AUCell Score"), 
+draw(ht, column_title = paste0("Cancer Hallmarks Mean AUCell Score"), 
      column_title_gp = gpar(fontsize = 26),  padding = unit(c(2, 2, 2, 60), "mm"),
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T)
 

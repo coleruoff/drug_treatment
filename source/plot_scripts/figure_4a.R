@@ -1,3 +1,4 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(tidyverse)
 library(GSVA)
 library(readxl)

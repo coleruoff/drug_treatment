@@ -3,29 +3,33 @@ library(tidyverse)
 library(ggpubr)
 library(patchwork)
 
-hazard_ratio_df <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios_OS.rds")
+metric_to_use <-  "PFI"
+
+if(metric_to_use == "OS"){
+  hazard_ratio_df <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios_OS.rds")
+} else {
+  hazard_ratio_df <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios_PFS.rds")
+}
+
 
 df <- hazard_ratio_df
-
 
 df$hazard_ratio <- log(df$hazard_ratio)
 df$hazard_ratio.high <- log(df$hazard_ratio.high)
 df$hazard_ratio.low <- log(df$hazard_ratio.low)
 
-
 df$project_signature <- paste0(df$project,df$signature)
 
 
+n <- length(unique(df$project))+1
 
 p <- ggplot(df, aes(x=hazard_ratio,color=signature,y=project))+
   geom_point(position = position_dodge(width = 1))+
   geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=1, position = "dodge") +
   geom_vline(xintercept = 0, linetype="dashed")+
   theme_classic()+
-  coord_cartesian(ylim=c(1,34),xlim=c(-20,25))+
+  coord_cartesian(ylim=c(1,n),xlim=c(-20,25))+
   labs(x="Log(Hazard Ratio)",y="")
-
-
 
 p
 
@@ -148,10 +152,20 @@ plots <- list(p_left,p_mid,p_right)
 
 figure <- ggarrange(plotlist = plots,ncol=3,widths = c(0.5, 1.4,0.5))
 
-p <- annotate_figure(figure, top = text_grob("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n", face = "bold", size = 36))
 
-png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4c.png",
-    width=20, height = 16, units="in",res=300)
+
+if(metric_to_use == "OS"){
+  png("/data/ruoffcj/projects/drug_treatment/figures/hazard_ratio_forest_plot_OS.png",
+      width=20, height = 16, units="in",res=300)
+  main_title <- "Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types (OS)\n"
+} else{
+  png("/data/ruoffcj/projects/drug_treatment/figures/hazard_ratio_forest_plot_PFS.png",
+      width=20, height = 16, units="in",res=300)
+  main_title <- "Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types (PFS)\n"
+}
+
+p <- annotate_figure(figure, top = text_grob(main_title, face = "bold", size = 36))
+
 
 print(p)
 

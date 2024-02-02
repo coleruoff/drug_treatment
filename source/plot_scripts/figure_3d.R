@@ -1,3 +1,4 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(msigdbr)
 library(clusterProfiler)
 library(org.Hs.eg.db)
@@ -49,17 +50,17 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     
     if(nrow(hallmark_enrichment_results) > 0){
       p <- dotplot(hallmark_enrichment_results,
-                   showCategory = num_pathways) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
       p <- dotplot(mp_enrichment_results,
-                   showCategory = num_pathways)+ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20)+ggtitle(paste0("", curr_cluster))
       mps_dotplots <- append(mps_dotplots, list(p))
     }
     if(nrow(ego) > 0){
       p <- dotplot(ego,
-                   showCategory = num_pathways) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
       go_dotplots <- append(go_dotplots, list(p))
     }
   }
@@ -106,7 +107,7 @@ names2 <- gsub("_", " ", names1)
 names3 <- gsub("supercluster", "Supercluster ", names2)
 names(type1_supercluster_signatures) <- gsub("signature", "Signature ", names3)
 
-all_dotplots <- genesets_characterization(type1_supercluster_signatures, universe_to_use = gene_universe_intersection, num_pathways=20)
+all_dotplots <- genesets_characterization(type1_supercluster_signatures, universe_to_use = gene_universe_intersection)
 
 
 hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 1, common.legend = T, legend=c("right"))
@@ -128,7 +129,7 @@ plots <- list(hallmarks_plt, mps_plt, go_plt)
 
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3d.png"),
-    width=30, height=20, units= "in", res = 300)
+    width=30, height=24, units= "in", res = 300)
 
 
 

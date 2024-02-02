@@ -31,6 +31,7 @@ for(curr_cell_line in cell_lines){
   
   genesets_name <- "yeast_upregulated_orthologs"
 
+  scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
   
   type1_cell_names <- colnames(data)[data$cell_group == "1"]
   type2_cell_names <- colnames(data)[data$cell_group == "2"]

@@ -143,6 +143,8 @@ type1_cell_values <- scores[type1_cell_names,]
 type2_cell_values <- scores[type2_cell_names,]
 non_rac_values <- scores[non_rac_cell_names,]
 
+scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
+
 boxplot_df <- as.data.frame(cbind(scores,ifelse(rownames(scores) %in% non_rac_cell_names,"Non-RAC", ifelse(rownames(scores) %in% type1_cell_names, "RAC Type 1","RAC Type 2"))))
 
 colnames(boxplot_df) <- c("value","group")

@@ -50,17 +50,17 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     
     if(nrow(hallmark_enrichment_results) > 0){
       p <- dotplot(hallmark_enrichment_results,
-                   showCategory = num_pathways, font.size=18) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
       p <- dotplot(mp_enrichment_results,
-                   showCategory = num_pathways, font.size=18)+ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20)+ggtitle(paste0("", curr_cluster))
       mps_dotplots <- append(mps_dotplots, list(p))
     }
     if(nrow(ego) > 0){
       p <- dotplot(ego,
-                   showCategory = num_pathways, font.size=18) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
       go_dotplots <- append(go_dotplots, list(p))
     }
   }
@@ -144,7 +144,7 @@ plots <- list(hallmarks_plt, mps_plt, go_plt)
 
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5c.png"),
-    width=20, height=22, units= "in", res = 300)
+    width=26, height=24, units= "in", res = 300)
 
 
 

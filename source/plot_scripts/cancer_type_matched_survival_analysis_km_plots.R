@@ -1,3 +1,4 @@
+setwd("/data/ruoffcj/projects/drug_treatment/")
 library(tidyverse)
 library(GSVA)
 library(readxl)
@@ -102,9 +103,9 @@ get_clinical_data <- function(project){
     purity_data <- Tumor.purity
     
     colnames(purity_data)[1] <- "submitter_id"
-
+    
     purity_data$submitter_id <- sapply(purity_data$submitter_id, function(x) substring(x, 1,12))
-  
+    
     clinical_data <- merge(clinical_data,purity_data,by = "submitter_id")
     
     clinical_data$CPE <- as.numeric(sapply(clinical_data$CPE, function(x) gsub(",",".",x)))
@@ -131,18 +132,20 @@ type_signatures <- type_signatures[grepl("type1",names(type_signatures))]
 #################################################################################
 all_signatures <- type_signatures
 
-metric_to_use <- "OS"
-# metric_to_use <- "PFI"
+# metric_to_use <- "OS"
+metric_to_use <- "PFI"
 
 hazard_ratios <- c()
 
 curr_cell_line <- cell_lines[1]
+
+plots <- list()
 for(curr_cell_line in cell_lines){
   cat(curr_cell_line, "\n")
   
   # Get TCGA sample count data  
   tcga_project <- get_tcga_project(curr_cell_line)
-
+  
   #Get read count data
   # tcga_matrix_vst <- get_read_count_data(tcga_project)
   
@@ -169,7 +172,7 @@ for(curr_cell_line in cell_lines){
     covariates <- c("sex", "age")
   }
   
-
+  
   # if(metric_to_use %in% colnames(clinical_df))
   
   cox_regression_info <- cox_regression(sample_survival_df = clinical_df,
@@ -181,7 +184,7 @@ for(curr_cell_line in cell_lines){
                                         sample_features_df = gene_set_scores_df, 
                                         km_features_to_plot=names(curr_signature))
   
-  
+  # Only continue if there was PFI data for this TCGA project
   if(!all(is.na(cox_regression_info$km_df[[metric_to_use]]))){
     
     hazard_ratios <- append(hazard_ratios, cox_regression_info$regression_df$hazard_ratio)
@@ -192,14 +195,12 @@ for(curr_cell_line in cell_lines){
     
     
     if(metric_to_use == "OS"){
-      plot_title <- paste0(curr_cell_line, " RAC Type 1 Signature Overall Survival (",tcga_project,")")
-      file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/cancer_type_matched/",curr_cell_line,"_type1_OS.png")
+      plot_title <- paste0("\n",curr_cell_line, " RAC Type 1 Signature Overall Survival (",tcga_project,")")
+      # file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/cancer_type_matched/",curr_cell_line,"_type1_OS.png")
     } else {
-      plot_title <- paste0(curr_cell_line, " RAC Type 1 Signature Progression Free Survival (",tcga_project,")")
-      file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/cancer_type_matched/",curr_cell_line,"_type1_PFS.png")
+      plot_title <- paste0("\n",curr_cell_line, " RAC Type 1 Signature Progression Free Survival (",tcga_project,")")
     }
     
-    # png(file_name, height = 1000, width = 1000)
     
     cox_regression_info$km_df[[names(curr_signature)]] <- factor(cox_regression_info$km_df[[names(curr_signature)]], levels = c("High","Medium","Low"))
     
@@ -214,7 +215,9 @@ for(curr_cell_line in cell_lines){
                     font.tickslab=c(20),
                     font.legned=c(50),
                     font.caption=c(30),
-                    tables.theme = clean_theme())
+                    tables.theme = clean_theme())+
+      xlab("")+
+      ylab("")
     
     
     p$plot <- p$plot + 
@@ -222,33 +225,49 @@ for(curr_cell_line in cell_lines){
             legend.title = element_text(size = 14, color = "black", face = "bold"))
     
     
-    print(p + ggtitle(plot_title))
+    p <- p + ggtitle(plot_title)
+    
+    plots <- append(plots, list(p$plot))
     
     
-    dev.off()
   }
 }
 
-names(hazard_ratios) <- c("TCGA-LUAD","TCGA-LAML","TCGA-BRCA")
-
-df <- data.frame(names(hazard_ratios),hazard_ratios)
-
-colnames(df) <- c("tcga_project","hazard_ratio")
-df$hazard_ratio <- as.numeric(df$hazard_ratio)
-
-ggplot(df)+
-  geom_jitter(aes(x=hazard_ratio, y=tcga_project))+
-  scale_x_continuous(breaks = seq(-2, 200, by = 10))+
-  geom_vline(xintercept = 1, alpha=.5)+
-  xlab("Hazard Ratio")+
-  ylab("Cancer Type")+
-  ggtitle("Supercluster Signatures Hazard Ratios in TCGA Projects")+
-  theme(title= element_text(size=40))
+if(metric_to_use == "OS"){
+  main_title <- "RAC Type 1 Signatures Overall Survival in TCGA Samples"
+  png(paste0("/data/ruoffcj/projects/drug_treatment/figures/cancer_type_matched_OS.png"),
+      width=32, height=12, units= "in", res = 300)
+  
+} else {
+  main_title <-"RAC Type 1 Signatures Progression Free Survival in TCGA Samples"
+  png(paste0("/data/ruoffcj/projects/drug_treatment/figures/cancer_type_matched_PFS.png"),
+      width=32, height=12, units= "in", res = 300)
+  
+}
 
 
 
+figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T, legend=c("right"))
 
-log(hazard_ratios)
+p <- annotate_figure(figure, left = text_grob("Survival Probability", rot = 90, vjust = 1, size=35, face="bold"),
+                     bottom = text_grob("Time", size=35, face="bold"),
+                     top=text_grob(main_title, size=40, face="bold"))
+
+
+print(p)
+
+dev.off()
+
+
+hazard_ratios
+
+
+
+
+
+
+
+
 
 
 

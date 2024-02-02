@@ -122,7 +122,7 @@ ht <- Heatmap(heatmap_matrix, name="Z-Score", cluster_rows = F, cluster_columns 
 
 
 
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/yeast_figures/",curr_cell_line, "_yeast_heatmap.png"), width = 1200,height=500)
+# png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/yeast_figures/",curr_cell_line, "_yeast_heatmap.png"), width = 1200,height=500)
 
 draw(ht, column_title = paste0("Yeast Stress Orthologs Mean Cluster AUCell Score (", curr_cell_line, ")\n"), 
      column_title_gp = gpar(fontsize = 25, fontface = "bold"),  padding = unit(c(2, 16, 10, 2), "mm"),
@@ -141,6 +141,8 @@ type1_cell_values <- scores[type1_cell_names,]
 type2_cell_values <- scores[type2_cell_names,]
 non_rac_values <- scores[non_rac_cell_names,]
 
+scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
+
 
 boxplot_df <- as.data.frame(cbind(scores,ifelse(rownames(scores) %in% non_rac_cell_names,"Non-RAC", ifelse(rownames(scores) %in% type1_cell_names, "RAC Type 1","RAC Type 2"))))
 
@@ -152,7 +154,7 @@ my_comparisons <- list( c("Non-RAC", "RAC Type 2"), c("Non-RAC", "RAC Type 1"),c
 
 p <- ggboxplot(boxplot_df, x = "group", y = "value", fill="group",short.panel.labs = FALSE)
 
-png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/yeast_figures/",curr_cell_line, "_yeast_boxplots_racs.png"), width = 1200,height=800)
+# png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/yeast_figures/",curr_cell_line, "_yeast_boxplots_racs.png"), width = 1200,height=800)
 # Use only p.format as label. Remove method name.
 
 p + stat_compare_means(comparisons = my_comparisons, label = "p.format", method = "wilcox", size=8)+
