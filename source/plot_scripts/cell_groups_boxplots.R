@@ -38,7 +38,7 @@ create_df_for_boxplots <- function(data, ident_to_use, geneset_to_use){
   
   
   df <- data@meta.data %>% 
-    dplyr::select(ident_to_use, curr_geneset, dose, treatment_stage) %>% 
+    dplyr::select(ident_to_use, curr_geneset, dose, treatment_stage,Cluster) %>% 
     group_by(eval(parse(text=ident_to_use))) %>% 
     mutate("group_median_score" = median(curr_geneset))
   # }
@@ -48,7 +48,7 @@ create_df_for_boxplots <- function(data, ident_to_use, geneset_to_use){
 
 ###################################################################################
 
-curr_cell_line <- "MCF7"
+curr_cell_line <- "A549"
 
 cell_lines <- c("A549","K562","MCF7")
 

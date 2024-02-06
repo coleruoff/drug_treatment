@@ -9,6 +9,10 @@ A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_pro
 K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered2.rds"))
 MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered2.rds"))
 
+cell_lines <- c("A549", "K562", "MCF7")
+RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
+names(RACs) <- c("A549","K562","MCF7")
+
 #################################################################################
 # Cluster based on mean expression of variable genes
 #################################################################################
@@ -132,8 +136,8 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
               column_names_rot = 45, 
               row_names_gp = gpar(fontsize=20),
               column_names_gp = gpar(fontsize=18),
-              heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                          labels_gp = gpar(fontsize = 14)))
+              heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(6, "cm"), grid_width=unit(2,"cm"),
+                                          labels_gp = gpar(fontsize = 16)))
 
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3c.png"),

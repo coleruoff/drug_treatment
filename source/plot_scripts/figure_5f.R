@@ -50,17 +50,26 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     
     if(nrow(hallmark_enrichment_results) > 0){
       p <- dotplot(hallmark_enrichment_results,
-                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + 
+        ggtitle(paste0("", curr_cluster))+
+        theme(plot.title = element_text(size=20))
+      
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
       p <- dotplot(mp_enrichment_results,
-                   showCategory = num_pathways, font.size=20)+ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20)+
+        ggtitle(paste0("", curr_cluster))+
+        theme(plot.title = element_text(size=20))
+      
       mps_dotplots <- append(mps_dotplots, list(p))
     }
     if(nrow(ego) > 0){
       p <- dotplot(ego,
-                   showCategory = num_pathways, font.size=20) + ggtitle(paste0("", curr_cluster))
+                   showCategory = num_pathways, font.size=20) + 
+        ggtitle(paste0("", curr_cluster))+
+        theme(plot.title = element_text(size=20))
+      
       go_dotplots <- append(go_dotplots, list(p))
     }
   }
@@ -125,17 +134,17 @@ for(curr_cell_line in cell_lines){
 
 hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 3, common.legend = T, legend=c("right"))
 main_title <- paste0("\nCancer Hallmarks")
-hallmarks_plt <- annotate_figure(hallmarks_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
+hallmarks_plt <- annotate_figure(hallmarks_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
 mps_plt <- ggarrange(plotlist = all_dotplots$mps_dotplots, ncol = 3, common.legend = T,legend=c("right"))
 main_title <- paste0("ITH Meta-programs")
-mps_plt <- annotate_figure(mps_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
+mps_plt <- annotate_figure(mps_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
 go_plt <- ggarrange(plotlist = all_dotplots$go_dotplots, ncol = 3, common.legend = T,legend=c("right"))
 main_title <- paste0("GO Pathways")
-go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 14))
+go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
 plots <- list(go_plt)
@@ -150,7 +159,7 @@ figure <- ggarrange(plotlist = plots, nrow=1, common.legend = T,legend=c("right"
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Shared Genes Between RAC Type 1 Signatures and E. Coli Resistance Orthologs Enrichment", size=30, face="bold"))
+                     top=text_grob("Shared Genes Between RAC Type 1 Signatures and E. Coli Resistance Orthologs Enrichment", size=35, face="bold"))
 
 print(p)
 

@@ -5,9 +5,9 @@ library(tidyverse)
 
 dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
-A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered2.rds"))
-K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered2.rds"))
-MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered2.rds"))
+A549.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/A549_processed_filtered.rds"))
+K562.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/K562_processed_filtered.rds"))
+MCF7.data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/MCF7_processed_filtered.rds"))
 
 #################################################################################
 # Cluster based on mean expression of variable genes
@@ -118,8 +118,8 @@ clusters_of_interest <- append(clusters_of_interest, paste0("MCF7_",RACs[["MCF7"
 
 rac_ha <- rowAnnotation(RAC = c(ifelse(colnames(cor_heatmap) %in% clusters_of_interest,"RAC","Non-RAC")),
                         col = list(RAC = c("RAC" = "orange", "Non-RAC" = "lightblue")),show_annotation_name = F,
-                        annotation_legend_param = list(title_gp=gpar(fontsize=22), grid_height=unit(1,"cm"),grid_width=unit(1,"cm"),
-                                                       title="Cluster Type", labels_gp = gpar(fontsize = 14)))
+                        annotation_legend_param = list(title_gp=gpar(fontsize=30), grid_height=unit(2,"cm"),grid_width=unit(2,"cm"),
+                                                       title="Cluster Type", labels_gp = gpar(fontsize = 16)))
 
 
 ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, cluster_columns = T,
@@ -128,8 +128,8 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
               column_names_rot = 45, 
               row_names_gp = gpar(fontsize=20),
               column_names_gp = gpar(fontsize=18),
-              heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                          labels_gp = gpar(fontsize = 14)))
+              heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(5, "cm"), grid_width=unit(2,"cm"),
+                                          labels_gp = gpar(fontsize = 16)))
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3a.png"),
     width = 25,height=25, units = 'in',res = 300)
