@@ -223,8 +223,10 @@ for(curr_cell_line in cell_lines){
     
     
     p$plot <- p$plot + 
-      theme(legend.text = element_text(size = 14, color = "black", face = "bold"),
-            legend.title = element_text(size = 14, color = "black", face = "bold"))
+      theme(legend.text = element_text(size = 24, color = "black", face = "bold"),
+            legend.title = element_text(size = 28, color = "black", face = "bold"),
+            legend.key.height = unit(1.5,"cm"),
+            legend.key.width = unit(1.5,"cm"))
     
     
     p <- p + ggtitle(plot_title)

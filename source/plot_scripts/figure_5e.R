@@ -29,10 +29,9 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
   
   
-  genesets_name <- "ecoli_AMR_genesets_orthologs"
+  genesets_name <- "ecoli_human_orthologs_up"
   
   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
-  scores <- scores[,grepl("up", colnames(scores))]
   
   type1_cell_names <- colnames(data)[data$cell_group == "1"]
   type2_cell_names <- colnames(data)[data$cell_group == "2"]
@@ -44,18 +43,12 @@ for(curr_cell_line in cell_lines){
   
   
   boxplot_df <- as.data.frame(cbind(scores,ifelse(rownames(scores) %in% non_rac_cell_names,"Non-RAC", ifelse(rownames(scores) %in% type1_cell_names, "RAC Type 1","RAC Type 2"))))
-
-  experiment_cols <- colnames(boxplot_df)[1:ncol(boxplot_df)-1]
-
-  mean_scores <- rowMeans(matrix(as.numeric(as.matrix(boxplot_df[,experiment_cols])),ncol=9))
-  
-  boxplot_df <- as.data.frame(cbind(mean_scores,boxplot_df[,10]))
   
   colnames(boxplot_df) <- c("value","group")
   boxplot_df$value <- as.numeric(boxplot_df$value)
   boxplot_df$group <- factor(boxplot_df$group, levels = c("RAC Type 1","RAC Type 2","Non-RAC"))
   
-  my_comparisons <- list( c("Non-RAC", "RAC Type 2"), c("Non-RAC", "RAC Type 1"),c("RAC Type 1","RAC Type 2"))
+  my_comparisons <- list(c("RAC Type 1", "RAC Type 2"),c("Non-RAC", "RAC Type 1"), c("Non-RAC", "RAC Type 2"))
   
   p <- ggboxplot(boxplot_df, x = "group", y = "value", fill="group",short.panel.labs = FALSE)
   

@@ -18,14 +18,21 @@ all_signatures <- type1_supercluster_signatures
 geneset_title <- "RAC Type 1 Supercluster Signatures"
 #################################################################################
 drug_classes <- list()
-drug_classes <- append(drug_classes, list(c("MGH_Alpelisib","Sorafenib","Sorafenib_2","MK2206","Tipifarnib_1","Tipifarnib_2","Selinexor","Vismodegib")))
+drug_classes <- append(drug_classes, list(c("BRAFi_3", "BRAFi_2","BRAFi_1","MGH_Ribociclib","MGH_Alpelisib","Sorafenib","Sorafenib_2","MK2206","Tipifarnib_1","Tipifarnib_2","Selinexor","Vismodegib","Lapatinib")))
 drug_classes <- append(drug_classes, list(c("Anti-PD1","Anti-PD1 +- Anti-CTLA4", "Anti-PD1_2", "Anti-PD1_3","Anti-PD1_4")))
 drug_classes <- append(drug_classes, list(c("Bevacizumab","Bevacizumab_2","Bevacizumab_3","Bevacizumab_4","Trastuzumab","Trastuzumab_2","Trastuzumab_3","Trastuzumab_4","Trastuzumab_5","Cetuximab","Rituximab")))
 names(drug_classes) <- c("small_molecules","immunotherapy","mAb")
 
+drug_class_df <- cbind(names(drug_classes[1]),drug_classes[[1]])
+drug_class_df <- rbind(drug_class_df,cbind(names(drug_classes[2]),drug_classes[[2]]))
+drug_class_df <- as.data.frame(rbind(drug_class_df,cbind(names(drug_classes[3]),drug_classes[[3]])))
+
+colnames(drug_class_df) <- c("drug_class","Dataset")
+
 enlight_response_data <- read.csv("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/enlight_data/drug_response_classifications_with_type.csv")
 
 rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib", "MGH_Ribociclib", "MGH_Alpelisib", "BRAFi_1", "Anti-PD1", "Anti-PD1_2", "Anti-PD1_5")
+
 
 # enlight_response_data <- enlight_response_data %>%
 #   filter(Dataset %in% rna_seq_datasets)#!Dataset %in% drug_classes$immunotherapy)
@@ -41,7 +48,10 @@ if("Anti-PD1 +- Anti-CTLA4" %in% all_drugs){
 
 all_sample_scores <- matrix(NA,nrow=0,ncol=(length(all_signatures)+1))
 
-# curr_drug <- all_drugs[1]
+
+
+drug_class_df <- drug_class_df %>% 
+  filter(Dataset %in% all_drugs)
 
 for(curr_drug in all_drugs){
   cat(curr_drug, "\n")
@@ -56,7 +66,7 @@ for(curr_drug in all_drugs){
     
     meta <- enlight_response_data %>% 
       filter(Dataset == curr_drug) %>% 
-      select(Sample.ID,Response) %>% 
+      dplyr::select(Sample.ID,Response) %>% 
       column_to_rownames("Sample.ID")
     
     #reorder columns in data to match metadata
@@ -106,41 +116,43 @@ enlight_with_scores <- merge(enlight_response_data, all_sample_scores, by="Sampl
 df <- enlight_with_scores %>% 
   pivot_longer(!c(Sample.ID,Dataset,Response,cancer_type), names_to = "geneset",values_to = "score")
 
+df <- merge(df,drug_class_df, by="Dataset",all.x=T)
+
 names1 <- sapply(as.character(df$geneset), FUN=function(x) gsub("_", " ",x))
 names2 <- gsub("type1 ","",names1)
 names3 <- gsub("supercluster","supercluster ",names2)
 df$geneset <- str_to_title(names3)
 
-df$drug <- sapply(df$Dataset, function(x) strsplit(x, "_")[[1]][1])
+df$drug <- sapply(df$Dataset, function(x) strsplit(x, "_[0-9]")[[1]][1])
 
 
 R_df <- df %>% 
-  select(cancer_type, drug,geneset,score, Response) %>% 
+  dplyr::select(cancer_type, drug,geneset,score, Response,drug_class) %>% 
   mutate(cohort = paste0(cancer_type, " + ", drug), cancer_type=NULL, drug=NULL) %>% 
-  group_by(cohort,Response,geneset) %>% 
+  group_by(cohort,Response,geneset,drug_class) %>% 
   summarise(mean_R = mean(score), .groups="drop") %>% 
   filter(Response == "Responder") %>% 
-  select(cohort,geneset,mean_R)
+  dplyr::select(cohort,geneset,mean_R,drug_class)
 
 NR_df <- df %>% 
-  select(cancer_type, drug,geneset,score, Response) %>% 
+  dplyr::select(cancer_type, drug,geneset,score, Response,drug_class) %>% 
   mutate(cohort = paste0(cancer_type, " + ", drug), cancer_type=NULL, drug=NULL) %>% 
-  group_by(cohort,Response,geneset) %>% 
+  group_by(cohort,Response,geneset,drug_class) %>% 
   summarise(mean_NR = mean(score), .groups="drop") %>% 
   filter(Response == "Non-responder") %>% 
-  select(cohort,geneset,mean_NR)
+  dplyr::select(cohort,geneset,mean_NR,drug_class)
 
 df <- df %>% 
-  select(cancer_type, drug,geneset,score, Response) %>% 
+  dplyr::select(cancer_type, drug,geneset,score, Response,drug_class) %>% 
   mutate(cohort = paste0(cancer_type, " + ", drug), cancer_type=NULL, drug=NULL) %>% 
-  group_by(cohort,Response,geneset) %>% 
+  group_by(cohort,Response,geneset,drug_class) %>% 
   summarise(mean = mean(score),.groups= "drop") %>% 
-  select(cohort,geneset) %>% 
+  dplyr::select(cohort,geneset,drug_class) %>% 
   distinct()
 
 
-df <- merge(df,R_df, by=c("cohort","geneset"))
-df <- merge(df,NR_df, by=c("cohort","geneset"))
+df <- merge(df,R_df, by=c("cohort","geneset","drug_class"))
+df <- merge(df,NR_df, by=c("cohort","geneset","drug_class"))
 
 
 
@@ -155,9 +167,12 @@ colors_to_use <- sample(col_vector,n)
 
 
 p <- ggplot(df)+
-  geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=3)+
+  geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=4)+
+  facet_wrap(~drug_class)+
   scale_color_manual(values=colors_to_use,name="Cohort")+
   scale_shape_manual(values=c(15, 16), name="Signature")+
+  xlim(0, 1)+
+  ylim(0, 1)+
   geom_abline(intercept = 0,slope = 1)+
   xlab("Mean Responder Score")+
   ylab("Mean Non-Responder Score")+
@@ -165,7 +180,7 @@ p <- ggplot(df)+
   
 
 
-
+p
 png("/data/ruoffcj/projects/drug_treatment/figures/ENLIGHT_scatter.png",
     width=10, height = 8, units="in",res=300)
 

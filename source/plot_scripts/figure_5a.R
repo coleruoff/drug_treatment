@@ -127,7 +127,7 @@ for(curr_cell_line in cell_lines){
   
   ht <- Heatmap(heatmap_matrix, name="Z-Score", cluster_rows = F, cluster_columns = T,
                 bottom_annotation = rac_ha, column_title = "", column_title_side = "bottom",
-                row_title = "Stress Orthologs Geneset", row_title_side = "left", row_title_gp = gpar(fontsize=20),
+                row_title = "Antifungal Resistance Orthologs Geneset", row_title_side = "left", row_title_gp = gpar(fontsize=20),
                 row_names_side = "left", column_names_rot = 45, 
                 row_names_gp = gpar(fontsize=20),
                 column_names_gp = gpar(fontsize=12),
@@ -137,7 +137,7 @@ for(curr_cell_line in cell_lines){
   
   
   
-  p <- grid.grabExpr(draw(ht, column_title = paste0("Yeast Stress Orthologs Mean Cluster AUCell Score (", curr_cell_line, ")\n"), 
+  p <- grid.grabExpr(draw(ht, column_title = paste0("Yeast Antifungal Resistance Orthologs Mean Cluster AUCell Score (", curr_cell_line, ")\n"), 
        column_title_gp = gpar(fontsize = 25, fontface = "bold"),  padding = unit(c(2, 16, 10, 2), "mm"),
        heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T))
 
@@ -221,8 +221,8 @@ lay <- rbind(c(1,1,1,1,4),
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5a.png"),
     width=20, height=25, units="in",res = 300)
 
-grid.arrange(grobs = plots, layout_matrix = lay,top=textGrob("Yeast Stress Orthologs Mean Cluster AUCell Score",gp=gpar(fontsize=40, fontface="bold")),
-             left=textGrob("Stress Ortholog Geneset\n", rot=90,gp=gpar(fontsize=30, fontface="bold")))
+grid.arrange(grobs = plots, layout_matrix = lay,top=textGrob("Yeast Antifungal Resistance Orthologs Mean Cluster AUCell Score",gp=gpar(fontsize=40, fontface="bold")),
+             left=textGrob("Antifungal Resistance Ortholog Geneset\n", rot=90,gp=gpar(fontsize=30, fontface="bold")))
 
 dev.off()
 

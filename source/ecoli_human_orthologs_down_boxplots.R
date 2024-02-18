@@ -29,8 +29,8 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
   
   
-  genesets_name <- "yeast_human_orthologs"
-
+  genesets_name <- "ecoli_human_orthologs_down"
+  
   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
   
   type1_cell_names <- colnames(data)[data$cell_group == "1"]
@@ -72,7 +72,7 @@ for(curr_cell_line in cell_lines){
 }
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5b.png"),
+png(paste0("/data/ruoffcj/projects/drug_treatment/figures/ecoli_human_orthologs_down_boxplots.png"),
     width=30, height=12, units="in",res = 300)
 
 
@@ -80,7 +80,7 @@ figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T, legend=c("right
 
 p <- annotate_figure(figure, left = text_grob("AUCell Score", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Yeast Antifungal Resistance Orthologs Cluster AUCell Scores", size=40, face="bold"))
+                     top=text_grob("E. Coli Antimicrobial Resistance Orthologs Cluster AUCell Scores", size=40, face="bold"))
 
 
 print(p)

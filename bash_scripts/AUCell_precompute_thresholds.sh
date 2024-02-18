@@ -1,6 +1,6 @@
 #!/bin/bash
 
-module load R/4.2
+module load R/4.3
 
 while getopts ":c:a:g:o:" option; do
 	case $option in 

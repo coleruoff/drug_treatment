@@ -118,13 +118,17 @@ names(global_rac_type1_signatures) <- cell_lines
 
 yeast_upregulated_orthologs <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/yeast_upregulated_orthologs.rds")
 
+shared_genes <- list()
 all_dotplots <- list()
 for(curr_cell_line in cell_lines){
   
   curr_signature <- list(intersect(global_rac_type1_signatures[[curr_cell_line]],yeast_upregulated_orthologs))
   names(curr_signature) <- curr_cell_line
-  curr_dotplots <- genesets_characterization(curr_signature, universe_to_use = cell_line_universes[[curr_cell_line]])  
   
+  shared_genes <- append(shared_genes, curr_signature)
+
+  curr_dotplots <- genesets_characterization(curr_signature, universe_to_use = cell_line_universes[[curr_cell_line]])
+
   all_dotplots[["hallmarks_dotplots"]] <- append(all_dotplots[["hallmarks_dotplots"]],curr_dotplots[["hallmarks_dotplots"]])
   all_dotplots[["mps_dotplots"]] <- append(all_dotplots[["mps_dotplots"]],curr_dotplots[["mps_dotplots"]])
   all_dotplots[["go_dotplots"]] <- append(all_dotplots[["go_dotplots"]],curr_dotplots[["go_dotplots"]])
@@ -132,6 +136,7 @@ for(curr_cell_line in cell_lines){
   
 }
 
+# saveRDS(shared_genes, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/yeast_RAC_shared_genes.rds")
 
 hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 3, common.legend = T, legend=c("right"))
 main_title <- paste0("\nCancer Hallmarks")
@@ -160,7 +165,7 @@ figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Shared Genes Between RAC Type 1 Signatures and Yeast Stress Orthologs Enrichment", size=40, face="bold"))
+                     top=text_grob("Shared Genes Between RAC Type 1 Signatures and Yeast Antifungal Resistance Orthologs Enrichment", size=40, face="bold"))
 
 print(p)
 

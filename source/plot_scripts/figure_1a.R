@@ -133,20 +133,54 @@ watermelon_validation <- function(curr_signature, plot_title=NULL){
 
 raj_resistance_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/common_resistance_signature.rds")
 
-raj_watermelon_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/raj_watermelon_resistance_signature.rds")
 
 gsea_matrix <- watermelon_validation(raj_resistance_signature)
 
-plot_title <- "Enrichment of Resistance Signature Along Drug Treatment Time Points"
 
-ht <- Heatmap(gsea_matrix, cluster_columns = F, cluster_rows=F, column_title = plot_title, name="NES",
-              column_names_rot = 45, column_title_gp = gpar(fontsize=20, fontface="bold"),column_names_gp = gpar(fontsize=20),
-              heatmap_legend_param = list(legend_gp = gpar(fontsize = 20),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                          labels_gp = gpar(fontsize = 12),title_gp = gpar(fontsize = 18, fontface="bold")))
+
+df <- as.data.frame(cbind(colnames(gsea_matrix),t(gsea_matrix)))
+
+colnames(df) <- c("day","value")
+
+df$value <- as.numeric(df$value)
+df$day <- factor(df$day, levels =df$day)
+df$dot_color <- ifelse(df$value > 0, "pos","neg")
+
+plot_title <- "Enrichment of Resistance Signature Along Time Points"
+
+p <- ggplot(df, aes(x=day,y=value))+
+  geom_line(aes(group=1), size=2)+
+  geom_point(aes(color=dot_color),size=5)+
+  scale_color_manual(values=c("pos" = "red","neg" ="blue"))+
+  ggtitle(plot_title)+
+  xlab("Time Point")+
+  ylab("NES")+
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=15),
+        plot.title = element_text(size=30,face="bold"))+
+  NoLegend()
+
+
+
+
+p
 
 
 png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_1a.png",width=12,height=5, units = "in", res = 300)
 
-draw(ht)
+print(p)
 
 dev.off()
+
+
+
+# 
+# ht <- Heatmap(gsea_matrix, cluster_columns = F, cluster_rows=F, column_title = plot_title, name="NES",
+#               column_names_rot = 45, column_title_gp = gpar(fontsize=20, fontface="bold"),column_names_gp = gpar(fontsize=20),
+#               heatmap_legend_param = list(legend_gp = gpar(fontsize = 20),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
+#                                           labels_gp = gpar(fontsize = 12),title_gp = gpar(fontsize = 18, fontface="bold")))
+# 
+# 
+# 
+# 
+# draw(ht)

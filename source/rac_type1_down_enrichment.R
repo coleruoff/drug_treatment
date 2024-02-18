@@ -55,6 +55,7 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
         theme(plot.title = element_text(size=20))
       
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
+      
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
       p <- dotplot(mp_enrichment_results,
@@ -108,37 +109,29 @@ gene_universe_intersection <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug
 cell_line_universes <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_universes.rds")
 
 ################################################################################
-# Plotting for shared genes between RAC Type 1 signatures and e coli orthologs
+# Plotting for RAC type 1 vs rest/inactive cells signature
 
-global_rac_type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_type_signatures.rds")
-global_rac_type1_signatures <- global_rac_type_signatures[grepl("type1",names(global_rac_type_signatures))]
-names(global_rac_type1_signatures) <- cell_lines
+global_rac_type_down_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_type_down_signatures.rds")
 
-ecoli_AMR_genesets_orthologs <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/ecoli_AMR_genesets_orthologs.rds")
+global_rac_type1_down_signatures <- global_rac_type_down_signatures[grepl("type1",names(global_rac_type_down_signatures))]
 
-ecoli_AMR_genesets_orthologs <- ecoli_AMR_genesets_orthologs[grepl("up",names(ecoli_AMR_genesets_orthologs))]
-ecoli_AMR_consensus_orthologs <- find_consensus_geneset(ecoli_AMR_genesets_orthologs,2)
+names(global_rac_type1_down_signatures) <- cell_lines
 
+
+sort(global_rac_type1_down_signatures$A549)
 
 all_dotplots <- list()
-shared_genes <- list()
 for(curr_cell_line in cell_lines){
   
-  curr_signature <- list(intersect(global_rac_type1_signatures[[curr_cell_line]],ecoli_AMR_consensus_orthologs))
-  names(curr_signature) <- curr_cell_line
+  curr_signature <- global_rac_type1_down_signatures[curr_cell_line]
+  curr_dotplots <- genesets_characterization(curr_signature, universe_to_use = cell_line_universes[[curr_cell_line]])  
   
-  shared_genes <- append(shared_genes, curr_signature)
-
-  # curr_dotplots <- genesets_characterization(curr_signature, universe_to_use = cell_line_universes[[curr_cell_line]])
-  # 
-  # all_dotplots[["hallmarks_dotplots"]] <- append(all_dotplots[["hallmarks_dotplots"]],curr_dotplots[["hallmarks_dotplots"]])
-  # all_dotplots[["mps_dotplots"]] <- append(all_dotplots[["mps_dotplots"]],curr_dotplots[["mps_dotplots"]])
-  # all_dotplots[["go_dotplots"]] <- append(all_dotplots[["go_dotplots"]],curr_dotplots[["go_dotplots"]])
-  # all_dotplots[["go_results"]] <- append(all_dotplots[["go_results"]],curr_dotplots[["go_results"]])
+  all_dotplots[["hallmarks_dotplots"]] <- append(all_dotplots[["hallmarks_dotplots"]],curr_dotplots[["hallmarks_dotplots"]])
+  all_dotplots[["mps_dotplots"]] <- append(all_dotplots[["mps_dotplots"]],curr_dotplots[["mps_dotplots"]])
+  all_dotplots[["go_dotplots"]] <- append(all_dotplots[["go_dotplots"]],curr_dotplots[["go_dotplots"]])
+  all_dotplots[["go_results"]] <- append(all_dotplots[["go_results"]],curr_dotplots[["go_results"]])
   
 }
-
-# saveRDS(shared_genes, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/ecoli_RAC_shared_genes.rds")
 
 hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 3, common.legend = T, legend=c("right"))
 main_title <- paste0("\nCancer Hallmarks")
@@ -155,20 +148,35 @@ main_title <- paste0("GO Pathways")
 go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
-plots <- list(go_plt)
+plots <- list(hallmarks_plt, mps_plt, go_plt)
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5f.png"),
-    width=24, height=14, units= "in", res = 300)
+png(paste0("/data/ruoffcj/projects/drug_treatment/figures/rac_type1_down.png"),
+    width=26, height=22, units= "in", res = 300)
 
 
 
-figure <- ggarrange(plotlist = plots, nrow=1, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Shared Genes Between RAC Type 1 Signatures and E. Coli Resistance Orthologs Enrichment", size=35, face="bold"))
+                     top=text_grob("RAC Type 1 Downregulated Genes Enrichment", size=50, face="bold"))
 
 print(p)
 
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

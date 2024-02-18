@@ -1,18 +1,56 @@
-setwd("/data/ruoffcj/projects/drug_treatment/")
+source("/data/ruoffcj/projects/aucell_scoring/aucell_thresholding.R")
+library(Seurat)
+library(AUCell)
+library(fgsea)
+library(GSEABase)
+library(data.table)
+library(tidyverse)
+library(foreach)
+library(doMC)
 library(msigdbr)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
-source("source/cole_functions.R")
 
-cell_lines <- c("A549","K562","MCF7")
+
+curr_cell_line <- "A549"
+
+data_to_use <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/A549_processed_filtered.rds"))
+
+# data_to_use <- data_to_use[,1:100]
+
+assay_to_use <- "RNA"
+
+genesets <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/ecoli_human_ortholog_ups.rds")
+
+num_genes <- length(genesets[[1]])
+
+
+
+################################################################################
+#Run parallel AUCell Scoring
+################################################################################
+
+#Make sure that NormalizeData has been run on the Seurat Object
+set.seed(42) #Make sure that a random seed is set to a fixed number. This ensures reproducibility across runs.
 
 plots <- list()
-for(curr_cell_line in cell_lines){
+for(i in 1:12){
   
-  cat(curr_cell_line,"\n")
+  genesets[[1]] <- sample(rownames(data_to_use),num_genes)
+  auc_obj <- compute_AUCell_scores(data_to_use, genesets, compute_thresholds=F, nCores = 2, assay_to_use = assay_to_use)
   
-  data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
+  
+  
+  auc_obj$auc_mat
+  
+  
+  #Compute separate thresholds across time-points
+  computed_thresholds_df <- compute_shuffled_gene_set_AUCell_scores(data_to_use, gene_sets=genesets, nCores=2, do_sample_wise=F, q_thresh=0.95, num_controls=100, assay_to_use = assay_to_use)
+  
+  
+  computed_thresholds_df
+  
   
   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
   threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
@@ -22,6 +60,7 @@ for(curr_cell_line in cell_lines){
   names(RACs) <- c("A549","K562","MCF7")
   clusters_of_interest <- RACs[[curr_cell_line]]
   
+  data <- data_to_use
   data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, data$Cluster, "Non-RAC"), col.name = "RAC")
   #Add metadata for RAC and Cell Group
   data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
@@ -29,9 +68,7 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
   
   
-  genesets_name <- "yeast_human_orthologs"
-
-  scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_",genesets_name,"_aucell_scores.rds"))
+  scores <- auc_obj$auc_mat
   
   type1_cell_names <- colnames(data)[data$cell_group == "1"]
   type2_cell_names <- colnames(data)[data$cell_group == "2"]
@@ -68,22 +105,27 @@ for(curr_cell_line in cell_lines){
           legend.key.width = unit(1.5,"cm"))
   
   plots <- append(plots,list(p))
-  
 }
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5b.png"),
-    width=30, height=12, units="in",res = 300)
 
-
-figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T, legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=3,nrow=4, common.legend = T, legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("AUCell Score", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Yeast Antifungal Resistance Orthologs Cluster AUCell Scores", size=40, face="bold"))
+                     top=text_grob("E. Coli Antimicrobial Resistance Orthologs Cluster AUCell Scores", size=40, face="bold"))
 
+
+
+png("/data/ruoffcj/projects/drug_treatment/figures/random_aucell_boxplots.png",width=12,height=12, units = "in", res = 300)
 
 print(p)
 
 dev.off()
+
+
+
+
+
+
 

@@ -60,7 +60,7 @@ for(curr_cell_line in cell_lines){
   
   data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
   
-  RACs <- list(c(4,9,12,13,14,16,18),c(4,5,9,11),c(5,8,12,13,17))
+  RACs <- list(c(4,9,12,13,14,16,18),c(4,5,11),c(5,8,12,13,17))
   names(RACs) <- c("A549","K562","MCF7")
   clusters_of_interest <- RACs[[curr_cell_line]]
   
@@ -77,19 +77,20 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, "1", ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), 2, 0)), col.name = "cell_group")
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
   
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$Cluster %in% pre_racs, "pre_rac", ifelse(data$rac == "rac" & data$Cluster %in% emergent_racs, "emergent_rac", "non-rac")), col.name = "rac_type")
   
-  df <- create_df_for_boxplots(data, "cell_group", "raj_watermelon_resistance_signature")
+  df <- create_df_for_boxplots(data, "rac_type", "raj_watermelon_resistance_signature")
   
   # plot_title <- paste0("Resistance Signature AUCell Scores in ", curr_cell_line)
   plot_title <- curr_cell_line
   
-  df$cell_group <- ifelse(df$cell_group == 0, "Non-RAC", paste0("RAC Type ", df$cell_group))
+  df$rac_type <- ifelse(df$cell_group == 0, "Non-RAC", paste0("RAC Type ", df$cell_group))
   
   df$cell_group <- factor(df$cell_group, levels = c("RAC Type 1","RAC Type 2","Non-RAC"))
   
-  p <- ggboxplot(df, x = "cell_group", y = "curr_geneset",fill = "cell_group")
+  p <- ggboxplot(df, x = "rac_type", y = "curr_geneset",fill = "rac_type")
   
-  my_comparisons <- list( c("Non-RAC", "RAC Type 2"))
+  my_comparisons <- list( c("Non-RAC", "RAC Type 2"), c("Non-RAC", "RAC Type 1"),c("RAC Type 1","RAC Type 2"))
   
   
   # png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/resistance_score_boxplots/", curr_cell_line,"_cell_group_boxplots.png"),
@@ -113,15 +114,98 @@ for(curr_cell_line in cell_lines){
 
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_1e.png"),
-     width=30, height=12, units = "in", res=300)
 
 figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T, legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("Score", rot = 90, vjust = 1, size=35, face="bold"),
-                bottom = text_grob("", size=35, face="bold"),
-                top=text_grob("Resistance Signature AUCell Scores in Cell Groups", size=40, face="bold"))
+                     bottom = text_grob("", size=35, face="bold"),
+                     top=text_grob("Resistance Signature AUCell Scores in Cell Groups", size=40, face="bold"))
+
 
 print(p)
 
-dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+RACs <- list(c(4,9,12,13,14,16,18),c(4,5,11),c(5,8,12,13,17))
+names(RACs) <- c("A549","K562","MCF7")
+clusters_of_interest <- RACs[[curr_cell_line]]
+
+
+
+
+
+
+
+pre_rac_cells <- colnames(data)[data$Cluster %in% pre_racs & data$treatment_stage == "pre"]
+emergent_rac_cells <- colnames(data)[data$Cluster %in% emergent_racs]
+
+
+pre_scores <- scores[pre_rac_cells,]
+emergent_scores <- scores[emergent_rac_cells,]
+
+
+boxplot(pre_scores,emergent_scores)
+
+
+
+
+temp_df <- data@meta.data %>% 
+  count(Cluster,rac_type,cell_cluster_group) %>% 
+  filter(grepl("_1",cell_cluster_group)) 
+
+
+ggplot(temp_df)+
+  geom_col(aes(x=rac_type,y=n))
+
+
+
+
+data@meta.data %>% 
+  count(Cluster)
+
+
+
+type1_counts <- data@meta.data %>% 
+  count(Cluster,cell_cluster_group) %>% 
+  filter(grepl("_1",cell_cluster_group)) 
+
+
+total_counts <- data@meta.data %>% 
+  count(Cluster)
+i <- 1
+
+percents <- c()
+for(i in clusters_of_interest){
+  
+  curr_type1 <- type1_counts %>% 
+    filter(Cluster == i)
+  
+  curr_counts <- total_counts %>% 
+    filter(Cluster == i) 
+  
+  
+  curr_percent <- curr_type1$n/curr_counts$n
+  
+  
+  percents <- append(percents,curr_percent)
+  
+  
+}
+
+
+type1_df <- as.data.frame(cbind(clusters_of_interest,percents))
+
+
+
+

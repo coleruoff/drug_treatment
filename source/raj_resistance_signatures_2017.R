@@ -1,6 +1,9 @@
 library(tidyverse)
 
 
+# THIS SCRIPT IS NOT USED IN THE PROJECT. USED FOR EXPLORATION
+
+
 nodrug_vs_resistant_de <- read.csv("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/resNoDrugVsResistant.csv", row.names = 1)
 
 nodrug_vs_drug_de <- read.csv("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/resNoDrugVsDrug.csv", row.names = 1)
