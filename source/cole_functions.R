@@ -209,3 +209,37 @@ calc_group_distances <- function(data, ident.1, ident.2 = NULL, sample_size){
   
 }
 
+
+plot_km_plot <- function(fit, data_to_use, plot_title,xlab,ylab){
+  
+  p <- ggsurvplot(fit, data = data_to_use,
+                  pval = T,
+                  pval.size = 10,
+                  pval.coord = c(0, 0.03),
+                  font.title=c(28),
+                  font.x=c(28),
+                  font.y=c(28),
+                  font.tickslab=c(20),
+                  font.legned=c(50),
+                  font.caption=c(30),
+                  tables.theme = clean_theme(),
+                  legend.title="",
+                  legend.labs= c("High","Low"),)+
+    xlab(xlab)+
+    ylab(ylab)
+  
+  
+  p$plot <- p$plot + 
+    theme(legend.text = element_text(size = 24, color = "black", face = "bold"),
+          legend.title = element_text(size = 28, color = "black", face = "bold"),
+          legend.key.height = unit(1.5,"cm"),
+          legend.key.width = unit(1.5,"cm"),
+          legend.position = c(0.1, 0.25))
+  
+  
+  p <- p + ggtitle(plot_title)
+  
+  
+  return(p)
+}
+

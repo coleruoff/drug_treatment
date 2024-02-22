@@ -236,23 +236,27 @@ fgseaRes <- fgsea(ecoli_genes, stats = rac_type1_genes, nperm = 1000)
 # Enrichment of shared genes between ecoli orthologs and rac type 1 global signatures
 ################################################################################
 
+shared_with_ecoli <- list()
+
 # Get rac de results
-curr_cell_line <- "A549"
+curr_cell_line <- "MCF7"
 de_results <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/", curr_cell_line, "_cell_group_de.rds"))
 
 # Shared genes of up rac and up ecoli-human orthologs
 rac_type1_upregulated_genes <- de_results %>% 
-  filter(cluster == 1 | p_val_adj < 0.05, avg_log2FC > 0) %>% 
+  filter(cluster == 1 & p_val_adj < 0.05 & avg_log2FC > 0) %>% 
   pull(gene)
 
 
 genes <- sort(intersect(rac_type1_upregulated_genes, ecoli_human_orthologs_up$ecoli_human_orthologs_up))
 
+shared_with_ecoli[[curr_cell_line]] <- sort(genes)
+
+find_consensus_geneset(shared_with_ecoli, 3)
+
 res <- enrichGO(genes,
                 OrgDb =org.Hs.eg.db,
-                ont="BP",
                 keyType = "SYMBOL")
-
 
 dotplot(res)+
   ggtitle("Enrichment of Human orthologs genes shared with RAC type 1")
@@ -265,7 +269,7 @@ write.table(genes,"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/test
 
 # Shared genes of down rac and down ecoli-human orthologs
 rac_type1_downregulated_genes <- de_results %>% 
-  filter(cluster == 1 | p_val_adj < 0.05, avg_log2FC < 0) %>% 
+  filter(cluster == 1 & p_val_adj < 0.05 & avg_log2FC < 0) %>% 
   pull(gene)
 
 
@@ -273,6 +277,7 @@ genes <- sort(intersect(rac_type1_downregulated_genes, ecoli_human_orthologs_dow
 
 res <- enrichGO(genes,
                 OrgDb =org.Hs.eg.db,
+                ont = "ALL",
                 keyType = "SYMBOL")
 
 dotplot(res)+
@@ -285,24 +290,35 @@ dotplot(res)+
 # Supercluster signatures overlap with orthologs
 ########################################################################################
 
-
-supercluster_signatures_up <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
-supercluster_signatures_down <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_down_signatures.rds")
-
-intersect(supercluster_signatures_up[[1]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
-intersect(supercluster_signatures_up[[2]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
-
-intersect(supercluster_signatures_down[[1]],ecoli_human_orthologs_down$ecoli_human_orthologs_down)
-intersect(supercluster_signatures_down[[2]],ecoli_human_orthologs_down$ecoli_human_orthologs_down)
+type1_supercluster_upregulated_genesets <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_superclusters_upregulated_genesets.rds")
 
 
-write.table(intersect(supercluster_signatures[[1]],ecoli_human_orthologs_up$ecoli_human_orthologs_up),"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/test.txt",
-            quote = F, row.names = F,col.names = F)
+shared_supercluster1_genes <- intersect(type1_supercluster_upregulated_genesets[[1]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
+shared_supercluster2_genes <- intersect(type1_supercluster_upregulated_genesets[[2]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
+
+intersect(shared_supercluster1_genes,shared_supercluster2_genes)
+
+
+length(shared_supercluster2_genes) <- length(shared_supercluster1_genes)
+ecoli_supercluser_shared_genes <- list(shared_supercluster1_genes,shared_supercluster2_genes)
+names(ecoli_supercluser_shared_genes) <- c("shared_ecoli_supercluster1_genes","shared_ecoli_supercluster2_genes")
+
+
+write.csv(ecoli_supercluser_shared_genes,"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/test.csv", 
+          row.names = F)
 
 
 
-write.table(intersect(supercluster_signatures[[1]],ecoli_human_orthologs_down$ecoli_human_orthologs_down),"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/test.txt",
-            quote = F, row.names = F,col.names = F)
+genes <- shared_supercluster1_genes
+
+res <- enrichGO(genes,
+                OrgDb =org.Hs.eg.db,
+                ont = "ALL",
+                keyType = "SYMBOL")
+
+dotplot(res)+
+  ggtitle("Enrichment of downregulated Human orthologs genes shared with RAC type 1 down genes")
+
 
 
 ###################################################################################

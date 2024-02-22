@@ -65,89 +65,92 @@ geneset_group_matrix <- function(data, ident_to_use, genesets_to_use){
 
 cell_lines <- c("A549","K562","MCF7")
 
-# heatmap_matrices <- list()
-# for(curr_cell_line in cell_lines){
-# 
-#   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
-#   threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
-#   active_cell_names <- rownames(scores)[scores[,1] > threshold$threshold]
-# 
-#   RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
-#   names(RACs) <- c("A549","K562","MCF7")
-#   clusters_of_interest <- RACs[[curr_cell_line]]
-# 
-#   data <- readRDS(paste0(dataDirectory, "data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
-#   data <- AddMetaData(data, metadata = ifelse(colnames(data) %in% active_cell_names, "active","inactive"), col.name = "resistant_active")
-#   data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
-# 
-#   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$resistant_active == "active", "resistant","nonresistant"), col.name = "resistant")
-#   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$resistant_active == "active", paste0(data$Cluster, "_resistant"),data$Cluster), col.name = "resistant_cluster")
-# 
-# 
-#   genesets_name <- "hallmarks"
-# 
-#   ret_mat <- geneset_group_matrix(data, "Cluster", genesets_name)
-# 
-#   #Set all non-significant heatmap cells to 0
-#   heatmap_matrix <- ifelse(ret_mat[[2]]<.05,ret_mat[[1]], 0)
-# 
-#   colnames(heatmap_matrix) <- paste0("Cluster ",colnames(ret_mat[[1]]))
-#   rownames(heatmap_matrix) <- rownames(ret_mat[[1]])
-# 
-#   heatmap_matrices <- append(heatmap_matrices, list(heatmap_matrix))
-# 
-# }
-# 
-# names(heatmap_matrices) <- cell_lines
+heatmap_matrices <- list()
+for(curr_cell_line in cell_lines){
 
-# saveRDS(heatmap_matrices,"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_2a_heatmap_matrices.rds")
+  scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
+  threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
+  active_cell_names <- rownames(scores)[scores[,1] > threshold$threshold]
+
+  RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
+  names(RACs) <- c("A549","K562","MCF7")
+  clusters_of_interest <- RACs[[curr_cell_line]]
+
+  data <- readRDS(paste0(dataDirectory, "data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
+  data <- AddMetaData(data, metadata = ifelse(colnames(data) %in% active_cell_names, "active","inactive"), col.name = "resistant_active")
+  data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
+
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$resistant_active == "active", "resistant","nonresistant"), col.name = "resistant")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$resistant_active == "active", paste0(data$Cluster, "_resistant"),data$Cluster), col.name = "resistant_cluster")
 
 
-heatmap_matrices <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_2a_heatmap_matrices.rds")
+  genesets_name <- "ITH_meta_programs"
 
-  
+  ret_mat <- geneset_group_matrix(data, "Cluster", genesets_name)
+
+  #Set all non-significant heatmap cells to 0
+  heatmap_matrix <- ifelse(ret_mat[[2]]<.05,ret_mat[[1]], 0)
+
+  colnames(heatmap_matrix) <- paste0("Cluster ",colnames(ret_mat[[1]]))
+  rownames(heatmap_matrix) <- rownames(ret_mat[[1]])
+
+  heatmap_matrices <- append(heatmap_matrices, list(heatmap_matrix))
+
+}
+
+names(heatmap_matrices) <- cell_lines
+
+# saveRDS(heatmap_matrices,"/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/ITH_heatmap_matrices.rds")
+# 
+# 
+heatmap_matrices <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/ITH_heatmap_matrices.rds")
+
+curr_cell_line <- "K562"
 ht_list <- list()
 for(curr_cell_line in cell_lines){
-  
+
   heatmap_matrix <- heatmap_matrices[[curr_cell_line]]
-  
+
   RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
   names(RACs) <- c("A549","K562","MCF7")
   clusters_of_interest <- paste0("Cluster ",RACs[[curr_cell_line]])
-  
+
   rac_ha <- HeatmapAnnotation(RAC = c(ifelse(colnames(heatmap_matrix) %in% clusters_of_interest,"RAC","Non-RAC")),
                               col = list(RAC = c("RAC" = "orange", "Non-RAC" = "lightblue")), show_annotation_name = F,
                               annotation_legend_param = list(title_gp=gpar(fontsize=22), grid_height=unit(1,"cm"),grid_width=unit(1,"cm"),
                                                              title="Cluster Type", labels_gp = gpar(fontsize = 14)))
-  
-  
+
+
   ht <- Heatmap(heatmap_matrix, name="Z-Score", cluster_rows = F, cluster_columns = T,
                 bottom_annotation = rac_ha, column_title = curr_cell_line, column_title_side = "top",
                 row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=20),
                 heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
                                             labels_gp = gpar(fontsize = 14)))
-  
-  
+
+
   ht_list <- append(ht_list, ht)
-  
+
 }
 
 
 ht <- ht_list[[1]] + ht_list[[2]] + ht_list[[3]]
 
 
-png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_2a.png",width=30,height=12, units = "in", res = 300)
 
-draw(ht, column_title = paste0("Cancer Hallmarks Mean AUCell Score"), 
+draw(ht, column_title = paste0("Cancer Hallmarks Mean AUCell Score"),
      column_title_gp = gpar(fontsize = 26),  padding = unit(c(2, 2, 2, 60), "mm"),
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T)
 
 
 
-dev.off()
 
+supercluster1_mat <- cbind(cbind(heatmap_matrices[["A549"]][,9],heatmap_matrices[["K562"]][,5]),heatmap_matrices[["MCF7"]][,8])
+colnames(supercluster1_mat) <- c("A549_9","K562_5","MCF7_8")
 
+supercluster2_mat <- cbind(cbind(heatmap_matrices[["A549"]][,19],heatmap_matrices[["K562"]][,11]),heatmap_matrices[["MCF7"]][,5])
+colnames(supercluster2_mat) <- c("A549_19","K562_11","MCF7_5")
 
+supercluster_mats <- Heatmap(supercluster1_mat,cluster_columns = F) + Heatmap(supercluster2_mat,cluster_columns = F)
 
-
-
+draw(supercluster_mats)
+Heatmap(abs(rowMeans(supercluster1_mat)-rowMeans(supercluster2_mat)))
