@@ -22,9 +22,10 @@ p <- ggplot(df, aes(x=hazard_ratio,color=signature,y=project))+
   geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=1, size=2,position = "dodge") +
   geom_vline(xintercept = 0, linetype="dashed")+
   theme_classic()+
-  coord_cartesian(ylim=c(1,34),xlim=c(-20,25))+
-  labs(x="Log(Hazard Ratio)",y="")
-
+  coord_cartesian(ylim=c(1,34),xlim=c(-20,50))+
+  labs(x="Log(Hazard Ratio)",y="")+
+  theme(axis.text.x = element_text(size=20),
+        axis.title.x = element_text(size=24))
 
 
 p
@@ -37,7 +38,7 @@ p_mid <- p +
         legend.text = element_text(size=16),
         legend.key.height = unit(1.5,"cm"),
         legend.key.width = unit(1.5,"cm"))+
-  scale_color_manual(values = c("Supercluster 1" = "red3","Supercluster 2" = "steelblue"))
+  scale_color_manual(name="",values = c("Supercluster 1" = "red3","Supercluster 2" = "steelblue"))
 
 
 
@@ -138,23 +139,21 @@ p_right
 
 layout <- c(
   area(t = 0, l = 0, b = 30, r = 3), # left plot, starts at the top of the page (0) and goes 30 units down and 3 units to the right
-  area(t = 1, l = 4, b = 30, r = 9), # middle plot starts a little lower (t=1) because there's no title. starts 1 unit right of the left plot (l=4, whereas left plot is r=3), goes to the bottom of the page (30 units), and 6 units further over from the left plot (r=9 whereas left plot is r=3)
-  area(t = 0, l = 9, b = 30, r = 11) # right most plot starts at top of page, begins where middle plot ends (l=9, and middle plot is r=9), goes to bottom of page (b=30), and extends two units wide (r=11)
+  area(t = 1, l = 4, b = 30, r = 12), # middle plot starts a little lower (t=1) because there's no title. starts 1 unit right of the left plot (l=4, whereas left plot is r=3), goes to the bottom of the page (30 units), and 6 units further over from the left plot (r=9 whereas left plot is r=3)
+  area(t = 0, l = 12, b = 30, r = 15) # right most plot starts at top of page, begins where middle plot ends (l=9, and middle plot is r=9), goes to bottom of page (b=30), and extends two units wide (r=11)
 )
 # final plot arrangement
 
 
 
-# figure1 <- p_left + p_mid + p_right + plot_layout(design = layout)
+p <- p_left + p_mid + p_right + plot_layout(design = layout) + plot_annotation("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n",theme=theme(plot.title=element_text(hjust=0.5,face='bold',size=40)))
 
-plots <- list(p_left,p_mid,p_right)
-
-figure <- ggarrange(plotlist = plots,ncol=3,widths = c(0.5, 1.4,0.5))
-
-p <- annotate_figure(figure, top = text_grob("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n", face = "bold", size = 36))
+# plots <- list(p_left,p_mid,p_right)
+# figure <- ggarrange(plotlist = plots,ncol=3,widths = c(0.5, 1.4,0.5))
+# p <- annotate_figure(figure, top = text_grob("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n", face = "bold", size = 36))
 
 png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4c.png",
-    width=20, height = 16, units="in",res=300)
+    width=24, height = 16, units="in",res=300)
 
 print(p)
 

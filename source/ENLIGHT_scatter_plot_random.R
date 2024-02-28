@@ -7,90 +7,90 @@ library(scales)
 
 # install.packages('corto')
 
-
 #################################################################################
-all_control_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/control_supercluster_signatures.rds")
+all_control_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/control_rac_supercluster_signatures.rds")
+
+drug_classes <- list()
+drug_classes <- append(drug_classes, list(c("BRAFi_3", "BRAFi_2","BRAFi_1","MGH_Ribociclib","MGH_Alpelisib","Sorafenib","Sorafenib_2","MK2206","Tipifarnib_1","Tipifarnib_2","Selinexor","Vismodegib","Lapatinib")))
+drug_classes <- append(drug_classes, list(c("Anti-PD1","Anti-PD1 +- Anti-CTLA4", "Anti-PD1_2", "Anti-PD1_3","Anti-PD1_4")))
+drug_classes <- append(drug_classes, list(c("Bevacizumab","Bevacizumab_2","Bevacizumab_3","Bevacizumab_4","Trastuzumab","Trastuzumab_2","Trastuzumab_3","Trastuzumab_4","Trastuzumab_5","Cetuximab","Rituximab")))
+names(drug_classes) <- c("small_molecules","immunotherapy","mAb")
+
+enlight_response_data <- read.csv("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/enlight_data/drug_response_classifications_with_type.csv")
+
+rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib", "MGH_Ribociclib", "MGH_Alpelisib", "BRAFi_1", "Anti-PD1", "Anti-PD1_2", "Anti-PD1_5")
+
+# enlight_response_data <- enlight_response_data %>%
+#   filter(Dataset %in% rna_seq_datasets)#!Dataset %in% drug_classes$immunotherapy)
+
+enlight_response_data <- enlight_response_data %>%
+  filter(Dataset %in% drug_classes$small_molecules)
+
+all_drugs <- unique(enlight_response_data$Dataset)
+
+if("Anti-PD1 +- Anti-CTLA4" %in% all_drugs){
+  all_drugs <- all_drugs[-which(all_drugs == "Anti-PD1 +- Anti-CTLA4")]  
+}
+
+
+# Pre load all data
+all_data <- list()
+for(curr_drug in all_drugs){
+  
+  curr_data <- read.csv(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/enlight_data/", curr_drug,".csv"), row.names = 1)
+  
+  #Remove rows that are NAs
+  curr_data <- curr_data[!is.na(curr_data[,1]),]
+  
+  #Normalize data if data are integers
+  if(curr_data[which(curr_data != 0)[1],1]%%1 == 0){
+    
+    meta <- enlight_response_data %>% 
+      filter(Dataset == curr_drug) %>% 
+      dplyr::select(Sample.ID,Response) %>% 
+      column_to_rownames("Sample.ID")
+    
+    #reorder columns in data to match metadata
+    curr_data <- curr_data[, rownames(meta)]
+    
+    all(colnames(curr_data) %in% rownames(meta))
+    all(colnames(curr_data) == rownames(meta))
+    
+    curr_data <- round(curr_data)
+    
+    dds <- DESeqDataSetFromMatrix(countData = curr_data, colData = meta, design = ~ Response)
+    
+    dds <- estimateSizeFactors(dds)
+    
+    curr_data <- counts(dds, normalized=TRUE) 
+    
+  }
+  all_data[[curr_drug]] <- curr_data
+}
+
+
 
 all_counts_vector <- c()
 for(curr_control_signatures in all_control_signatures){
-  all_signatures <- curr_control_signatures
   
-  #################################################################################
-  drug_classes <- list()
-  drug_classes <- append(drug_classes, list(c("MGH_Alpelisib","Sorafenib","Sorafenib_2","MK2206","Tipifarnib_1","Tipifarnib_2","Selinexor","Vismodegib")))
-  drug_classes <- append(drug_classes, list(c("Anti-PD1","Anti-PD1 +- Anti-CTLA4", "Anti-PD1_2", "Anti-PD1_3","Anti-PD1_4")))
-  drug_classes <- append(drug_classes, list(c("Bevacizumab","Bevacizumab_2","Bevacizumab_3","Bevacizumab_4","Trastuzumab","Trastuzumab_2","Trastuzumab_3","Trastuzumab_4","Trastuzumab_5","Cetuximab","Rituximab")))
-  names(drug_classes) <- c("small_molecules","immunotherapy","mAb")
-  
-  enlight_response_data <- read.csv("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/enlight_data/drug_response_classifications_with_type.csv")
-  
-  rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib", "MGH_Ribociclib", "MGH_Alpelisib", "BRAFi_1", "Anti-PD1", "Anti-PD1_2", "Anti-PD1_5")
-  
-  # enlight_response_data <- enlight_response_data %>%
-  #   filter(Dataset %in% rna_seq_datasets)#!Dataset %in% drug_classes$immunotherapy)
-  
-  # enlight_response_data <- enlight_response_data %>%
-  #   filter(Dataset %in% drug_classes$small_molecules)
-  
-  all_drugs <- unique(enlight_response_data$Dataset)
-  
-  if("Anti-PD1 +- Anti-CTLA4" %in% all_drugs){
-    all_drugs <- all_drugs[-which(all_drugs == "Anti-PD1 +- Anti-CTLA4")]  
-  }
+  all_signatures <- list(curr_control_signatures)
   
   all_sample_scores <- matrix(NA,nrow=0,ncol=(length(all_signatures)+1))
-  
-  # curr_drug <- all_drugs[1]
   
   for(curr_drug in all_drugs){
     cat(curr_drug, "\n")
     
-    curr_data <- read.csv(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/enlight_data/", curr_drug,".csv"), row.names = 1)
-    
-    #Remove rows that are NAs
-    curr_data <- curr_data[!is.na(curr_data[,1]),]
-    
-    #Normalize data if data are integers
-    if(curr_data[which(curr_data != 0)[1],1]%%1 == 0){
-      
-      meta <- enlight_response_data %>% 
-        filter(Dataset == curr_drug) %>% 
-        dplyr::select(Sample.ID,Response) %>% 
-        column_to_rownames("Sample.ID")
-      
-      #reorder columns in data to match metadata
-      curr_data <- curr_data[, rownames(meta)]
-      
-      all(colnames(curr_data) %in% rownames(meta))
-      all(colnames(curr_data) == rownames(meta))
-      
-      curr_data <- round(curr_data)
-      
-      dds <- DESeqDataSetFromMatrix(countData = curr_data, colData = meta, design = ~ Response)
-      
-      dds <- estimateSizeFactors(dds)
-      
-      curr_data <- counts(dds, normalized=TRUE) 
-    }
+    curr_data <- all_data[[curr_drug]]
     
     ssgsea_res <- gsva(as.matrix(curr_data), all_signatures, method="ssgsea")
     
     ssgsea_res <- t(apply(ssgsea_res, MARGIN = 1, FUN = function(X) (X - min(X))/diff(range(X))))
-    # ssgsea_res <- t(scale(t(ssgsea_res)))
-    
     
     colnames(ssgsea_res) <- colnames(curr_data)
     temp <- data.frame(t(ssgsea_res)) %>% 
       rownames_to_column()
-    # cancer_gene_set_score_info <- compute_bulk_normalized_gene_set_scores(gene_exp_mat = curr_data, gene_sets = all_signatures, num_controls = 100, num_bins = 10, q_thresh=0.95, gene_universe=NULL, use_median=F)
-    #Subtract background geneset scores from foreground geneset scores
-    # normalized_gene_set_score_mat <- cancer_gene_set_score_info$fg - cancer_gene_set_score_info$bg
-    # temp <- data.frame(t(normalized_gene_set_score_mat)) %>% 
-    #   rownames_to_column()
     
-    dim(all_sample_scores)
     
-    dim(temp)
     if(ncol(temp) == ncol(all_sample_scores)){
       all_sample_scores <- rbind(all_sample_scores,temp)  
       cat("  added\n")
@@ -141,34 +141,6 @@ for(curr_control_signatures in all_control_signatures){
   df <- merge(df,R_df, by=c("cohort","geneset"))
   df <- merge(df,NR_df, by=c("cohort","geneset"))
   
-  
-  # PLOTTING STEPS
-  # library(RColorBrewer)
-  # n <- length(unique(df$cohort))
-  # qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
-  # col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-  # pie(rep(1,n), col=sample(col_vector, n))
-  # 
-  # 
-  # colors_to_use <- sample(col_vector,n)
-  # 
-  # p <- ggplot(df)+
-  #   geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=4)+
-  #   scale_color_manual(values=colors_to_use,name="Cohort")+
-  #   scale_shape_manual(values=c(15, 16), name="Signature")+
-  #   xlim(0, 1)+
-  #   ylim(0, 1)+
-  #   geom_abline(intercept = 0,slope = 1)+
-  #   xlab("Mean Responder Score")+
-  #   ylab("Mean Non-Responder Score")+
-  #   ggtitle("Mean RAC Type 1 Supercluster Signature Scores Across Cancer Treatment Cohorts")
-  # 
-  # 
-  # 
-  # 
-  # 
-  # p
-  
   temp <- df %>% 
     group_by(cohort) %>% 
     mutate("residual"=mean_NR - mean_R) %>% 
@@ -195,11 +167,19 @@ for(curr_control_signatures in all_control_signatures){
     }
   }
   
-  count
-  
   
   all_counts_vector <- append(all_counts_vector, count)
 }
 
-saveRDS(all_counts_vector, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/ENLIGHT_scatter_null_distribution.rds")
+saveRDS(all_counts_vector, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/ENLIGHT_scatter_null_distribution_rac_supercluster.rds")
+
+
+
+all_counts_vector <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/ENLIGHT_scatter_null_distribution_rac_supercluster.rds")
+
+
+plot(density(all_counts_vector))
+
+
+sum(all_counts_vector>=6)/length(all_control_signatures)
 

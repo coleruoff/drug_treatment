@@ -11,10 +11,11 @@ rac_type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatm
 rac_type_signatures <- rac_type_signatures[grepl("type1",names(rac_type_signatures))]
 
 rac_supercluster_consensus_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_consensus_signature.rds")
-type1_supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
-type1_supercluster_signatures <- type1_supercluster_signatures[1:2]
 
-all_signatures <- type1_supercluster_signatures
+
+supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
+
+all_signatures <- supercluster_signatures
 geneset_title <- "RAC Type 1 Supercluster Signatures"
 #################################################################################
 drug_classes <- list()
@@ -37,8 +38,8 @@ rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib"
 # enlight_response_data <- enlight_response_data %>%
 #   filter(Dataset %in% rna_seq_datasets)#!Dataset %in% drug_classes$immunotherapy)
 
-# enlight_response_data <- enlight_response_data %>%
-#   filter(Dataset %in% drug_classes$small_molecules)
+enlight_response_data <- enlight_response_data %>%
+  filter(Dataset %in% drug_classes$small_molecules)
 
 all_drugs <- unique(enlight_response_data$Dataset)
 

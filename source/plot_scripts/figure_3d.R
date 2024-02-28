@@ -12,6 +12,11 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
   
   mp_t2g <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/ith_meta_programs_t2g.rds")
   
+  specifc_mps <- c("MP39 Metal-response","MP31 Alveolar","MP29 NPC/OPC","MP28 Oligo normal","MP27 Oligo Progenitor","MP38 Glutathione","MP41 Unassigned","MP35 Hemato-related-I","MP37 Hemato-related-II","MP32 Skin-pigmentation","MP36 IG","MP16 MES (glioma)","MP15 EMT IV")
+  
+  mp_t2g <- mp_t2g %>% 
+    filter(!gs_name %in% specifc_mps)
+  
   # mp_uni <- unique(c(unlist(all_signatures), mp_t2g$human_gene_symbol))
   
   hallmarks_dotplots <- list()
@@ -49,7 +54,7 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     go_results <- append(go_results,list(ego))
     
     if(nrow(hallmark_enrichment_results) > 0){
-      p <- dotplot(hallmark_enrichment_results,
+      p <- barplot(hallmark_enrichment_results,
                    showCategory = num_pathways, font.size=20) + 
         ggtitle(paste0("", curr_cluster))+
         theme(plot.title = element_text(size=20))
@@ -57,7 +62,7 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
-      p <- dotplot(mp_enrichment_results,
+      p <- barplot(mp_enrichment_results,
                    showCategory = num_pathways, font.size=20)+
         ggtitle(paste0("", curr_cluster))+
         theme(plot.title = element_text(size=20))
@@ -65,7 +70,7 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
       mps_dotplots <- append(mps_dotplots, list(p))
     }
     if(nrow(ego) > 0){
-      p <- dotplot(ego,
+      p <- barplot(ego,
                    showCategory = num_pathways, font.size=20) + 
         ggtitle(paste0("", curr_cluster))+
         theme(plot.title = element_text(size=20))
@@ -109,14 +114,14 @@ cell_line_universes <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatm
 
 ################################################################################
 # Plotting for RAC type 1 superclusters signatures
-type1_supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
+supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
-names1 <- gsub("type1_", "", names(type1_supercluster_signatures))
+names1 <- gsub("type1_", "", names(supercluster_signatures))
 names2 <- gsub("_", " ", names1)
 names3 <- gsub("supercluster", "Supercluster ", names2)
-names(type1_supercluster_signatures) <- gsub("signature", "Signature ", names3)
+names(supercluster_signatures) <- gsub("signature", "Signature ", names3)
 
-all_dotplots <- genesets_characterization(type1_supercluster_signatures, universe_to_use = gene_universe_intersection)
+all_dotplots <- genesets_characterization(supercluster_signatures, universe_to_use = gene_universe_intersection)
 
 
 hallmarks_plt <- ggarrange(plotlist = all_dotplots$hallmarks_dotplots, ncol = 1, common.legend = T, legend=c("right"))
@@ -134,7 +139,7 @@ main_title <- paste0("\nGO Pathways")
 go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
-plots <- list(hallmarks_plt, mps_plt, go_plt)
+plots <- list(mps_plt, go_plt)
 
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3d.png"),
@@ -142,11 +147,11 @@ png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3d.png"),
 
 
 
-figure <- ggarrange(plotlist = plots, ncol=3, nrow=1, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=2, nrow=1, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("RAC Type 1 Superclusters Signatures Enrichment", size=40, face="bold"))
+                     top=text_grob("RAC Superclusters Signatures Enrichment", size=40, face="bold"))
 
 print(p)
 

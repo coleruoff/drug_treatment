@@ -29,10 +29,10 @@ rac_type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatm
 rac_type_signatures <- rac_type_signatures[grepl("type1",names(rac_type_signatures))]
 
 rac_supercluster_consensus_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_consensus_signature.rds")
-type1_supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
-type1_supercluster_signatures <- type1_supercluster_signatures[1:2]
 
-geneset_to_use <- c(rac_type_signatures[1],type1_supercluster_signatures)
+supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
+
+geneset_to_use <- c(rac_type_signatures[1],supercluster_signatures)
 
 geneset_title <- "Type 1 Signatures"
 

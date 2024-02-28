@@ -137,14 +137,9 @@ tcga_projects <- gdcprojects[grepl("TCGA", gdcprojects$id),]$id
 tcga_projects <- tcga_projects
 
 ##################################################################################
+supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
-
-type1_supercluster_down_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_down_signatures.rds")
-
-type1_supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
-
-all_signatures <- type1_supercluster_signatures
-
+all_signatures <- supercluster_signatures
 ##################################################################################
 
 metric_to_use <- "OS"
@@ -197,7 +192,8 @@ for(curr_project in tcga_projects){
                                         model_covariates = covariates,
                                         status_str=metric_to_use,
                                         sample_features_df = gene_set_scores_df, 
-                                        km_features_to_plot=names(all_signatures))
+                                        km_features_to_plot=names(all_signatures),
+                                        low_high_percentiles = c(.5,.49))
   
   # supercluster1_hazard_ratios <- append(supercluster1_hazard_ratios, cox_regression_info$regression_df$hazard_ratio[1])
   # supercluster2_hazard_ratios <- append(supercluster2_hazard_ratios, cox_regression_info$regression_df$hazard_ratio[2])
@@ -249,7 +245,7 @@ for(curr_project in tcga_projects){
     p <- ggsurvplot(fit, data = cox_regression_info$km_df,
                     pval = T, 
                     legend.title="Expression Level:",
-                    legend.labs= c("High","Medium","Low"),
+                    legend.labs= c("High","Low"),
                     pval.size = 6,
                     font.title=c(28),
                     font.x=c(28),
@@ -318,7 +314,7 @@ for(curr_project in tcga_projects){
     p <- ggsurvplot(plot_data[[curr_project]][["fit"]][[curr_signature]], data = plot_data[[curr_project]][["data"]][[curr_signature]],
                     pval = T, 
                     legend.title="Expression Level:",
-                    legend.labs= c("High","Medium","Low"),
+                    legend.labs= c("High","Low"),
                     pval.size = 6,
                     font.title=c(28),
                     font.x=c(28),
@@ -355,7 +351,7 @@ for(curr_project in tcga_projects){
 
 final_plot <- ggarrange(plotlist = all_plots,ncol = 3,nrow=11, common.legend = T)
 
-final_title <- "RAC Type 1 Supercluster Signatures - Overall Survival\n"
+final_title <- "RAC Supercluster Signatures - Overall Survival\n"
 
 final_plot <- annotate_figure(final_plot, top = text_grob(final_title, face = "bold", size = 60),
                               left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),

@@ -107,30 +107,30 @@ saveRDS(refined_type1_signatures, "/data/CDSL_hannenhalli/Cole/projects/drug_tre
 ##############
 
 # Using signatures for type 1 cells (even though its called refined, its not)
-refined_type1_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_type1_signatures.rds")
+rac_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_signatures.rds")
 
-names1 <- gsub(pattern = "_rac_subcluster","_", names(refined_type1_signatures))
-names(refined_type1_signatures) <- gsub(pattern = "_1_signature","", names1)
+names1 <- gsub(pattern = "_signature","", names(rac_signatures))
+names(rac_signatures) <- gsub(pattern = "cluster","", names1)
 
-supercluster1_signatures <- refined_type1_signatures[c(paste0("A549_",c(4,9)),paste0("K562_",c(4,9,5)),paste0("MCF7_",c(8,12)))]
+supercluster1_signatures <- rac_signatures[c(paste0("A549_",c(9)),paste0("K562_",c(5)),paste0("MCF7_",c(8)))]
 
-supercluster1_signature <- list("type1_supercluster1_signature" = find_consensus_geneset(supercluster1_signatures,2))
+supercluster1_signature <- list("supercluster1_signature" = find_consensus_geneset(supercluster1_signatures,1))
 
 # saveRDS(supercluster1_signature, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/active_supercluster1_signature.rds")
 
 ##############
 
-supercluster2_signatures <- refined_type1_signatures[c(paste0("A549_",c(19)),paste0("K562_",c(11)),paste0("MCF7_",c(5)))]
+supercluster2_signatures <- rac_signatures[c(paste0("A549_",c(14)),paste0("K562_",c(9)),paste0("MCF7_",c(13)))]
 
-supercluster2_signature <- list("type1_supercluster2_signature" = find_consensus_geneset(supercluster2_signatures,2))
+supercluster2_signature <- list("supercluster2_signature" = find_consensus_geneset(supercluster2_signatures,1))
 
 # saveRDS(supercluster2_signature, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/active_supercluster2_signature.rds")
 
 ##############
-# 
-# supercluster3_signatures <- refined_type1_signatures[c(paste0("A549_",c(14)),paste0("MCF7_",c(13)))]
-# 
-# supercluster3_signature <- list("type1_supercluster3_signature" = find_consensus_geneset(supercluster3_signatures,2))
+
+supercluster3_signatures <- rac_signatures[c(paste0("A549_",c(19)),paste0("K562_",c(19)),paste0("MCF7_",c(5)))]
+
+supercluster3_signature <- list("supercluster3_signature" = find_consensus_geneset(supercluster3_signatures,2))
 # 
 # # saveRDS(supercluster3_signature, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/active_supercluster3_signature.rds")
 # 
@@ -153,9 +153,9 @@ supercluster2_signature <- list("type1_supercluster2_signature" = find_consensus
 ##############
 
 # type1_supercluster_signatures <- c(supercluster1_signature,supercluster2_signature,supercluster3_signature,supercluster4_signature,supercluster5_signature)
-type1_supercluster_signatures <- c(supercluster1_signature,supercluster2_signature)
+supercluster_signatures <- c(supercluster1_signature,supercluster2_signature)
 
-saveRDS(type1_supercluster_signatures, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/type1_supercluster_signatures.rds")
+saveRDS(supercluster_signatures, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
 
 ################################################################################

@@ -123,7 +123,7 @@ get_clinical_data <- function(project){
 cell_lines <- c("A549","K562","MCF7")
 
 RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
-names(RACs) <- c("A549","K562","MCF7")
+names(RACs) <- cell_lines
 
 # Create Global RAC Signatures for each cell line
 rac_signatures <- list()
@@ -157,8 +157,12 @@ for(curr_cell_line in cell_lines){
   rac_signatures[[curr_cell_line]] <- curr_rac_up_genes[1:200]
 }
 
+saveRDS(rac_signatures, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_signatures.rds")
+
 ################################################################################
 # Survival Analysis for each cell line in cancer type matched TCGA samples
+
+rac_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_signatures.rds")
 
 all_signatures <- rac_signatures
 
@@ -223,9 +227,9 @@ for(curr_cell_line in cell_lines){
     
     
     if(metric_to_use == "OS"){
-      plot_title <- paste0("\n",curr_cell_line, " RAC Signature Overall Survival (",tcga_project,")")
+      plot_title <- paste0("\n",curr_cell_line, " (",tcga_project,")")
     } else {
-      plot_title <- paste0("\n",curr_cell_line, " RAC Signature Progression Free Survival (",tcga_project,")")
+      plot_title <- paste0("\n",curr_cell_line, " (",tcga_project,")")
     }
     
     
@@ -270,5 +274,13 @@ p <- annotate_figure(figure, left = text_grob("Survival Probability", rot = 90, 
                      top=text_grob(paste0("RAC Signatures Overall Survival in TCGA Samples"), size=40, face="bold"))
 
 
-p
+
+png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4a.png"),
+    width=30, height=10, units= "in", res = 300)
+
+print(p)
+
+dev.off()
+
+hazard_ratios
 
