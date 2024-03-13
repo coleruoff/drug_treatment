@@ -16,7 +16,7 @@ rac_supercluster_consensus_signature <- readRDS("/data/CDSL_hannenhalli/Cole/pro
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
 all_signatures <- supercluster_signatures
-geneset_title <- "RAC Type 1 Supercluster Signatures"
+geneset_title <- "RAC Supercluster Signatures"
 #################################################################################
 drug_classes <- list()
 drug_classes <- append(drug_classes, list(c("BRAFi_3", "BRAFi_2","BRAFi_1","MGH_Ribociclib","MGH_Alpelisib","Sorafenib","Sorafenib_2","MK2206","Tipifarnib_1","Tipifarnib_2","Selinexor","Vismodegib","Lapatinib")))
@@ -169,15 +169,15 @@ colors_to_use <- sample(col_vector,n)
 
 p <- ggplot(df)+
   geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=4)+
+  scale_shape_manual(values=c(15, 16,17), name="Signature")+
+  scale_color_manual(values=colors_to_use)+
   facet_wrap(~drug_class)+
-  scale_color_manual(values=colors_to_use,name="Cohort")+
-  scale_shape_manual(values=c(15, 16), name="Signature")+
   xlim(0, 1)+
   ylim(0, 1)+
   geom_abline(intercept = 0,slope = 1)+
   xlab("Mean Responder Score")+
   ylab("Mean Non-Responder Score")+
-  ggtitle("Mean RAC Type 1 Supercluster Signature Scores Across Cancer Treatment Cohorts")
+  ggtitle("Mean Supercluster Signature Scores Across Cancer Treatment Cohorts")
   
 
 

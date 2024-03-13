@@ -107,7 +107,7 @@ gene_universe_intersection <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug
 
 
 ################################################################################
-# Plotting for RAC type 1 superclusters signatures
+# Plotting for RAC superclusters signatures
 
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 

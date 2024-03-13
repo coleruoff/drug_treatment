@@ -78,18 +78,18 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
   
   
-  df <- create_df_for_boxplots(data, "cell_group", "raj_watermelon_resistance_signature")
+  df <- create_df_for_boxplots(data, "rac", "raj_watermelon_resistance_signature")
   
   # plot_title <- paste0("Resistance Signature AUCell Scores in ", curr_cell_line)
   plot_title <- curr_cell_line
   
-  df$cell_group <- ifelse(df$cell_group == 0, "Non-RAC", paste0("RAC Type ", df$cell_group))
+  df$rac <- ifelse(df$rac == "nonrac", "Non-RAC", "RAC")
   
-  df$cell_group <- factor(df$cell_group, levels = c("RAC Type 1","RAC Type 2","Non-RAC"))
+  df$rac <- factor(df$rac, levels = c("RAC","Non-RAC"))
   
-  p <- ggboxplot(df, x = "cell_group", y = "curr_geneset",fill = "cell_group")
+  p <- ggboxplot(df, x = "rac", y = "curr_geneset",fill = "rac")
   
-  my_comparisons <- list( c("Non-RAC", "RAC Type 2"))
+  my_comparisons <- list(c("Non-RAC", "RAC"))
   
   
   # png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/resistance_score_boxplots/", curr_cell_line,"_cell_group_boxplots.png"),

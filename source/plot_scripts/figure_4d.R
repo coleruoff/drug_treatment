@@ -25,16 +25,13 @@ rownames(data_metadata) <- colnames(data)
 
 # Read in gene signatures
 
-rac_type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_type_signatures.rds")
-rac_type_signatures <- rac_type_signatures[grepl("type1",names(rac_type_signatures))]
-
-rac_supercluster_consensus_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_consensus_signature.rds")
+rac_type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_signatures.rds")
 
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
 geneset_to_use <- c(rac_type_signatures[1],supercluster_signatures)
 
-geneset_title <- "Type 1 Signatures"
+geneset_title <- "RAC Signatures"
 
 # Score samples
 
@@ -52,7 +49,7 @@ df <- merge(df,data_metadata,by = "sample")
 
 df$Recurrence <- df$response
 
-facet_names <- c("A549 RAC Type 1 Signature","RAC Type 1 Supercluster 1 Signature","RAC Type 1 Supercluster 2 Signature")
+facet_names <- c("A549 RAC Signature","RAC Supercluster Signature 1","RAC Supercluster Signature 2")
 
 p <- ggboxplot(df %>% 
                  filter(treatment_stage=="pre"), x = "Recurrence", y = "score",
@@ -110,6 +107,7 @@ p <- annotate_figure(figure, left = text_grob("Score", rot = 90, vjust = 1, size
                      top=text_grob(paste0(geneset_title," ssGSEA Scores in Lung Cancer Patients"), size=32, face="bold"))
 
 
+p
 
 
 png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4d.png",

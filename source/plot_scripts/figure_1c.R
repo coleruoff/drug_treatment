@@ -3,7 +3,7 @@ library(tidyverse)
 library(Seurat)
 library(ggpubr)
 
-curr_cell_line <- "MCF7"
+curr_cell_line <- "K562"
 use_pre <- F
 
 cell_lines <- c("A549","K562","MCF7")
@@ -22,6 +22,8 @@ for(curr_cell_line in cell_lines){
       pull(Cluster)
     
     data <- data[,data$treatment_stage=='pre' & data$Cluster %in% pre_clusters]
+  } else{
+    data <- data[,data$treatment_stage=='post']
   }
   
   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
@@ -93,8 +95,8 @@ for(curr_cell_line in cell_lines){
 }
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_1c.png"),
-     width=20, height=20, units= "in", res=300)
+# png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_1c.png"),
+#      width=20, height=20, units= "in", res=300)
 
 figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 

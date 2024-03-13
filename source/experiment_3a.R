@@ -128,7 +128,6 @@ dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
 ################################################################################
 
-
 supercluster_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signature.rds")
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 

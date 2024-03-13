@@ -10,7 +10,7 @@ library(survminer)
 library(survival)
 library(patchwork)
 source("/data/ruoffcj/projects/survival_analysis/cox_regression.R")
-
+source("source/cole_functions.R")
 
 get_tcga_project <- function(cell_line){
   
@@ -25,8 +25,6 @@ get_tcga_project <- function(cell_line){
   return(tcga_project)
 }
 
-
-i <- "TCGA-LUAD"
 get_read_count_data <- function(i){
   ################################################################################
   # Get read count data
@@ -126,7 +124,14 @@ get_clinical_data <- function(project){
   return(clinical_data)
 }
 
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+
 ################################################################################
+
+supercluster_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signature.rds")
+supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
+
+##################################################################################
 # Get list of projects
 ##################################################################################
 
@@ -137,22 +142,19 @@ tcga_projects <- gdcprojects[grepl("TCGA", gdcprojects$id),]$id
 tcga_projects <- tcga_projects
 
 ##################################################################################
-supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
 all_signatures <- supercluster_signatures
+
 ##################################################################################
 
 metric_to_use <- "OS"
 
 hazard_ratio_df <- list()
 
-curr_project <- tcga_projects[1]
-
-curr_project <- "TCGA-UCEC"
-
 all_plots <- list()
 
 plot_data <- list()
+
 
 for(curr_project in tcga_projects){
   
@@ -194,9 +196,6 @@ for(curr_project in tcga_projects){
                                         sample_features_df = gene_set_scores_df, 
                                         km_features_to_plot=names(all_signatures),
                                         low_high_percentiles = c(.5,.49))
-  
-  # supercluster1_hazard_ratios <- append(supercluster1_hazard_ratios, cox_regression_info$regression_df$hazard_ratio[1])
-  # supercluster2_hazard_ratios <- append(supercluster2_hazard_ratios, cox_regression_info$regression_df$hazard_ratio[2])
   
   
   plots <- list()
@@ -245,7 +244,7 @@ for(curr_project in tcga_projects){
     p <- ggsurvplot(fit, data = cox_regression_info$km_df,
                     pval = T, 
                     legend.title="Expression Level:",
-                    legend.labs= c("High","Low"),
+                    legend.labs= c("High", "Low"),
                     pval.size = 6,
                     font.title=c(28),
                     font.x=c(28),
@@ -262,7 +261,7 @@ for(curr_project in tcga_projects){
     p <- p + ggtitle(signatures_title)+
       xlab("")+
       ylab("")
-      theme(title = element_text(size=5))
+    theme(title = element_text(size=5))
     
     plots <- append(plots, list(p$plot))
     
@@ -282,85 +281,77 @@ for(curr_project in tcga_projects){
   project_plot <- annotate_figure(project_plot, top = text_grob(main_title, face = "bold", size = 14))
   
   all_plots <- append(all_plots, list(project_plot))
-  
-  
-  
 }
 
+saveRDS(hazard_ratio_df, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios_OS.rds")
 
-saveRDS(plot_data, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
+
+# saveRDS(plot_data, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
 # saveRDS(all_plots, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plotlist.rds")
+
 # all_plots <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plotlist.rds")
+# plot_data <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
 
-plot_data <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/figure_data/figure_4b_plot_data.rds")
-
-
-gdcprojects <- getGDCprojects()
-
-tcga_projects <- gdcprojects[grepl("TCGA", gdcprojects$id),]$id
-
-tcga_projects <- tcga_projects
-signatures_titles <- c("Supercluster 1","Supercluster 2")
-
-
-all_plots <- list()
-for(curr_project in tcga_projects){
-  
-  cat(curr_project, "\n")
-  
-  plots <- list()
-  for(curr_signature in 1:2){
-    
-    p <- ggsurvplot(plot_data[[curr_project]][["fit"]][[curr_signature]], data = plot_data[[curr_project]][["data"]][[curr_signature]],
-                    pval = T, 
-                    legend.title="Expression Level:",
-                    legend.labs= c("High","Low"),
-                    pval.size = 6,
-                    font.title=c(28),
-                    font.x=c(28),
-                    font.y=c(28),
-                    font.tickslab=c(20),
-                    font.legend=c(50),
-                    font.caption=c(30),
-                    tables.theme = clean_theme())
-    
-    p$plot <- p$plot + 
-      theme(legend.text = element_text(size = 14, color = "black", face = "bold"),
-            legend.title = element_text(size = 14, color = "black", face = "bold"))
-    
-    p <- p + ggtitle(signatures_titles[curr_signature])+
-      xlab("")+
-      ylab("")
-    theme(plot.title = element_text(size=18))
-    
-    plots <- append(plots, list(p$plot))
-    
-    
-    
-  }
-  
-  project_plot <- ggarrange(plotlist = plots,ncol = 2,nrow=1, common.legend = T)
-  
-  project_plot <- annotate_figure(project_plot, top = text_grob(curr_project, face = "bold", size = 24))
-  
-  all_plots <- append(all_plots, list(project_plot))
-  
-}
-
-
-
-final_plot <- ggarrange(plotlist = all_plots,ncol = 3,nrow=11, common.legend = T)
-
-final_title <- "RAC Supercluster Signatures - Overall Survival\n"
-
-final_plot <- annotate_figure(final_plot, top = text_grob(final_title, face = "bold", size = 60),
-                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),
-                              bottom = text_grob("Time", size=45, face="bold"),)
-
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4b.png"),
-    width=35, height=60, units= "in", res=300)
-
-print(final_plot)
-
-dev.off()
+# 
+# all_plots <- list()
+# for(curr_project in tcga_projects){
+#   
+#   cat(curr_project, "\n")
+#   
+#   plots <- list()
+#   
+#   for(curr_signature in names(all_signatures)){
+#     
+#     p <- ggsurvplot(plot_data[[curr_project]][["fit"]][[curr_signature]], data = plot_data[[curr_project]][["data"]][[curr_signature]],
+#                     pval = T, 
+#                     legend.title="Expression Level:",
+#                     legend.labs= c("High", "Low"),
+#                     pval.size = 6,
+#                     font.title=c(32),
+#                     font.x=c(28),
+#                     font.y=c(28),
+#                     font.tickslab=c(20),
+#                     font.legend=c(50),
+#                     font.caption=c(30),
+#                     tables.theme = clean_theme())
+#     
+#     p$plot <- p$plot + 
+#       theme(legend.text = element_text(size = 20, color = "black", face = "bold"),
+#             legend.title = element_text(size = 20, color = "black", face = "bold"))
+#     
+#     p <- p + ggtitle("")+
+#       xlab("")+
+#       ylab("")
+#     theme(plot.title = element_text(size=18))
+#     
+#     plots <- append(plots, list(p$plot))
+#   }
+#   
+#   
+#   project_plot <- ggarrange(plotlist = plots,ncol = 2,nrow=1, common.legend = T)
+#   
+#   project_plot <- annotate_figure(project_plot, top = text_grob(curr_project, face = "bold", size = 24))
+#   
+#   all_plots <- append(all_plots, list(project_plot))
+# }
+# 
+# 
+# 
+# final_plot <- ggarrange(plotlist = all_plots,ncol = 3,nrow=11, common.legend = T)
+# 
+# final_title <- "RAC Supercluster Signature - Overall Survival\n"
+# 
+# final_plot <- annotate_figure(final_plot, top = text_grob(final_title, face = "bold", size = 60),
+#                               left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),
+#                               bottom = text_grob("Time", size=45, face="bold"),)
+# 
+# 
+# 
+# 
+# png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4b.png"),
+#     width=35, height=60, units= "in", res=300)
+# 
+# print(final_plot)
+# 
+# dev.off()
 

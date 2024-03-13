@@ -53,6 +53,7 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     
     go_results <- append(go_results,list(ego))
     
+    
     if(nrow(hallmark_enrichment_results) > 0){
       p <- barplot(hallmark_enrichment_results,
                    showCategory = num_pathways, font.size=20) + 
@@ -88,32 +89,11 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
 
 cell_lines <- c("A549","K562","MCF7")
 
-# cell_line_universes <- list()
-# for(curr_cell_line in cell_lines){
-#   
-#   cat(curr_cell_line, "\n")
-#   
-#   #find genes expressed in > 1% of cells
-#   data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/",curr_cell_line,"_processed_filtered.rds"))
-#   gene_universe <- names(apply(data@assays$RNA@data, 1, FUN = function(x) sum(x>0) >.01*ncol(data)))
-#   
-#   
-#   cell_line_universes <- append(cell_line_universes, list(gene_universe))
-# }
-# 
-# names(cell_line_universes) <- cell_lines
-# 
-# gene_universe <- intersect(cell_line_universes[[1]], cell_line_universes[[2]])
-# gene_universe <- intersect(gene_universe, cell_line_universes[[3]])
-# 
-# saveRDS(gene_universe, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_gene_universe_intersection.rds")
-# saveRDS(cell_line_universes, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_universes.rds")
-
 gene_universe_intersection <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_gene_universe_intersection.rds")
 cell_line_universes <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_universes.rds")
 
 ################################################################################
-# Plotting for RAC type 1 superclusters signatures
+# Plotting for RAC superclusters signatures
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
 names1 <- gsub("type1_", "", names(supercluster_signatures))
@@ -139,15 +119,15 @@ main_title <- paste0("\nGO Pathways")
 go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
-plots <- list(mps_plt, go_plt)
+plots <- list(hallmarks_plt,mps_plt, go_plt)
 
 
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3d.png"),
-    width=30, height=24, units= "in", res = 300)
+# png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_3d.png"),
+#     width=30, height=24, units= "in", res = 300)
 
 
 
-figure <- ggarrange(plotlist = plots, ncol=2, nrow=1, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=3, nrow=1, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),

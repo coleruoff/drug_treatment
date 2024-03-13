@@ -7,8 +7,11 @@ library(SummarizedExperiment)
 library(DESeq2)
 library(survminer)
 library(survival)
+library(presto)
 source("../survival_analysis/cox_regression.R")
+source("source/cole_functions.R")
 
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
 get_tcga_project <- function(cell_line){
   
@@ -116,21 +119,52 @@ get_clinical_data <- function(project){
   return(clinical_data)
 }
 
-#################################################################################
-
+################################################################################
 cell_lines <- c("A549","K562","MCF7")
 
-#################################################################################
+RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
+names(RACs) <- cell_lines
 
-rac_type_down_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_type_down_signatures.rds")
-rac_type_down_signatures <- rac_type_down_signatures[grepl("type1",names(rac_type_down_signatures))]
+# Create Global RAC Signatures for each cell line
+rac_signatures <- list()
+for(curr_cell_line in cell_lines){
+  cat(curr_cell_line,"\n")
+  
+  #Read in cell line data
+  data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
+  
+  #read in DR signature scores and set active cells
+  scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
+  threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
+  active_cell_names <- rownames(scores)[scores[,1] > threshold$threshold]
+  clusters_of_interest <- RACs[[curr_cell_line]]
+  
+  #Add metadata for RAC and Cell Group
+  data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, "1", ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), 2, 0)), col.name = "cell_group")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
+  
+  Idents(data) <- data$rac
+  
+  #Find global RAC markers for current cell line
+  de_res <- FindAllMarkers(data)
+  
+  curr_rac_up_genes <- de_res %>% 
+    filter(cluster == "rac" & p_val_adj < 0.05 & avg_log2FC > 0) %>% 
+    arrange(desc(avg_log2FC)) %>% 
+    pull(gene)
+  
+  rac_signatures[[curr_cell_line]] <- curr_rac_up_genes[1:200]
+}
 
-type_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_type_signatures.rds")
+saveRDS(rac_signatures, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_signatures.rds")
 
-type_signatures <- type_signatures[grepl("type1",names(type_signatures))]
+################################################################################
+# Survival Analysis for each cell line in cancer type matched TCGA samples
 
-#################################################################################
-all_signatures <- type_signatures
+rac_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/global_rac_signatures.rds")
+
+all_signatures <- post_rac_signatures
 
 metric_to_use <- "OS"
 # metric_to_use <- "PFI"
@@ -146,9 +180,8 @@ for(curr_cell_line in cell_lines){
   # Get TCGA sample count data  
   tcga_project <- get_tcga_project(curr_cell_line)
   
-  #Get read count data
+  # Get read count data
   # tcga_matrix_vst <- get_read_count_data(tcga_project)
-  
   tcga_matrix_vst <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/TCGA_processed_data/",tcga_project,"_data.rds"))
   
   # Score samples
@@ -173,8 +206,6 @@ for(curr_cell_line in cell_lines){
   }
   
   
-  # if(metric_to_use %in% colnames(clinical_df))
-  
   cox_regression_info <- cox_regression(sample_survival_df = clinical_df,
                                         survival_data_id_col = "submitter_id",
                                         duration_str = paste0(metric_to_use, ".time"),
@@ -182,7 +213,8 @@ for(curr_cell_line in cell_lines){
                                         model_covariates = covariates,
                                         status_str=metric_to_use,
                                         sample_features_df = gene_set_scores_df, 
-                                        km_features_to_plot=names(curr_signature))
+                                        km_features_to_plot=names(curr_signature),
+                                        low_high_percentiles = c(.5,.49))
   
   
   if(!all(is.na(cox_regression_info$km_df[[metric_to_use]]))){
@@ -195,14 +227,11 @@ for(curr_cell_line in cell_lines){
     
     
     if(metric_to_use == "OS"){
-      plot_title <- paste0("\n",curr_cell_line, " RAC Type 1 Signature Overall Survival (",tcga_project,")")
-      # file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/cancer_type_matched/",curr_cell_line,"_type1_OS.png")
+      plot_title <- paste0("\n",curr_cell_line, " (",tcga_project,")")
     } else {
-      plot_title <- paste0("\n",curr_cell_line, " RAC Type 1 Signature Progression Free Survival (",tcga_project,")")
-      # file_name <- paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/survival_plots/cancer_type_matched/",curr_cell_line,"_type1_PFS.png")
+      plot_title <- paste0("\n",curr_cell_line, " (",tcga_project,")")
     }
     
-    # png(file_name, height = 1000, width = 1000)
     
     cox_regression_info$km_df[[names(curr_signature)]] <- factor(cox_regression_info$km_df[[names(curr_signature)]], levels = c("High","Medium","Low"))
     
@@ -210,7 +239,7 @@ for(curr_cell_line in cell_lines){
                     pval = T,
                     pval.size = 6,
                     legend.title="Expression Level:",
-                    legend.labs= c("High","Medium","Low"),
+                    legend.labs= c("High","Low"),
                     font.title=c(28),
                     font.x=c(28),
                     font.y=c(28),
@@ -230,39 +259,28 @@ for(curr_cell_line in cell_lines){
     
     
     p <- p + ggtitle(plot_title)
-
+    
     plots <- append(plots, list(p$plot))
     
-    
-    # dev.off()
   }
 }
 
-
-
-png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4a.png"),
-    width=40, height=12, units= "in", res = 300)
-
-
+################################################################################
+# Plot KM plots
 figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T, legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("Survival Probability", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("Time", size=35, face="bold"),
-                     top=text_grob(paste0("RAC Type 1 Signatures Overall Survival in TCGA Samples"), size=40, face="bold"))
+                     top=text_grob(paste0("RAC Signatures Overall Survival in TCGA Samples"), size=40, face="bold"))
 
+
+
+png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4a.png"),
+    width=30, height=10, units= "in", res = 300)
 
 print(p)
 
 dev.off()
 
-
-
-
-
-
-
-
-
-
-
+hazard_ratios
 

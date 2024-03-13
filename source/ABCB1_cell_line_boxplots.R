@@ -3,17 +3,17 @@ cell_lines <- c("A549","K562","MCF7")
 curr_cell_line <- cell_lines[1]
 cat(curr_cell_line,"\n")
 
-RACs <- list(c(4,9,12,13,14,16,18),c(4,5,11),c(5,8,12,13,17))
+RACs <- list(c(4,9,12,13,14,16,18),c(4,5,9,11),c(5,8,12,13,17))
 names(RACs) <- c("A549","K562","MCF7")
 
 emergent <- list(c(14:19),c(9,11),c(13,15,18))
 names(emergent) <- cell_lines
 
-final_df <- data.frame(matrix(NA,ncol=2,nrow=0))
+final_df <- data.frame(matrix(NA,ncol=4,nrow=0))
 for(curr_cell_line in cell_lines){
   
   #Read in cell line data
-  data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
+  data <- all_data[[curr_cell_line]]
   
   scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
   threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
@@ -27,10 +27,10 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$Cluster %in% emergent[[curr_cell_line]], "emergent_rac", ifelse(data$rac == "rac" & (!data$Cluster %in% emergent[[curr_cell_line]]), "non_emergent_rac", "non_rac")), col.name = "emergent_rac")
   
   
-  df <- as.data.frame(cbind(data@assays$RNA$data["ABCB1",],data$emergent_rac,curr_cell_line))
+  df <- as.data.frame(cbind(data@assays$RNA$data["ABCB1",],data$Cluster,curr_cell_line,data$emergent_rac))
   
   
-  colnames(df) <- c("ABCB1","cell_group","cell_line")
+  colnames(df) <- c("ABCB1","cell_group","cell_line","color")
   
   df$ABCB1 <- as.numeric(df$ABCB1)
   
@@ -43,5 +43,6 @@ final_df <- final_df %>%
   filter(ABCB1 > 0)
 
 ggplot(final_df)+
-  geom_boxplot(aes(x=cell_group, y=ABCB1))+
+  geom_boxplot(aes(x=cell_group, y=ABCB1,fill=color))+
   facet_wrap(~cell_line)
+

@@ -35,8 +35,36 @@ for(curr_cell_line in cell_lines){
     dplyr::select(gene,avg_log2FC) %>% 
     deframe()
   
+  # Hallmarks
+  if(curr_cell_line == "K562"){
+    y_label <- "Cancer Hallmarks"
+  }
+  
+  hallmarks_gsea <- GSEA(ranks, TERM2GENE = m_t2g)
+  
+  df <- hallmarks_gsea@result %>% 
+    filter(p.adjust < 0.05) %>% 
+    arrange(desc(NES)) %>% 
+    dplyr::select(Description,NES,p.adjust)
+  
+  
+  hallmark_plot <- ggplot(df[1:5,])+
+    geom_col(aes(x=(fct_reorder(Description,NES)),y=NES, fill=NES),width=0.7)+
+    scale_fill_continuous(high="firebrick1",low="firebrick1")+
+    xlab(y_label)+
+    ylab("NES")+
+    ggtitle(paste0(curr_cell_line))+
+    theme(plot.title = element_text(size=30),
+          axis.text = element_text(size=35),
+          axis.title = element_text(size=35,face="bold"),
+          legend.key.size=unit(1,'cm'),
+          legend.title = element_text(size=20),
+          legend.text = element_text(size=15))+
+    NoLegend()+
+    coord_flip()
+  
   # Meta-programs
-  if(curr_cell_line == "A549"){
+  if(curr_cell_line == "K562"){
     y_label <- "ITH Meta-Programs"
   }
   
@@ -48,14 +76,15 @@ for(curr_cell_line in cell_lines){
     dplyr::select(Description,NES,p.adjust)
   
   
-  mp_plot <- ggplot(df[1:10,])+
-    geom_col(aes(x=(fct_reorder(Description,NES)),y=NES, fill=NES))+
-    scale_fill_continuous(high="firebrick1",low="firebrick4")+
+  mp_plot <- ggplot(df[1:5,])+
+    geom_col(aes(x=(fct_reorder(Description,NES)),y=NES, fill=NES),width=0.7)+
+    scale_fill_continuous(high="firebrick1",low="firebrick1")+
     xlab(y_label)+
+    ylab("NES")+
     ggtitle(paste0(curr_cell_line))+
     theme(plot.title = element_text(size=30),
-          axis.text = element_text(size=20),
-          axis.title = element_text(size=24,face="bold"),
+          axis.text = element_text(size=35),
+          axis.title = element_text(size=35,face="bold"),
           legend.key.size=unit(1,'cm'),
           legend.title = element_text(size=20),
           legend.text = element_text(size=15))+
@@ -64,7 +93,7 @@ for(curr_cell_line in cell_lines){
   
   
   # GO Pathways
-  if(curr_cell_line == "A549"){
+  if(curr_cell_line == "K562"){
     y_label <- "GO Pathways"
   }
   
@@ -83,15 +112,15 @@ for(curr_cell_line in cell_lines){
     arrange(desc(NES)) %>% 
     dplyr::select(Description,NES,p.adjust)
   
-  go_plot <- ggplot(df[1:10,])+
-    geom_col(aes(x=(fct_reorder(Description,NES)),y=NES, fill=NES))+
-    scale_fill_continuous(high="firebrick1",low="firebrick4")+
+  go_plot <- ggplot(df[1:5,])+
+    geom_col(aes(x=(fct_reorder(Description,NES)),y=NES, fill=NES),width=0.7)+
+    scale_fill_continuous(high="firebrick1",low="firebrick1")+
     xlab(y_label)+
     ylab("NES")+
     ggtitle(paste0(curr_cell_line))+
     theme(plot.title = element_text(size=30),
-          axis.text = element_text(size=20),
-          axis.title = element_text(size=24,face="bold"),
+          axis.text = element_text(size=35),
+          axis.title = element_text(size=35,face="bold"),
           legend.key.size=unit(1,'cm'),
           legend.title = element_text(size=20),
           legend.text = element_text(size=15))+
@@ -99,17 +128,22 @@ for(curr_cell_line in cell_lines){
     coord_flip()
   
   
+  # all_barplots[["hallmarks"]] <- append(all_barplots[["hallmarks"]], list(hallmark_plot))
   all_barplots[["mps"]] <- append(all_barplots[["mps"]], list(mp_plot))
   all_barplots[["go"]] <- append(all_barplots[["go"]], list(go_plot))
   
 }
 
-mps_plt <- ggarrange(plotlist = all_barplots$mps, ncol = 3, common.legend = T,legend=c("right"))
+
+# hallmark_plt <- ggarrange(plotlist = all_barplots$hallmarks, ncol = 3, common.legend = T,legend=c("right"))
+
+
+mps_plt <- ggarrange(plotlist = all_barplots$mps, nrow = 3, common.legend = T,legend=c("none"))
 # main_title <- paste0("ITH Meta-programs")
 # mps_plt <- annotate_figure(mps_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
 
-go_plt <- ggarrange(plotlist = all_barplots$go, ncol = 3, common.legend = T,legend=c("right"))
+go_plt <- ggarrange(plotlist = all_barplots$go, nrow = 3, common.legend = F,legend=c("none"))
 # main_title <- paste0("GO Pathways")
 # go_plt <- annotate_figure(go_plt, top = text_grob(main_title, color = "black", face = "bold", size = 30))
 
@@ -120,11 +154,11 @@ png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_2b.png"),
 width=38, height=22, units= "in", res = 300)
 
 
-figure <- ggarrange(plotlist = plots, nrow=2, common.legend = F)
+figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T, legend=c("none"))
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("RACs Enrichment", size=50, face="bold"))
+                     top=text_grob("Global RACs Enrichment", size=75, face="bold"))
 
 print(p)
 

@@ -4,42 +4,15 @@ library(ggpubr)
 library(patchwork)
 
 hazard_ratio_df <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/survival_analysis_hazard_ratios/pan_cancer_hazard_ratios_OS.rds")
+hazard_ratio_df <- as.data.frame(hazard_ratio_df)
 
 df <- hazard_ratio_df
-
 
 df$hazard_ratio <- log(df$hazard_ratio)
 df$hazard_ratio.high <- log(df$hazard_ratio.high)
 df$hazard_ratio.low <- log(df$hazard_ratio.low)
-
-
 df$project_signature <- paste0(df$project,df$signature)
-
-
-
-p <- ggplot(df, aes(x=hazard_ratio,color=signature,y=project))+
-  geom_point(position = position_dodge(width = 1),size=3)+
-  geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=1, size=2,position = "dodge") +
-  geom_vline(xintercept = 0, linetype="dashed")+
-  theme_classic()+
-  coord_cartesian(ylim=c(1,34),xlim=c(-20,50))+
-  labs(x="Log(Hazard Ratio)",y="")+
-  theme(axis.text.x = element_text(size=20),
-        axis.title.x = element_text(size=24))
-
-
-p
-
-p_mid <- p +
-  theme(axis.line.y = element_blank(),
-        axis.ticks.y= element_blank(),
-        axis.text.y= element_blank(),
-        axis.title.y= element_blank(),
-        legend.text = element_text(size=16),
-        legend.key.height = unit(1.5,"cm"),
-        legend.key.width = unit(1.5,"cm"))+
-  scale_color_manual(name="",values = c("Supercluster 1" = "red3","Supercluster 2" = "steelblue"))
-
+df$project_signature <- factor(df$project_signature)
 
 
 # wrangle results into pre-plotting table form
@@ -76,16 +49,18 @@ res_plot <- df  |>
   bind_rows(
     data.frame(
       project = "Project",
+      project_signature="Project",
       estimate_lab = "Hazard Ratio (95% CI)",
       conf.low = "",
       conf.high = "",
       p_value = "p-value"
     )
-  ) |>
-  mutate(project_signature = fct_rev(fct_relevel(project_signature, "Model")))
+  ) |>  mutate(project_signature = fct_rev(fct_relevel(project_signature, "Project")))
 
 glimpse(res_plot)
 
+#Remove every other project name
+res_plot$project
 new_project <- c()
 for(i in 1:length(res_plot$project)){
   if(i%%2==1){
@@ -96,6 +71,41 @@ for(i in 1:length(res_plot$project)){
 }
 
 res_plot$project <- new_project
+
+
+mid_df <- res_plot %>% filter(!project=="Project")
+mid_df$hazard_ratio <- as.numeric(mid_df$hazard_ratio)
+mid_df$hazard_ratio.high <- as.numeric(mid_df$hazard_ratio.high)
+mid_df$hazard_ratio.low <- as.numeric(mid_df$hazard_ratio.low)
+
+p <- ggplot(mid_df, aes(x=hazard_ratio,y=project_signature,color=signature))+
+  geom_point(position = position_dodge(width = 1),size=3)+
+  geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=1, size=2,position = "dodge") +
+  scale_color_manual(name="",values=c('slateblue2','firebrick1'))+
+  geom_vline(xintercept = 0, linetype="dashed")+
+  theme_classic()+
+  coord_cartesian(ylim=c(1,67),xlim=c(-20,50))+
+  labs(x="Log(Hazard Ratio)",y="")
+
+
+
+
+p
+
+p_mid <- p +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y= element_blank(),
+        axis.text.y= element_blank(),
+        axis.title.y= element_blank(),
+        axis.text.x= element_text(size=20), 
+        axis.title.x= element_text(size=20), 
+        legend.text = element_text(size=16),
+        legend.key.height = unit(1.5,"cm"),
+        legend.key.width = unit(1.5,"cm"),
+        legend.position = c(.85,.5))
+p_mid
+
+
 
 p_left <-
   res_plot  |>
@@ -139,21 +149,21 @@ p_right
 
 layout <- c(
   area(t = 0, l = 0, b = 30, r = 3), # left plot, starts at the top of the page (0) and goes 30 units down and 3 units to the right
-  area(t = 1, l = 4, b = 30, r = 12), # middle plot starts a little lower (t=1) because there's no title. starts 1 unit right of the left plot (l=4, whereas left plot is r=3), goes to the bottom of the page (30 units), and 6 units further over from the left plot (r=9 whereas left plot is r=3)
-  area(t = 0, l = 12, b = 30, r = 15) # right most plot starts at top of page, begins where middle plot ends (l=9, and middle plot is r=9), goes to bottom of page (b=30), and extends two units wide (r=11)
+  area(t = 1, l = 4, b = 30, r = 9), # middle plot starts a little lower (t=1) because there's no title. starts 1 unit right of the left plot (l=4, whereas left plot is r=3), goes to the bottom of the page (30 units), and 6 units further over from the left plot (r=9 whereas left plot is r=3)
+  area(t = 0, l = 9, b = 30, r = 11) # right most plot starts at top of page, begins where middle plot ends (l=9, and middle plot is r=9), goes to bottom of page (b=30), and extends two units wide (r=11)
 )
 # final plot arrangement
 
 
+p <- p_left + p_mid + p_right + plot_layout(design = layout) + plot_annotation("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n",theme=theme(plot.title=element_text(hjust=0.5,face='bold',size=30)))
 
-p <- p_left + p_mid + p_right + plot_layout(design = layout) + plot_annotation("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n",theme=theme(plot.title=element_text(hjust=0.5,face='bold',size=40)))
-
+p
 # plots <- list(p_left,p_mid,p_right)
-# figure <- ggarrange(plotlist = plots,ncol=3,widths = c(0.5, 1.4,0.5))
-# p <- annotate_figure(figure, top = text_grob("Hazard Ratios for Supercluster Signatures Across TCGA Cancer Types\n", face = "bold", size = 36))
+# figure <- ggarrange(plotlist = plots,ncol=3,widths = c(0.5, 1.4,0.5), heights = c(.6,1,1))
+# p <- annotate_figure(figure1, top = text_grob("Hazard Ratios for Supercluster Signature Across TCGA Cancer Types\n", face = "bold", size = 36))
 
 png("/data/ruoffcj/projects/drug_treatment/final_figures/figure_4c.png",
-    width=24, height = 16, units="in",res=300)
+    width=16, height = 14, units="in",res=300)
 
 print(p)
 
@@ -173,6 +183,8 @@ for(i in unique(hazard_ratio_df$project)){
   }
   
 }
+
+count/length(unique(hazard_ratio_df$project))
 
 
 

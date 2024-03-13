@@ -6,55 +6,82 @@ library(org.Hs.eg.db)
 library(GSVA)
 library(tidyverse)
 
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
 
 cell_lines <- c("A549","K562","MCF7")
 
 RACs <- list(c(4,9,12,13,14,16,18,19),c(4,5,9,11),c(5,8,12,13,17))
 names(RACs) <- cell_lines
 
-emergent <- list(c(14:19),c(9,11),c(13,15,18))
+emergent <- list(c(14:19),c(9),c(13,15,18))
 names(emergent) <- cell_lines
 
-curr_cell_line <- "MCF7"
-data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/",curr_cell_line, "_processed_filtered.rds"))
+all_data <- list()
+for(curr_cell_line in cell_lines){
+  
+  cat(curr_cell_line,"\n")
+  
+  data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/",curr_cell_line, "_processed_filtered.rds"))
+  
+  data <- data[,data$treatment_stage == 'post']
+  
+  #read in DR signature scores and set active cells
+  scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
+  threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
+  active_cell_names <- rownames(scores)[scores[,1] > threshold$threshold]
+  clusters_of_interest <- RACs[[curr_cell_line]]
+  
+  #Add metadata for RAC and Cell Group
+  data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, "1", ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), 2, 0)), col.name = "cell_group")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
+  data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$Cluster %in% emergent[[curr_cell_line]], "emergent_rac", ifelse(data$rac == "rac" & (!data$Cluster %in% emergent[[curr_cell_line]]), "non_emergent_rac", "non_rac")), col.name = "emergent_rac")
+  data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% emergent[[curr_cell_line]], "emergent", "non_emergent"), col.name = "emergent")
+  
+  data <- CellCycleScoring(data, s.features = s.genes, g2m.features = g2m.genes, set.ident = F)
+  
+  all_data[curr_cell_line] <- data
+}
+################################################################################
+################################################################################
 
-#read in DR signature scores and set active cells
-scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
-threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
-active_cell_names <- rownames(scores)[scores[,1] > threshold$threshold]
-clusters_of_interest <- RACs[[curr_cell_line]]
+curr_cell_line <- "A549"
 
-#Add metadata for RAC and Cell Group
-data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% clusters_of_interest, "rac","nonrac"), col.name = "rac")
-data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, "1", ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), 2, 0)), col.name = "cell_group")
-data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & colnames(data) %in% active_cell_names, paste0(data$Cluster, "_1"), ifelse(data$rac == "rac" & (!colnames(data) %in% active_cell_names), paste0(data$Cluster, "_2"), paste0(data$Cluster, "_0"))), col.name = "cell_cluster_group")
-data <- AddMetaData(data, metadata = ifelse(data$rac == "rac" & data$Cluster %in% emergent[[curr_cell_line]], "emergent_rac", ifelse(data$rac == "rac" & (!data$Cluster %in% emergent[[curr_cell_line]]), "non_emergent_rac", "non_rac")), col.name = "emergent_rac")
-
+data <- all_data[[curr_cell_line]]
 
 Idents(data) <- data$emergent_rac
 
+de_results <- FindMarkers(data, ident.1 = "emergent_rac",ident.2 = "non_emergent_rac")
+################################################################################
+# Cell Cycle Phases Proportions
+################################################################################
 
-de_results <- FindAllMarkers(data)
+df <- data@meta.data
+temp <- df %>% 
+  count(rac,emergent_rac, Phase)
 
+percents <- df %>% 
+  count(emergent_rac)
 
-#########
+temp <- merge(temp,percents,by="emergent_rac")
+
+temp <- temp %>% 
+  mutate("percent" = n.x/n.y)
+
+ggplot(temp)+
+  geom_col(aes(x=emergent_rac,y=percent,fill=Phase), position = "dodge")+
+  ggtitle(paste0(curr_cell_line, " Cell Cycle Phase Percentages"))
+
+################################################################################
 # GSEA of DE genes
-
-non_emergent_rac_ranks <- de_results %>% 
-  filter(cluster == "non_emergent_rac") %>% 
-  arrange(desc(avg_log2FC)) %>% 
-  dplyr::select(gene,avg_log2FC) %>% 
-  deframe()
-
+################################################################################
 
 emergent_rac_ranks <- de_results %>% 
-  filter(cluster == "emergent_rac") %>% 
   arrange(desc(avg_log2FC)) %>% 
-  dplyr::select(gene,avg_log2FC) %>% 
+  rownames_to_column() %>% 
+  dplyr::select(rowname,avg_log2FC) %>% 
   deframe()
-
-
-
 
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>% 
   dplyr::select(gs_name, human_gene_symbol)
@@ -62,7 +89,12 @@ m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>%
 
 mp_t2g <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/ith_meta_programs_t2g.rds")
 
-ranks <- non_emergent_rac_ranks
+specifc_mps <- c("MP39 Metal-response","MP31 Alveolar","MP29 NPC/OPC","MP28 Oligo normal","MP27 Oligo Progenitor","MP38 Glutathione","MP41 Unassigned","MP35 Hemato-related-I","MP37 Hemato-related-II","MP32 Skin-pigmentation","MP36 IG","MP16 MES (glioma)","MP15 EMT IV")
+
+mp_t2g <- mp_t2g %>% 
+  filter(!gs_name %in% specifc_mps)
+
+ranks <- emergent_rac_ranks
 
 # Meta-programs
 mp_gsea <- GSEA(ranks, TERM2GENE = mp_t2g)
@@ -108,7 +140,7 @@ hallmark_plot <- ggplot(df[1:10,])+
 # GO Pathways
 go_gsea <- gseGO(geneList     = ranks,
                  OrgDb        = org.Hs.eg.db,
-                 ont          = "ALL",
+                 ont          = "BP",
                  minGSSize    = 100,
                  maxGSSize    = 500,
                  pvalueCutoff = 0.01,
@@ -142,11 +174,12 @@ p <- ggarrange(plotlist = plot_list,ncol=3,nrow=1)
 
 p
 
-####################
-
+################################################################################
+# ORA of genes
+################################################################################
 cell_line_universes <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/cell_line_universes.rds")
 
-# ORA of genes
+
 pre_rac_genes <- de_results %>% 
   filter(p_val_adj < 0.05 & avg_log2FC > 0 & cluster == "non_emergent_rac") %>% 
   arrange(desc(avg_log2FC)) %>% 
@@ -197,8 +230,9 @@ ego <- enrichGO(gene          = curr_geneset,
 go_plot <- barplot(ego)
 
 
-######################
+################################################################################
 
+################################################################################
 
 ggboxplot(data@meta.data, x="emergent_rac",y="proliferation_index",fill="emergent_rac")
 
@@ -230,9 +264,9 @@ data <- AddMetaData(data, scores,col.name = "endocytosis_score")
 
 ggboxplot(data@meta.data, x="emergent_rac",y="endocytosis_score",fill="emergent_rac")
 
-########################
+################################################################################
 # Survival Analysis
-
+################################################################################
 curr_signature <- list("emergent"=emergent_rac_genes)
 curr_signature <- list("pre"=pre_rac_genes)
 metric_to_use <- "OS"
@@ -335,6 +369,7 @@ for(curr_cell_line in cell_lines){
 
 ################################################################################
 # Plot KM plots
+################################################################################
 figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T, legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("Survival Probability", rot = 90, vjust = 1, size=35, face="bold"),

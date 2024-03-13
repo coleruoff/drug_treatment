@@ -128,9 +128,9 @@ supercluster2_signature <- list("supercluster2_signature" = find_consensus_genes
 
 ##############
 
-supercluster3_signatures <- rac_signatures[c(paste0("A549_",c(19)),paste0("K562_",c(19)),paste0("MCF7_",c(5)))]
-
-supercluster3_signature <- list("supercluster3_signature" = find_consensus_geneset(supercluster3_signatures,2))
+# supercluster3_signatures <- rac_signatures[c(paste0("A549_",c(19)),paste0("K562_",c(19)),paste0("MCF7_",c(5)))]
+# 
+# supercluster3_signature <- list("supercluster3_signature" = find_consensus_geneset(supercluster3_signatures,2))
 # 
 # # saveRDS(supercluster3_signature, "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/active_supercluster3_signature.rds")
 # 

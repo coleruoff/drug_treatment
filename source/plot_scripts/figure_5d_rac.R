@@ -106,7 +106,7 @@ gene_universe_intersection <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug
 
 
 ################################################################################
-# Plotting for RAC type 1 superclusters signatures
+# Plotting for RAC superclusters signatures
 
 supercluster_signatures <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/rac_supercluster_signatures.rds")
 
@@ -144,7 +144,7 @@ figure <- ggarrange(plotlist = plots, ncol=2, nrow=1, common.legend = T,legend=c
 
 p <- annotate_figure(figure, left = text_grob("", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("", size=35, face="bold"),
-                     top=text_grob("Enrichment of Shared Genes Between RAC Supercluster\nand E. coli Antimicrobial Resistance Orthologs", size=40, face="bold"))
+                     top=text_grob("Enrichment of Shared Genes Between RAC Superclusters\nand E. coli Antimicrobial Resistance Orthologs", size=40, face="bold"))
 
 
 png(paste0("/data/ruoffcj/projects/drug_treatment/final_figures/figure_5d.png"),

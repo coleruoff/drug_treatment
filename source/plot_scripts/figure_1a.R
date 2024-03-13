@@ -133,10 +133,7 @@ watermelon_validation <- function(curr_signature, plot_title=NULL){
 
 raj_resistance_signature <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/common_resistance_signature.rds")
 
-
 gsea_matrix <- watermelon_validation(raj_resistance_signature)
-
-
 
 df <- as.data.frame(cbind(colnames(gsea_matrix),t(gsea_matrix)))
 
