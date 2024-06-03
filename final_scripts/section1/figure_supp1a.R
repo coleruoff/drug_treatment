@@ -1,10 +1,14 @@
-setwd("/data/ruoffcj/projects/drug_treatment/")
+args = commandArgs(trailingOnly=TRUE)
+dataDirectory <- paste0(args[1],"final_data/")
+plotDirectory <- paste0(args[1],"final_figures/")
+setwd(args[1])
+source("final_scripts/drug_treatment_functions.R")
 library(tidyverse)
 library(Seurat)
 library(ggpubr)
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
-plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
 
 ################################################################################
 
@@ -98,7 +102,7 @@ p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1,
                      top=text_grob("Resistant Active/Inactive Odds Ratio (Pre-Treatment)", size=40, face="bold"))
 
 
-png(paste0(plotDirectory,"final_figures/supp_figure_1a.png"),
+png(paste0(plotDirectory,"supp_figure_1a.png"),
     width=20, height=20, units= "in", res=300)
 
 print(p)

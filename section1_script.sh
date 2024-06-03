@@ -5,12 +5,6 @@ module load R/4.3
 working_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/"
 source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/section1/"
 
-echo "raj_breast_resistant_cells_processing"
-#Rscript --vanilla ${source_directory}raj_breast_resistant_cells_processing.R $working_directory
-
-echo "raj_melanoma_resistant_cells_processing"
-#Rscript --vanilla ${source_directory}raj_melanoma_resistant_cells_processing.R $working_directory
-
 echo "raj_resistant_cells_processing"
 Rscript --vanilla ${source_directory}process_yogesh_data.R $working_directory
 
@@ -19,9 +13,6 @@ Rscript --vanilla ${source_directory}memory_seq_processing.R $working_directory
 
 echo "raj_resistant_vs_control_de"
 Rscript --vanilla ${source_directory}yogesh_resistant_vs_control_de.R $working_directory
-
-echo "raj_resistant_vs_control_de"
-#Rscript --vanilla ${source_directory}raj_resistant_vs_control_de.R $working_directory
 
 echo "watermelon_pc9_processing"
 Rscript --vanilla ${source_directory}watermelon_pc9_processing.R $working_directory

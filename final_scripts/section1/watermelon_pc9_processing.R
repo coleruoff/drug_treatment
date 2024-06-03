@@ -5,15 +5,6 @@ setwd(args[1])
 library(Seurat)
 library(SeuratObject)
 
-cat("SeuratObject: ")
-print(packageVersion("SeuratObject"))
-cat("\n")
-
-cat("Seurat: ")
-print(packageVersion("Seurat"))
-cat("\n")
-
-
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 
 if(!file.exists(paste0(dataDirectory,"processed_data/watermelon_data/"))){
