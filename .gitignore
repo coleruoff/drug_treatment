@@ -2,4 +2,4 @@ data/
 
 final_data/
 
-slurm*
+*.out
