@@ -1,0 +1,27 @@
+{
+    "id": "293DC7EB",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/create_raj_resistance_signature.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1697825343385.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "23,67",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1697825676,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1697825676348,
+    "read_only": false,
+    "read_only_alternatives": []
+}

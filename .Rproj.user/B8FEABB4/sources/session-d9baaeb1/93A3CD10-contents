@@ -1,0 +1,33 @@
+library(Seurat)
+library(tidyverse)
+
+cell_lines <- c("A549", "K562","MCF7")
+
+for(curr_cell_line in cell_lines){
+  
+  data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/",curr_cell_line,"_processed_filtered.rds"))
+  
+  emergent <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/trapnell_cluster_groups/emergent_clusters.rds")
+  emergent <- emergent[[curr_cell_line]]
+  non_emergent <- levels(data)[-emergent]
+  
+  data <- AddMetaData(data, metadata = ifelse(data$Cluster %in% emergent, "emergent", "non-emergent"), col.name = "emergent")
+  
+  Idents(data) <- data$emergent
+  
+  curr_list <- list()
+  
+  for(curr_emergent in emergent){
+
+    # curr_data <- data[,data$Cluster %in% non_emergent | data$Cluster == curr_emergent]
+    
+    curr_de_results <- FindMarkers((data[,data$Cluster %in% non_emergent | data$Cluster == curr_emergent]), ident.1="emergent")
+    
+    curr_list <- append(curr_list, list(curr_de_results))
+    
+  }
+  
+  names(curr_list) <- paste0(curr_cell_line, "_cluster", emergent, "_de_results")
+  
+  saveRDS(curr_list, paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/", curr_cell_line, "_emergent_vs_all_nonemergent_de.rds"))
+}

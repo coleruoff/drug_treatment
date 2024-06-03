@@ -1,0 +1,124 @@
+library(Seurat)
+library(tidyverse)
+library(DESeq2)
+source("source/cole_functions.R")
+
+################################################################################
+#Read in raj resistant data
+################################################################################
+raj_resistant_cancer_type <- "melanoma"
+
+raj_resistant <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/diverse_clonal_fates_data/raj_resistant_", raj_resistant_cancer_type, "_processed.rds"))
+
+################################################################################
+#Read in raj control data
+################################################################################
+if(raj_resistant_cancer_type == "breast"){
+  raj_control_cancer_type <- "MDA"
+} else if(raj_resistant_cancer_type == "melanoma"){
+  raj_control_cancer_type <- "WM989"
+}
+
+raj_control <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/memorySeq_data/", raj_control_cancer_type,"_control_counts.rds"))
+
+colnames(raj_control) <- paste0("raj_control", 1:ncol(raj_control))
+
+################################################################################
+# Find resistant cluster markers
+################################################################################
+
+# cluster_de_results <- FindAllMarkers(raj_resistant)
+
+# saveRDS(cluster_de_results, paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/raj_", raj_resistant_cancer_type, "_cluster_de.rds"))
+
+cluster_de_results <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/de_results/raj_breast_cluster_de.rds")
+
+cluster_de_markers <- list()
+for(i in unique(cluster_de_results$cluster)){
+  curr_cluster_genes <- cluster_de_results %>% 
+    filter(cluster == i & avg_log2FC > 0 & p_val_adj < 0.05) %>% 
+    pull(gene)
+  
+  cluster_de_markers <- append(cluster_de_markers, list(curr_cluster_genes))
+}
+
+
+cluster_de_consensus <- find_consensus_geneset(cluster_de_markers, 3)
+
+cluster_de_consensus <- sapply(cluster_de_consensus, FUN = function(x){  gsub("\\.*", "",x)   })
+
+names(cluster_de_consensus) <- NULL
+
+################################################################################
+# Create resistant vs control DE results
+################################################################################
+aggregated_data <- AggregateExpression(raj_resistant, 
+                                       group.by = "seurat_clusters",
+                                       assays='RNA',
+                                       slot = 'counts',
+                                       return.seurat = F)
+
+raj_resistant_bulk <- aggregated_data$RNA
+
+rownames(raj_resistant_bulk) <- rownames(raj_resistant[["RNA"]]@counts)
+colnames(raj_resistant_bulk) <- paste0("raj_resistant", 1:ncol(raj_resistant_bulk))
+
+
+shared_genes <- intersect(rownames(raj_resistant_bulk), rownames(raj_control))
+
+raj_resistant_bulk <- raj_resistant_bulk[shared_genes,]
+
+raj_control <- raj_control[shared_genes,]
+
+
+all_raj_data <- cbind(raj_resistant_bulk,raj_control)
+
+dim(all_raj_data)
+
+#Create coldata for merged data
+coldata <- matrix(c(rep("resistant",ncol(raj_resistant_bulk)), rep("control", ncol(raj_control))), ncol=1)
+colnames(coldata) <- c("condition")
+rownames(coldata) <- colnames(all_raj_data)
+coldata <- data.frame(coldata)
+
+coldata$condition <- factor(coldata$condition)
+
+#Create DESeq Dataset object
+dds <- DESeqDataSetFromMatrix(countData = all_raj_data,
+                              colData = coldata,
+                              design = ~ condition)
+
+
+#Remove rows with low gene counts
+keep <- rowSums(counts(dds)) >= 10
+
+dds <- dds[keep,]
+
+
+dds$condition <- relevel(dds$condition, ref="control")
+
+dds <- DESeq(dds)
+
+res <- results(dds)
+res
+
+resistant_vs_control_de_genes <- cbind(res@rownames,data.frame(res@listData)) %>% 
+  filter(log2FoldChange > 0 & padj < 0.05) %>% 
+  pull("res@rownames")
+
+################################################################################
+# Merge genesets to create overall resistance signature
+################################################################################
+
+# intersection of genes that are up in both
+resistant_vs_control_de_genes
+
+
+raj_resistance_signature <- intersect(resistant_vs_control_de_genes, cluster_de_consensus)
+
+saveRDS(raj_resistance_signature, paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/raj_", raj_resistant_cancer_type, "_resistance_signature.rds"))
+
+
+
+
+

@@ -1,0 +1,4 @@
+temp <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/A549_processed_filtered_raj_breast_resistance_signature_aucell_scores.rds")
+
+
+temp <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/A549_processed_filtered_raj_breast_resistance_signature_aucell_thesholds.rds")

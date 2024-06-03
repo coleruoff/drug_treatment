@@ -1,0 +1,73 @@
+library(Seurat)
+source("source/cole_functions.R")
+
+watermelon_data <- readRDS("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/watermelon_data/watermelon_pc9_processed.rds")
+
+################################################################################
+# Calculate FC for each time point
+################################################################################
+
+Idents(watermelon_data) <- watermelon_data$time_point
+
+time_points <- levels(Idents(watermelon_data))
+
+time_points_fc <- list()
+for(curr_time_point in time_points){
+  
+  curr_fc_result <- FoldChange(watermelon_data, ident.1 = curr_time_point)
+  
+  time_points_fc <- append(time_points_fc, list(curr_fc_result))
+  
+}
+
+
+names(time_points_fc) <- paste0("pc9_day",time_points,"_fc")
+
+################################################################################
+# Run GSEA of raj resistance signature for each time point
+################################################################################
+
+#Create ranked genelists for each time point
+genesets_with_ranks <- list()
+for(curr_fc_res in time_points_fc){
+  
+  ranks <- curr_fc_res$avg_log2FC
+  
+  names(ranks) <- rownames(curr_fc_res)
+  
+  ranks <- sort(ranks, decreasing = T)
+  
+  genesets_with_ranks <- append(genesets_with_ranks, list(ranks))
+  
+}
+
+names(genesets_with_ranks) <- paste0("pc9_day",time_points,"_fc")
+
+#Read in resistance signature
+raj_resistant_cancer_type <- "melanoma"
+
+# genesets2 <- list("raj_resistance_signature" = resistant_vs_control_de_genes)
+
+# genesets2 <- list("raj_resistance_signature" = cluster_de_consensus)
+
+raj_resistance_signature <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/genesets/raj_", raj_resistant_cancer_type, "_resistance_signature.rds"))
+
+genesets2 <- list("raj_resistance_signature" = raj_resistance_signature)
+
+# Run GSEA
+
+result <- create_GSEA_matrix(genesets_with_ranks, genesets2)
+
+
+gsea_matrix <- result[[1]]
+
+colnames(gsea_matrix) <- paste0("Day ", time_points)
+rownames(gsea_matrix) <- ""#paste0("Raj ", str_to_title(raj_resistant_cancer_type), " Resistance Signature")
+plot_title <- paste0("Raj ", str_to_title(raj_resistant_cancer_type), " Resistance Cluster Consensus Signature Enrichment Along Resistance Development in PC9")
+
+
+Heatmap(gsea_matrix, cluster_columns = F, column_title = plot_title, name="NES", 
+        column_names_rot = 45,
+        cell_fun = function(j, i, x, y, width, height, fill) {
+          grid.text(sprintf("%.1f", gsea_matrix[i, j]), x, y, gp = gpar(fontsize = 20))})
+

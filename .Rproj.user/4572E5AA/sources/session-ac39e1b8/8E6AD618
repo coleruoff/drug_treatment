@@ -1,0 +1,26 @@
+{
+    "id": "8E6AD618",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/raj_trapnell_gsea_enrichment_all_pre_clusters.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "82275689",
+    "contents": "",
+    "dirty": false,
+    "created": 1697809500270.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "54,0",
+        "scrollLine": "33"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1697825472,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1697825472768,
+    "read_only": false,
+    "read_only_alternatives": []
+}

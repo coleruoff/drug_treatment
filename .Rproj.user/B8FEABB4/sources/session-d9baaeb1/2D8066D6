@@ -1,0 +1,26 @@
+{
+    "id": "2D8066D6",
+    "path": "/gpfs/gsfs12/users/ruoffcj/projects/drug_treatment/source/emergent_vs_all_nonemergent_fc.R",
+    "project_path": "source/emergent_vs_all_nonemergent_fc.R",
+    "type": "r_source",
+    "hash": "3068058568",
+    "contents": "",
+    "dirty": false,
+    "created": 1697216165039.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "3,38",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1697219317,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1697219317193,
+    "read_only": false,
+    "read_only_alternatives": []
+}

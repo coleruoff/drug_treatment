@@ -1,0 +1,38 @@
+source("source/cole_functions.R")
+
+cell_lines <- c("A549","K562","MCF7")
+
+#################################################################################
+# Read in Trapnell data
+#################################################################################
+curr_cell_line <- cell_lines[1]
+
+data <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
+
+num_clusters <- nlevels(data$Cluster)
+
+#################################################################################
+# Read in AUCell score results and thresholds
+#################################################################################
+
+resistant_cancer_type <- "common"
+
+scores <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/",curr_cell_line, "_processed_filtered_raj_",resistant_cancer_type,"_resistance_signature_aucell_scores.rds"))
+
+threshold <- readRDS(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/aucell_score_objects/",curr_cell_line,"_processed_filtered_raj_",resistant_cancer_type,"_resistance_signature_aucell_thesholds.rds"))
+
+all_active_cells <- rownames(scores)[scores > threshold$threshold]
+
+
+active_cell_counts <- data@assays$RNA@counts[,all_active_cells]
+
+
+active_cell_counts <- data[,all_active_cells]
+
+
+DimPlot(active_cell_counts,)
+dim(active_cell_counts)
+
+
+pbmc <- CreateSeuratObject(counts = active_cell_counts, project = "active", min.cells = 3, min.features = 200)
+pbmc
