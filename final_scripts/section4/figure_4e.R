@@ -135,6 +135,7 @@ df$geneset <- str_to_title(names3)
 
 df$drug <- sapply(df$Dataset, function(x) strsplit(x, "_[0-9]")[[1]][1])
 
+regression_df <- df
 
 R_df <- df %>% 
   dplyr::select(cancer_type, drug,geneset,score, Response,drug_class) %>% 
@@ -200,57 +201,34 @@ print(p)
 
 dev.off()
 
-
-genesets <- unique(df$geneset)
-
-residuals <- df %>% 
-  group_by(cohort) %>% 
-  mutate("residual"=mean_NR - mean_R) %>% 
-  ungroup() %>% 
-  select(cohort,residual) %>% 
-  distinct()
-
-real_residuals <- residuals$residual
-
-boxplot(real_residuals, all_random_residuals)
-wilcox.test(real_residuals, all_random_residuals, alternative = "less")
-
-boxplot(real_residuals, rep(0,length(real_residuals)))
-wilcox.test(real_residuals, rep(0,16), alternative = "greater")
+df <-  regression_df %>% 
+  dplyr::select(cancer_type, drug,geneset,score, Response) %>% 
+  mutate(cohort = paste0(cancer_type, " + ", drug), cancer_type=NULL, drug=NULL)
 
 
-sum(real_residuals>0)
+for(curr_signature in unique(df$geneset)){
+  temp <- df %>% 
+    filter(geneset == curr_signature)
+  
+  temp$Response <- ifelse(temp$Response == "Non-responder", 1, 0)
+  
+  model <- glm(Response ~ score + cohort,
+               data=temp,
+               family = "binomial")
+  
+  model_summmary <- summary(model)
+  
+  score_pval <- model_summmary$coefficients[2,4]
+  
+  cat(paste0(curr_signature," p-value: ", sprintf("%.6f",score_pval),"\n"))
+  
+}
 
 
-fisher.test(matrix(c(11,8,16,16),ncol=2))
+summary(temp$score)
 
+temp$predictions <- predict(model,temp,type="response")
 
-plot(density(residuals$residual))
+ggplot(temp, aes(x = score, y = predictions)) +
+  geom_smooth()
 
-rnorm(n = 10)
-plot(density(rnorm(n = 1000,mean = 0, sd = 0)))
-
-sc1_residuals <- df %>% 
-  group_by(cohort) %>% 
-  mutate("residual"=mean_NR - mean_R) %>% 
-  ungroup() %>% 
-  filter(geneset == genesets[1]) %>% 
-  select(cohort,residual) %>% 
-  distinct()
-
-sc2_residuals <- df %>% 
-  group_by(cohort) %>% 
-  mutate("residual"=mean_NR - mean_R) %>% 
-  ungroup() %>% 
-  filter(geneset == genesets[2]) %>% 
-  select(cohort,residual) %>% 
-  distinct()
-
-
-sum(sc1_residuals$residual>0)
-
-fisher.test(matrix(c(5,4,8,8),ncol=2))
-
-sum(sc2_residuals$residual>0)
-
-fisher.test(matrix(c(6,4,8,8),ncol=2))

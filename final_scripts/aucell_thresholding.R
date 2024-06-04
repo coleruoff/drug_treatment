@@ -79,7 +79,7 @@ nCores=3) {
         cells_rankings <- rankings_obj
     } else {
         
-        cells_rankings <- AUCell_buildRankings(seurat_obj[[assay_to_use]]$counts, nCores=nCores, plotStats=F,verbose=F,splitByBlocks = T)
+        cells_rankings <- AUCell_buildRankings(seurat_obj[[assay_to_use]]@counts, nCores=nCores, plotStats=F,verbose=F,splitByBlocks = T)
         
         to_return$rankings <- cells_rankings
     }
@@ -133,7 +133,7 @@ q_thresh=1.0,nCores=3,gene_universe=NULL, assay_to_use="RNA") {
             for (sample_name in samples) {
                 cells <- rownames(seurat_obj_@meta.data %>% dplyr::filter(!!sym(sample_info_column) == sample_name))
                 if (!sample_name %in% names(control_gene_set_list)) {
-                    control_gene_set_list[[sample_name]] <- find_control_gene_sets(seurat_obj_[[assay_to_use]]$data[,cells],gene_sets)
+                    control_gene_set_list[[sample_name]] <- find_control_gene_sets(seurat_obj_[[assay_to_use]]@data[,cells],gene_sets)
                 }
 
                 if (control == 1) {
@@ -156,7 +156,7 @@ q_thresh=1.0,nCores=3,gene_universe=NULL, assay_to_use="RNA") {
             }
         } else {
                 control_gene_set_list <-
-                find_control_gene_sets(seurat_obj_[[assay_to_use]]$data,gene_sets,gene_universe=gene_universe)
+                find_control_gene_sets(seurat_obj_[[assay_to_use]]@data,gene_sets,gene_universe=gene_universe)
                 if (control == 1) {
                     auc_output <- compute_AUCell_scores(seurat_obj_,
                                                         compute_thresholds = F,

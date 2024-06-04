@@ -102,7 +102,7 @@ p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1,
                      top=text_grob("Resistant Active/Inactive Odds Ratio (Pre-Treatment)", size=40, face="bold"))
 
 
-png(paste0(plotDirectory,"supp_figure_1a.png"),
+png(paste0(plotDirectory,"supp_figure_1c.png"),
     width=20, height=20, units= "in", res=300)
 
 print(p)
