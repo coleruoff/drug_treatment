@@ -27,17 +27,17 @@ echo "figure_1a"
 #Rscript --vanilla ${source_directory}figure_1a.R $working_directory 
 
 echo "trapnell_processing_filtering"
-#Rscript --vanilla ${source_directory}trapnell_processing_filtering.R $working_directory
+Rscript --vanilla ${source_directory}trapnell_processing_filtering.R $working_directory
 
 #AUCell scoring
 echo "A549 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK &
+#Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK &
 
 echo "K562 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK &
+#Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK &
 
 echo "MCF7 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK 
+#Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "raj_watermelon_resistance_signature" $SLURM_CPUS_PER_TASK 
 
 echo "figure_1b"
 Rscript --vanilla ${source_directory}figure_1b.R $working_directory

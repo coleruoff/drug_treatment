@@ -7,12 +7,14 @@ library(tidyverse)
 library(Seurat)
 library(ggpubr)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
 cell_lines <- c("A549","K562","MCF7")
+
+curr_cell_line <- "A549"
 
 plots <- list()
 all_RACs <- list()
@@ -22,7 +24,7 @@ for(curr_cell_line in cell_lines){
   
   data <- readRDS(paste0(dataDirectory,"processed_data/sciPlex_data/", curr_cell_line, "_processed_filtered.rds"))
   
-  data <- data[,data$treatment_stage=='post']
+  data <- data[,data$treatment_stage=="post"]
   
   scores <- readRDS(paste0(dataDirectory, "aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_scores.rds"))
   threshold <- readRDS(paste0(dataDirectory, "aucell_score_objects/", curr_cell_line, "_processed_filtered_raj_watermelon_resistance_signature_aucell_thresholds.rds"))
