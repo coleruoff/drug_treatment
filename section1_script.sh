@@ -1,6 +1,6 @@
 #!/bin/bash
 
-module load R/4.3
+module load R/4.4
 
 working_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/"
 source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/section1/"

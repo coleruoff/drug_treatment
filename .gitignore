@@ -3,3 +3,5 @@ data/
 final_data/
 
 *.out
+
+renv/

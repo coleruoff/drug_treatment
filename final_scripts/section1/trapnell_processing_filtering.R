@@ -29,9 +29,10 @@ for(curr_cell_line in cell_lines){
   
   data <- data[rownames(data) %in% rownames(data.obj),colnames(data) %in% colnames(data.obj)]
   
-  data.obj@assays$RNA$counts
+  # data.obj@assays$RNA$counts
   data.obj@reductions <- data@reductions
   data.obj@meta.data <- data@meta.data
+  colnames(data.obj@meta.data) <- sapply(colnames(data.obj@meta.data), FUN = function(x) gsub("_originalexp","_RNA", x))
   
   data.obj[["percent.mt"]] <- PercentageFeatureSet(data.obj, pattern = "^MT-")
   

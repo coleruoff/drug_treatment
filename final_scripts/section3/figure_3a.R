@@ -20,10 +20,6 @@ A549.data <- all_data[["A549"]]
 K562.data <- all_data[["K562"]]
 MCF7.data <- all_data[["MCF7"]]
 
-
-A549.data$rac
-
-
 A549.data <- A549.data[,A549.data$rac == "rac"]
 
 K562.data <- K562.data[,K562.data$rac == "rac"]

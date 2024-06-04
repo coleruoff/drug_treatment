@@ -7,6 +7,9 @@ library(tidyverse)
 options(future.globals.maxSize = 4000 * 1024^2)
 set.seed(42)
 
+libr_paths <- .libPaths()
+cat("LIBRARY DIRECTORY: ", libr_paths[1],"\n")
+
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 
 for(curr_cancer_type in c("breast","melanoma")){
@@ -26,10 +29,10 @@ for(curr_cancer_type in c("breast","melanoma")){
   sample2[["percent.mt"]] <- PercentageFeatureSet(object = sample2, pattern = "^MT-")
   
   #####
-  VlnPlot(object = sample1, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3) 
-  plot1 <- FeatureScatter(object = sample2, feature1 = "nCount_RNA", feature2 = "percent.mt") 
-  plot2 <- FeatureScatter(object = sample2, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
-  CombinePlots(plots = list(plot1,plot2))
+  # VlnPlot(object = sample1, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3) 
+  # plot1 <- FeatureScatter(object = sample2, feature1 = "nCount_RNA", feature2 = "percent.mt") 
+  # plot2 <- FeatureScatter(object = sample2, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+  # CombinePlots(plots = list(plot1,plot2))
   
   if(curr_cancer_type == "breast"){
     sample1 <- subset(x = sample1, subset = nFeature_RNA > 200 & nFeature_RNA < 7000 & percent.mt < 18) 
