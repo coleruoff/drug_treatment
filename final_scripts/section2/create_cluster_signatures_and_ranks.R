@@ -33,7 +33,7 @@ for(curr_cell_line in cell_lines){
     
     # curr_cluster <- 1
     
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de_MAST.rds"))
+    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
     
     # Create current cluster gene signature
     curr_signature <- de_res %>% 
@@ -80,7 +80,7 @@ for(curr_cell_line in cell_lines){
     
     # curr_cluster <- 1
     
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de_MAST.rds"))
+    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
     
     # Create current cluster gene signature
     curr_signature <- de_res %>% 

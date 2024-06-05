@@ -21,7 +21,7 @@ for(curr_cell_line in cell_lines){
   curr_signatures <- list()
   for(curr_cluster in 1:num_clusters[curr_cell_line]){
 
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de_MAST.rds"))
+    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
 
     curr_cluster_signature <- de_res %>%
       filter(avg_log2FC > 0 & p_val_adj < 0.05) %>%
@@ -36,13 +36,7 @@ for(curr_cell_line in cell_lines){
 }
 ################################################################################
 
-supercluster_components <- list()
-supercluster_components[["sc1"]] <- c(9,5,8)
-supercluster_components[["sc2"]] <- c(14,9,13)
-names(supercluster_components[["sc1"]]) <- cell_lines
-names(supercluster_components[["sc2"]]) <- cell_lines
-
-saveRDS(supercluster_components, paste0(dataDirectory, "processed_data/supercluster_components.rds"))
+supercluster_components <- readRDS(paste0(dataDirectory, "processed_data/supercluster_components.rds"))
 
 ################################################################################
 

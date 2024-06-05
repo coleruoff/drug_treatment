@@ -1,6 +1,5 @@
 args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
-plotDirectory <- paste0(args[1],"final_figures/")
 setwd(args[1])
 
 source("final_scripts/aucell_thresholding.R")

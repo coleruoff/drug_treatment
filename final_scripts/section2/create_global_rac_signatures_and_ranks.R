@@ -16,7 +16,7 @@ all_signatures <- list()
 all_ranks <- list()
 for(curr_cell_line in cell_lines){
   
-  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_global_rac_de_MAST.rds"))
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_global_rac_de.rds"))
   # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_global_rac_de.rds"))
   
   curr_cell_line_signatures <- list()
