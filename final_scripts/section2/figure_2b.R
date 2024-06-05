@@ -113,7 +113,7 @@ ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(0, 70, 0, 0), "mm
 
 
 png(paste0(plotDirectory, "figure_2b.png"),
-    width=26, height=10, units= "in", res = 300)
+    width=30, height=10, units= "in", res = 300)
 
 grid.newpage()
 

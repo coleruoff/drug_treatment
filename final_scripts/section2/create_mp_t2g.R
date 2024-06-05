@@ -1,6 +1,7 @@
 args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
 setwd(args[1])
+library(tidyverse)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
@@ -16,6 +17,6 @@ for(i in 1:length(MPs)){
 }
 
 colnames(mp_t2g) <- c("gs_name","human_gene_symbol")
-mp_t2g <- as.tibble(mp_t2g)
+mp_t2g <- as_tibble(mp_t2g)
 
 saveRDS(mp_t2g, paste0(dataDirectory,"genesets/ith_meta_programs_t2g.rds"))

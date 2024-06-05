@@ -22,13 +22,13 @@ library(doMC)
 #Read in cells to score
 ################################################################################
 
-cellset_filename <- args[1]
+cellset_filename <- args[2]
 # Read in cell set data
 data_to_use <- readRDS(paste0(dataDirectory, "processed_data/", cellset_filename, ".rds"))
 
 cellset_title <- strsplit(cellset_filename, "/")[[1]][-1]
 
-assay_to_use <- args[2]
+assay_to_use <- args[3]
 
 ################################################################################
 #Read in genesets to use
