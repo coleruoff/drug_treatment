@@ -11,7 +11,7 @@ set.seed(42)
 
 ################################################################################
 
-yeast_de <- read_xlsx(paste0(dataDirectory, "yeast_data/candida_auris_de.XLSX"), col_names = T)
+yeast_de <- read_xlsx(paste0(dataDirectory, "raw_data/yeast_data/candida_auris_de.XLSX"), col_names = T)
 colnames(yeast_de) <- yeast_de[1,]
 yeast_de <- yeast_de[-1,]
 
@@ -27,7 +27,7 @@ downregulated_genes <- yeast_de %>%
 length(upregulated_genes)
 
 #Read in conversion table from OMA browser
-human_yeast_conversion <- read.table(paste0(dataDirectory, "ortholog_mapping/human_candida_auris_source_id.txt"), fill = T, sep='\t')[,1:3]
+human_yeast_conversion <- read.table(paste0(dataDirectory, "raw_data/yeast_data/human_candida_auris_source_id.txt"), fill = T, sep='\t')[,1:3]
 colnames(human_yeast_conversion) <- c("HUMAN","YEAST", "MAPPING")
 
 # Trim ensembl gene names
@@ -63,8 +63,8 @@ colnames(upregulated_yeast_human_orthologs_table) <- c("HUMAN_ENSEMBL","HUMAN_SY
 colnames(downregulated_yeast_human_orthologs_table) <- c("HUMAN_ENSEMBL","HUMAN_SYMBOL","MAPPING","YEAST_GENEID")
 
 
-saveRDS(upregulated_yeast_human_orthologs_table, paste0(dataDirectory, "genesets/orthologs/upregulated_yeast_human_orthologs_table.rds"))
-saveRDS(downregulated_yeast_human_orthologs_table, paste0(dataDirectory, "genesets/orthologs/downregulated_yeast_human_orthologs_table.rds"))
+saveRDS(upregulated_yeast_human_orthologs_table, paste0(dataDirectory, "genesets/upregulated_yeast_human_orthologs_table.rds"))
+saveRDS(downregulated_yeast_human_orthologs_table, paste0(dataDirectory, "genesets/downregulated_yeast_human_orthologs_table.rds"))
 
 
 #read in yeast-human orthologs and save as RDS

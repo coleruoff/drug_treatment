@@ -1,4 +1,7 @@
-setwd("/data/ruoffcj/projects/drug_treatment/")
+args = commandArgs(trailingOnly=TRUE)
+dataDirectory <- paste0(args[1],"final_data/")
+plotDirectory <- paste0(args[1],"final_figures/")
+setwd(args[1])
 library(DESeq2)
 library(tidyverse)
 library(ggpubr)
@@ -8,9 +11,6 @@ set.seed(42)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
-args = commandArgs(trailingOnly=TRUE)
-dataDirectory <- args[1]
-plotDirectory <- args[2]
 
 #################################################################################
 
@@ -32,7 +32,7 @@ drug_class_df <- as.data.frame(rbind(drug_class_df,cbind(names(drug_classes[3]),
 
 colnames(drug_class_df) <- c("drug_class","Dataset")
 
-enlight_response_data <- read.csv(paste0(dataDirectory, "enlight_data/drug_response_classifications_with_type.csv"))
+enlight_response_data <- read.csv(paste0(dataDirectory, "raw_data/enlight_data/drug_response_classifications_with_type.csv"))
 
 rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib", "MGH_Ribociclib", "MGH_Alpelisib", "BRAFi_1", "Anti-PD1", "Anti-PD1_2", "Anti-PD1_5")
 
@@ -59,7 +59,7 @@ drug_class_df <- drug_class_df %>%
 for(curr_drug in all_drugs){
   cat(curr_drug, "\n")
   
-  curr_data <- read.csv(paste0(dataDirectory,"enlight_data/", curr_drug,".csv"), row.names = 1)
+  curr_data <- read.csv(paste0(dataDirectory,"raw_data/enlight_data/", curr_drug,".csv"), row.names = 1)
   
   #Remove rows that are NAs
   curr_data <- curr_data[!is.na(curr_data[,1]),]

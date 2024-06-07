@@ -16,3 +16,6 @@ Rscript --vanilla ${source_directory}figure_4c.R $working_directory
 
 echo "figure 4d"
 Rscript --vanilla ${source_directory}figure_4d.R $working_directory
+
+echo "figure 4e"
+Rscript --vanilla ${source_directory}figure_4e.R $working_directory

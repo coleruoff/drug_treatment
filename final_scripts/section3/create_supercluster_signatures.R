@@ -18,15 +18,18 @@ names(num_clusters) <- cell_lines
 all_signatures <- list()
 for(curr_cell_line in cell_lines){
 
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_de.rds"))
+  
   curr_signatures <- list()
   for(curr_cluster in 1:num_clusters[curr_cell_line]){
 
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
+    # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
 
-    curr_cluster_signature <- de_res %>%
-      filter(avg_log2FC > 0 & p_val_adj < 0.05) %>%
-      arrange(desc(avg_log2FC)) %>%
-      rownames()
+    curr_cluster_signature <- de_res %>% 
+      filter(cluster == curr_cluster & p_val_adj < 0.05 & avg_log2FC > 0) %>% 
+      arrange(desc(avg_log2FC)) %>% 
+      pull(gene) 
+    
 
     curr_signatures[[curr_cluster]] <- curr_cluster_signature#[1:800]
 
@@ -70,15 +73,17 @@ for(curr_cell_line in cell_lines){
   
   # curr_clusters <- unique(de_res$cluster)
   
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_de.rds"))
+  
   curr_signatures <- list()
   for(curr_cluster in 1:num_clusters[curr_cell_line]){
     
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de_MAST.rds"))
+    # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de_MAST.rds"))
     
     curr_cluster_signature <- de_res %>%
-      filter(avg_log2FC < 0 & p_val_adj < 0.05) %>%
+      filter(cluster == curr_cluster & avg_log2FC < 0 & p_val_adj < 0.05) %>%
       arrange(desc(avg_log2FC)) %>%
-      rownames()
+      pull(gene)
     
     curr_signatures[[curr_cluster]] <- curr_cluster_signature#[1:800]
     

@@ -13,16 +13,16 @@ Rscript --vanilla ${source_directory}create_ecoli_orthologs.R $working_directory
 
 #AUCell scoring
 echo "A549 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/A549_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
 
 echo "K562 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/K562_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
 
 echo "MCF7 scoring"
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
-Rscript --vanilla ${source_directory}../AUCell_precompute_thresholds.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "yeast_human_orthologs_up" $SLURM_CPUS_PER_TASK
+Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
 
 echo "figure 5a"
 Rscript --vanilla ${source_directory}figure_5a.R $working_directory

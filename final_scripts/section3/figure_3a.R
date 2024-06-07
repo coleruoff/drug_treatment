@@ -7,7 +7,7 @@ library(ComplexHeatmap)
 library(tidyverse)
 set.seed(42)
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # dataDirectory <- "//hpcdrive.nih.gov/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 #################################################################################
@@ -109,7 +109,6 @@ corr_values <- as.vector(cor_heatmap)
 corr_values <- corr_values[corr_values<1]
 
 corr_threshold <- quantile(corr_values, probs = 0.90)
-
 
 supercluster_components <- list()
 for(i in unique(cluster_groups)){

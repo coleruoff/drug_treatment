@@ -5,7 +5,7 @@ library(Seurat)
 library(tidyverse)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
@@ -29,21 +29,26 @@ for(curr_cell_line in cell_lines){
   # curr_cell_line_signatures <- list()
   # curr_cell_line_ranks <- list()
   
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_de.rds"))
+  
   for(curr_cluster in as.character(1:num_clusters[curr_cell_line])){
     
     # curr_cluster <- 1
     
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
+    # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
     
     # Create current cluster gene signature
     curr_signature <- de_res %>% 
-      filter(p_val_adj < 0.05 & avg_log2FC > 0) %>% 
+      filter(cluster == curr_cluster & p_val_adj < 0.05 & avg_log2FC > 0) %>% 
       arrange(desc(avg_log2FC)) %>% 
-      rownames_to_column() %>% 
-      pull(rowname)
+      pull(gene) 
+  
     
     # Trim signature to set length
-    curr_signature <- curr_signature[1:length_to_use] 
+    if(length(curr_signature) > 200){
+      curr_signature <- curr_signature[1:length_to_use] 
+    }
+    
     all_signatures[[curr_cell_line]][[curr_cluster]] <- curr_signature
     
     # Create current cluster gene ranks
@@ -76,24 +81,25 @@ for(curr_cell_line in cell_lines){
   # curr_cell_line_signatures <- list()
   # curr_cell_line_ranks <- list()
   
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_de.rds"))
+  
   for(curr_cluster in as.character(1:num_clusters[curr_cell_line])){
     
     # curr_cluster <- 1
     
-    de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
+    # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
     
     # Create current cluster gene signature
     curr_signature <- de_res %>% 
-      filter(p_val_adj < 0.05 & avg_log2FC < 0) %>% 
+      filter(cluster == curr_cluster & p_val_adj < 0.05 & avg_log2FC < 0) %>% 
       arrange(avg_log2FC) %>% 
-      rownames_to_column() %>% 
-      pull(rowname)
+      pull(gene)
     
     # Trim signature to set length
-    curr_signature <- curr_signature[1:length_to_use] 
+    if(length(curr_signature) > 200){
+      curr_signature <- curr_signature[1:length_to_use] 
+    }
     all_signatures[[curr_cell_line]][[curr_cluster]] <- curr_signature
-    
-   
     
   }
 }

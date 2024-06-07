@@ -15,7 +15,7 @@ set.seed(42)
 ################################################################################
 
 # Read in data and fix rownames
-data <- read_xlsx(paste0(dataDirectory,"processed_data/TKI_EGFR_rebiopsy_data/GSE165019_EarlyRebiopsy_genes.fpkm_table.xlsx"))
+data <- read_xlsx(paste0(dataDirectory,"raw_data/TKI_EGFR_rebiopsy_data/GSE165019_EarlyRebiopsy_genes.fpkm_table.xlsx"))
 
 data_rownames <- make.names(data$`Gene ID`, unique = T)
 
@@ -142,7 +142,7 @@ p <- annotate_figure(figure, left = text_grob("Score", rot = 90, vjust = 1, size
 
 
 
-png(paste0(plotDirectory,"final_figures/figure_4d.png"),
+png(paste0(plotDirectory,"figure_4d.png"),
     width=16, height = 10, units="in",res=300)
 
 

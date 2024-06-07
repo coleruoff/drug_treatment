@@ -7,6 +7,7 @@ library(msigdbr)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
+library(tidyverse)
 set.seed(42)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"

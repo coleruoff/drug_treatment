@@ -6,7 +6,7 @@ setwd(args[1])
 library(tidyverse)
 library(ggpubr)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 
 ################################################################################
 
