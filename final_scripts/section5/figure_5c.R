@@ -14,7 +14,7 @@ set.seed(42)
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
-# all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
+all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
 
 cell_lines <- c("A549","K562","MCF7")
 
@@ -27,8 +27,8 @@ df <- list()
 for(curr_cell_line in cell_lines){
   data <- all_data[[curr_cell_line]]
   
-  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[1]][[curr_cell_line]], 1,0), "supercluster1")
-  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[2]][[curr_cell_line]], 1,0), "supercluster2")
+  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[1]][[curr_cell_line]], 1,0), col.name = "supercluster1")
+  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[2]][[curr_cell_line]], 1,0), col.name = "supercluster2")
   
   scores <- readRDS(paste0(dataDirectory, "aucell_score_objects/",curr_cell_line,"_processed_filtered_",organism_to_use,"_human_orthologs_up_aucell_scores.rds"))
   # scores <- scale(scores)

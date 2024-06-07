@@ -158,7 +158,7 @@ ecoli_human_orthologs_table <- as.data.frame(ecoli_human_orthologs_table) %>%
 
 colnames(ecoli_human_orthologs_table) <- c("HUMAN_ENSEMBL","HUMAN_SYMBOL","MAPPING","ECOLI_GENEID","ECOLI_SYMBOL")
 
-saveRDS(ecoli_human_orthologs_table, paste0(dataDirectory, "ortholog_mapping/ecoli_human_orthologs_table.rds"))
+saveRDS(ecoli_human_orthologs_table, paste0(dataDirectory, "genesets/ecoli_human_orthologs_table.rds"))
 
 
 

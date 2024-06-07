@@ -41,3 +41,21 @@ Rscript --vanilla ${source_directory}find_cluster_markers.R $working_directory
 
 echo "create all clusters signatures and ranks"
 Rscript --vanilla ${source_directory}create_cluster_signatures_and_ranks.R $working_directory
+
+echo "figure 3a"
+#Rscript --vanilla ${source_directory}figure_3a.R $working_directory
+
+echo "create supercluster signatures"
+#Rscript --vanilla ${source_directory}create_supercluster_signatures.R $working_directory
+
+echo "figure 3b"
+Rscript --vanilla ${source_directory}figure_3b.R $working_directory
+
+echo "figure 3c"
+#Rscript --vanilla ${source_directory}figure_3c.R $working_directory
+
+echo "figure 3d"
+#Rscript --vanilla ${source_directory}figure_3d.R $working_directory
+
+echo "figure 3e"
+#Rscript --vanilla ${source_directory}figure_3e.R $working_directory

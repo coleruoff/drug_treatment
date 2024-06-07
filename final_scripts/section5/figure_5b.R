@@ -30,7 +30,7 @@ gene_universe_intersection <- readRDS(paste0(dataDirectory, "cell_line_gene_univ
 #Filter universe to only genes that have a yeast ortholog
 
 #Read in conversion table from OMA browser
-human_yeast_conversion <- read.table(paste0(dataDirectory, "ortholog_mapping/human_candida_auris_source_id.txt"), fill = T, sep='\t')[,1:3]
+human_yeast_conversion <- read.table(paste0(dataDirectory, "raw_data/yeast_data/human_candida_auris_source_id.txt"), fill = T, sep='\t')[,1:3]
 colnames(human_yeast_conversion) <- c("HUMAN","YEAST", "MAPPING")
 
 # Trim ensembl gene names

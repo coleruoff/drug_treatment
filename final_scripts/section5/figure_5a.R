@@ -10,11 +10,11 @@ library(ggpubr)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
-plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
-# all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
+all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
 
 cell_lines <- c("A549","K562","MCF7")
 
