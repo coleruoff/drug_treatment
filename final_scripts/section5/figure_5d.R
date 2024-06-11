@@ -6,6 +6,7 @@ library(msigdbr)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
+library(tidyverse)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
@@ -26,17 +27,69 @@ mp_t2g <- mp_t2g %>%
 
 gene_universe_intersection <- readRDS(paste0(dataDirectory, "cell_line_gene_universe_intersection.rds"))
 
-ecoli_human_orthologs_table <- readRDS(paste0(dataDirectory, "ortholog_mapping/ecoli_human_orthologs_table.rds"))
+ecoli_human_orthologs_table <- readRDS(paste0(dataDirectory, "genesets/ecoli_human_orthologs_table.rds"))
 
 gene_universe_intersection <- gene_universe_intersection[gene_universe_intersection %in% ecoli_human_orthologs_table$HUMAN_SYMBOL]
+
+################################################################################
+# Creating supercluster signatures that consist of all genes that appear in any
+# of the 3 componenet clusters upregulated genes
+
+cell_lines <- c("A549","K562","MCF7")
+
+num_clusters <- c(19,12,18)
+names(num_clusters) <- cell_lines
+
+all_signatures <- list()
+for(curr_cell_line in cell_lines){
+  
+  de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_de.rds"))
+  
+  curr_signatures <- list()
+  for(curr_cluster in 1:num_clusters[curr_cell_line]){
+    
+    # de_res <- readRDS(paste0(dataDirectory, "de_results/", curr_cell_line, "_cluster_", curr_cluster, "_de.rds"))
+    
+    curr_cluster_signature <- de_res %>% 
+      filter(cluster == curr_cluster & p_val_adj < 0.05 & avg_log2FC > 0) %>% 
+      arrange(desc(avg_log2FC)) %>% 
+      pull(gene) 
+    
+    
+    curr_signatures[[curr_cluster]] <- curr_cluster_signature
+    
+  }
+  
+  all_signatures[[curr_cell_line]] <- curr_signatures
+}
+################################################################################
+
+supercluster_components <- readRDS(paste0(dataDirectory, "processed_data/supercluster_components.rds"))
+
+supercluster1_signatures <- c(list(all_signatures[["A549"]][[supercluster_components[[1]][["A549"]]]]),
+                              list(all_signatures[["K562"]][[supercluster_components[[1]][["K562"]]]]),
+                              list(all_signatures[["MCF7"]][[supercluster_components[[1]][["MCF7"]]]]))
+
+supercluster1_signature <- list("supercluster1_signature" = find_consensus_geneset(supercluster1_signatures,1))
+
+##############
+
+supercluster2_signatures <- c(list(all_signatures[["A549"]][[supercluster_components[[2]][["A549"]]]]),
+                              list(all_signatures[["K562"]][[supercluster_components[[2]][["K562"]]]]),
+                              list(all_signatures[["MCF7"]][[supercluster_components[[2]][["MCF7"]]]]))
+
+supercluster2_signature <- list("supercluster2_signature" = find_consensus_geneset(supercluster2_signatures,1))
+
+supercluster_signatures <- c(supercluster1_signature,supercluster2_signature)
 
 ################################################################################
 # Plotting for RAC superclusters signatures
 
 ecoli_human_orthologs_up <- readRDS(paste0(dataDirectory, "genesets/ecoli_human_orthologs_up.rds"))
-supercluster_signatures <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
+# supercluster_signatures <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
 
-curr_geneset <- intersect(supercluster_signatures[[1]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
+curr_geneset <- intersect(supercluster_signatures[[2]],ecoli_human_orthologs_up$ecoli_human_orthologs_up)
+saveRDS(curr_geneset, paste0(dataDirectory, "genesets/ecoli_sc2_overlap.rds"))
 
 universe_to_use <- gene_universe_intersection
 all_results <- list()
@@ -67,17 +120,17 @@ p3 <- dotplot(go_enrichment_results)
 
 p3+theme(axis.text.y = element_text(size=8))
 
-plots <- list(p3)
+plots <- list(p1,p3)
 
 
-figure <- ggarrange(plotlist = plots, ncol=1, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure,
-                     top=text_grob("Shared Genes Between E. coli Resistance Orthologs and Supercluster 1 Signature Enrichment", size=14, face="bold"))
+                     top=text_grob("Shared Genes Between E. coli Resistance Orthologs and Supercluster 2 Signature Enrichment", size=14, face="bold"))
 
 
 png(paste0(plotDirectory, "figure_5d.png"),
-    width = 10,height=10, units = 'in',res = 300)
+    width = 12,height=6, units = 'in',res = 300)
 
 print(p)
 

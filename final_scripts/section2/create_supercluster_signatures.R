@@ -6,7 +6,8 @@ library(tidyverse)
 library(Seurat)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 
 #################################################################################
 
@@ -47,7 +48,7 @@ supercluster1_signatures <- c(list(all_signatures[["A549"]][[supercluster_compon
                               list(all_signatures[["K562"]][[supercluster_components[[1]][["K562"]]]]),
                               list(all_signatures[["MCF7"]][[supercluster_components[[1]][["MCF7"]]]]))
 
-supercluster1_signature <- list("supercluster1_signature" = find_consensus_geneset(supercluster1_signatures,2))
+supercluster1_signature <- list("supercluster1_signature" = find_consensus_geneset(supercluster1_signatures,3))
 
 ##############
 
@@ -55,9 +56,11 @@ supercluster2_signatures <- c(list(all_signatures[["A549"]][[supercluster_compon
                               list(all_signatures[["K562"]][[supercluster_components[[2]][["K562"]]]]),
                               list(all_signatures[["MCF7"]][[supercluster_components[[2]][["MCF7"]]]]))
 
-supercluster2_signature <- list("supercluster2_signature" = find_consensus_geneset(supercluster2_signatures,2))
+supercluster2_signature <- list("supercluster2_signature" = find_consensus_geneset(supercluster2_signatures,3))
 
 supercluster_signatures <- c(supercluster1_signature,supercluster2_signature)
+
+lengths(supercluster_signatures)
 
 saveRDS(supercluster_signatures, paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
 

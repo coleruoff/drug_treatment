@@ -9,7 +9,7 @@ library(GSVA)
 library(scales)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
 
 #################################################################################
@@ -191,6 +191,16 @@ p <- ggplot(df)+
   
 # scale_color_manual(values=colors_to_use)+
 
+ann_text<-data.frame( 
+  x = 4, y = 20, 
+  label = "geeks for geeks") 
+
+p+geom_text(data=ann_text,aes(x=x,y=y,label=label),size=10)
+
+ann_text<-data.frame( 
+    x = 4, y = 20, 
+    label = "geeks for geeks"
+) 
 
 
 png(paste0(plotDirectory,"figure_4e.png"),

@@ -29,32 +29,12 @@ df <- list()
 #############################
 # Yeast
 
-supercluster_signatures <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
-
-names1 <- gsub("type1_", "", names(supercluster_signatures))
-names2 <- gsub("_", " ", names1)
-names3 <- gsub("supercluster", "Supercluster ", names2)
-names(supercluster_signatures) <- gsub("signature", "Signature", names3)
-
-supercluster_signatures[[1]] <- intersect(supercluster_signatures[[1]], yeast_human_orthologs_up$yeast_human_orthologs_up)
-supercluster_signatures[[2]] <- intersect(supercluster_signatures[[2]], yeast_human_orthologs_up$yeast_human_orthologs_up)
-
-df[["yeast_supercluster1"]] <- supercluster_signatures[[1]]
-df[["yeast_supercluster2"]] <- supercluster_signatures[[2]]
+df[["yeast_supercluster2"]] <- readRDS(paste0(dataDirectory, "genesets/yeast_sc2_overlap.rds"))
 
 #############################
 # E. coli
 
-names1 <- gsub("type1_", "", names(supercluster_signatures))
-names2 <- gsub("_", " ", names1)
-names3 <- gsub("supercluster", "Supercluster ", names2)
-names(supercluster_signatures) <- gsub("signature", "Signature", names3)
-
-supercluster_signatures[[1]] <- intersect(supercluster_signatures[[1]], ecoli_human_orthologs_up$ecoli_human_orthologs_up)
-supercluster_signatures[[2]] <- intersect(supercluster_signatures[[2]], ecoli_human_orthologs_up$ecoli_human_orthologs_up)
-
-df[["ecoli_supercluster1"]] <- supercluster_signatures[[1]]
-df[["ecoli_supercluster2"]] <- supercluster_signatures[[2]]
+df[["ecoli_supercluster2"]] <- readRDS(paste0(dataDirectory, "genesets/ecoli_sc2_overlap.rds"))
 
 
 max_len <- max(lengths(df))
@@ -65,4 +45,4 @@ df <- lapply(df, FUN = function(x) append(x,rep("",max_len-length(x))))
 
 df <- data.frame(df)
 
-write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/supplementary_table_5.xlsx"), sheetName="supercluster_ortholog_overlap", append=T, row.names=FALSE)
+write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/supplementary_table5.xlsx"), sheetName="supercluster_ortholog_overlap", append=T, row.names=FALSE)

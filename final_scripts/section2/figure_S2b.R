@@ -11,7 +11,7 @@ library(tidyverse)
 set.seed(42)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures"
+# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -27,64 +27,76 @@ specifc_mps <- c("MP39 Metal-response","MP31 Alveolar","MP29 NPC/OPC","MP28 Olig
 mp_t2g <- mp_t2g %>% 
   filter(!gs_name %in% specifc_mps)
 
+cell_lines <- c("A549","K562","MCF7")
+
 # Read in gene universes for enrichment analyses
 gene_universe_intersection <- readRDS(paste0(dataDirectory, "cell_line_gene_universe_intersection.rds"))
 cell_line_universes <- readRDS(paste0(dataDirectory, "cell_line_universes.rds"))
 
 ################################################################################
-# Plotting for supercluster enrichment
+# Plotting for Global RAC enrichment
 
-universe_to_use <- gene_universe_intersection
-
-supercluster_signatures <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
-
-names(supercluster_signatures) <- c("Supercluster 1","Supercluster 2")
+all_ranks <- readRDS(paste0(dataDirectory, "genesets/global_rac_ranks.rds"))
 
 all_results <- list()
 
-for(curr_sc in 1:2){
+for(curr_cell_line in cell_lines){
   
-  curr_geneset <- supercluster_signatures[[curr_sc]]
+  # Get current cell line RAC ranks
+  ranks <- all_ranks[[curr_cell_line]]
   
-  # Hallmarks Enrichment
-  hallmark_enrichment_results <- enricher(curr_geneset, TERM2GENE=m_t2g,
-                                          universe = universe_to_use)
+  ###########
+  # Hallmarks
+  if(curr_cell_line == "K562"){
+    y_label <- "Cancer Hallmarks"
+  }
   
-  # MPs Enrichment
-  mp_enrichment_results <- enricher(curr_geneset, TERM2GENE=mp_t2g,
-                                    universe = universe_to_use)
+  hallmarks_gsea <- GSEA(ranks, TERM2GENE = m_t2g)
   
-  # GO Functional Enrichment
-  go_enrichment_results <- enrichGO(gene          = curr_geneset,
-                                    OrgDb         = org.Hs.eg.db,
-                                    ont           = "BP",
-                                    pAdjustMethod = "BH",
-                                    pvalueCutoff  = .01,
-                                    qvalueCutoff  = .05,
-                                    readable      = TRUE,
-                                    keyType = "SYMBOL",
-                                    universe = universe_to_use)
+  # hallmark_plot <- create_barplot(hallmarks_gsea, y_label, curr_cell_line)
+  
+  ###############
+  # Meta-programs
+  if(curr_cell_line == "K562"){
+    y_label <- "ITH Meta-Programs"
+  }
+  
+  mp_gsea <- GSEA(ranks, TERM2GENE = mp_t2g)
+  
+  # mp_plot <- create_barplot(mp_gsea, y_label, curr_cell_line)
+  
+  #############
+  # GO Pathways
+  if(curr_cell_line == "K562"){
+    y_label <- "GO Pathways"
+  }
+  
+  go_gsea <- gseGO(geneList     = ranks,
+                   OrgDb        = org.Hs.eg.db,
+                   ont          = "BP",
+                   minGSSize    = 100,
+                   maxGSSize    = 500,
+                   pvalueCutoff = 0.01,
+                   verbose      = FALSE,
+                   keyType = "SYMBOL")
   
   
-  all_results[[paste0("sc",curr_sc)]] <- list(hallmark_enrichment_results,
-                                              mp_enrichment_results,
-                                              go_enrichment_results)
+  
+  all_results[[curr_cell_line]] <- list(hallmarks_gsea,mp_gsea,go_gsea)
   
 }
 
 
 titles <- list("Cancer Hallmarks","ITH Meta-programs","GO Pathways")
 all_plots <- list()
-
+i <- 1
 for(i in 1:3){
   
   # For each type of enrichment, create heatmap
-  curr_results <- list(all_results[["sc1"]][[i]],all_results[["sc2"]][[i]])
-  names(curr_results) <- c("Supercluster 1","Supercluster 2")
+  curr_results <- list(all_results[["A549"]][[i]],all_results[["K562"]][[i]],all_results[["MCF7"]][[i]])
+  names(curr_results) <- cell_lines
   
   heatmap <- create_enrichment_heatmap(curr_results, titles[i])
-  
-  heatmap@column_names_param$gp$fontsize <- 20
   
   # Add heatmap to curr cell line list of heatmaps
   all_plots <- append(all_plots, heatmap)
@@ -92,21 +104,21 @@ for(i in 1:3){
 
 
 
-curr_title <- paste0("Supercluster Signatures Enrichment")
 
-ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(25, 70, 0, 0), "mm")))
-ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(25, 60, 0, 0), "mm")))
-ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(25, 70, 0, 0), "mm")))
+curr_title <- paste0("Global RAC Signatures Enrichment")
+
+ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(0, 70, 0, 0), "mm")))
+ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(0, 60, 0, 0), "mm")))
+ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(0, 70, 0, 0), "mm")))
 
 
-
-png(paste0(plotDirectory, "figure_3b.png"),
-    width=30, height=15, units= "in", res = 300)
+png(paste0(plotDirectory, "figure_2b.png"),
+    width=30, height=10, units= "in", res = 300)
 
 grid.newpage()
 
 top.vp <- viewport(layout=grid.layout(2, 3,
-                                      widths=unit(c(1,1,1), c("null", "null", "null")),
+                                      widths=unit(c(1, 1, 1), c("null", "null", "null")),
                                       heights=unit(c(.5,5), c("null", "null", "null"))))
 
 title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
@@ -131,8 +143,6 @@ seekViewport("title1")
 grid.text(curr_title, gp = gpar(fontsize = 40))
 
 dev.off()
-
-
 
 
 

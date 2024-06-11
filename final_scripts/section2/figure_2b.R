@@ -2,147 +2,131 @@ args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
 plotDirectory <- paste0(args[1],"final_figures/")
 setwd(args[1])
-source("final_scripts/drug_treatment_functions.R")
-library(msigdbr)
-library(clusterProfiler)
-library(org.Hs.eg.db)
-library(ggpubr)
+library(Seurat)
+library(ComplexHeatmap)
 library(tidyverse)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# dataDirectory <- "//hpcdrive.nih.gov/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
+#################################################################################
 
+cell_lines <- c("A549", "K562", "MCF7")
+
+all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
+
+A549.data <- all_data[["A549"]]
+K562.data <- all_data[["K562"]]
+MCF7.data <- all_data[["MCF7"]]
+
+A549.data <- A549.data[,A549.data$rac == "rac"]
+
+K562.data <- K562.data[,K562.data$rac == "rac"]
+
+MCF7.data <- MCF7.data[,MCF7.data$rac == "rac"]
+
+#################################################################################
+# Cluster based on mean expression of variable genes
+#################################################################################
+
+A549.data <- FindVariableFeatures(A549.data)
+A549_variable_genes <- VariableFeatures(A549.data)
+
+K562.data <- FindVariableFeatures(K562.data)
+K562_variable_genes <- VariableFeatures(K562.data)
+
+MCF7.data <- FindVariableFeatures(MCF7.data)
+MCF7_variable_genes <- VariableFeatures(MCF7.data)
+
+all_variable_genes <- unique(c(A549_variable_genes, K562_variable_genes, MCF7_variable_genes))
+
+all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(A549.data)]
+all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(K562.data)]
+all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(MCF7.data)]
+
+length(all_variable_genes)
 ################################################################################
 
-# Hallmarks term2gene list
-m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>% 
-  dplyr::select(gs_name, human_gene_symbol)
+num_cols <- nlevels(A549.data)+nlevels(K562.data)+nlevels(MCF7.data)
 
-# ITH Meta-programs term2gene list
-mp_t2g <- readRDS(paste0(dataDirectory, "genesets/ith_meta_programs_t2g.rds"))
+heatmap <- matrix(NA, ncol=num_cols, nrow=length(all_variable_genes))
+colnames(heatmap) <- rep("", num_cols)
 
-#Remove 'specific' MPs
-specifc_mps <- c("MP39 Metal-response","MP31 Alveolar","MP29 NPC/OPC","MP28 Oligo normal","MP27 Oligo Progenitor","MP38 Glutathione","MP41 Unassigned","MP35 Hemato-related-I","MP37 Hemato-related-II","MP32 Skin-pigmentation","MP36 IG","MP16 MES (glioma)","MP15 EMT IV")
-mp_t2g <- mp_t2g %>% 
-  filter(!gs_name %in% specifc_mps)
-
-cell_lines <- c("A549","K562","MCF7")
-
-# Read in gene universes for enrichment analyses
-gene_universe_intersection <- readRDS(paste0(dataDirectory, "cell_line_gene_universe_intersection.rds"))
-cell_line_universes <- readRDS(paste0(dataDirectory, "cell_line_universes.rds"))
-
-################################################################################
-# Plotting for Global RAC enrichment
-
-all_ranks <- readRDS(paste0(dataDirectory, "genesets/global_rac_ranks.rds"))
-
-all_results <- list()
-
-for(curr_cell_line in cell_lines){
+j <- 1
+for(cell_line in cell_lines){
   
-  # Get current cell line RAC ranks
-  ranks <- all_ranks[[curr_cell_line]]
+  cat(cell_line,"\n")
+  data <- eval(parse(text=paste0(cell_line, ".data")))
   
-  ###########
-  # Hallmarks
-  if(curr_cell_line == "K562"){
-    y_label <- "Cancer Hallmarks"
+  clusters <- unique(data$Cluster)
+  
+  for(curr_cluster in clusters){
+    cat(curr_cluster,"\n")
+    
+    cluster_mean <- rowMeans(data[["RNA"]]@data[all_variable_genes, data$Cluster == curr_cluster])
+    
+    total_mean <- rowMeans(data[["RNA"]]@data[all_variable_genes, data$Cluster != curr_cluster])
+    
+    heatmap[,j] <- total_mean-cluster_mean
+    colnames(heatmap)[j] <- paste0(cell_line,"_",curr_cluster)
+    
+    j <- j + 1
   }
-  
-  hallmarks_gsea <- GSEA(ranks, TERM2GENE = m_t2g)
-  
-  # hallmark_plot <- create_barplot(hallmarks_gsea, y_label, curr_cell_line)
-  
-  ###############
-  # Meta-programs
-  if(curr_cell_line == "K562"){
-    y_label <- "ITH Meta-Programs"
-  }
-  
-  mp_gsea <- GSEA(ranks, TERM2GENE = mp_t2g)
-  
-  # mp_plot <- create_barplot(mp_gsea, y_label, curr_cell_line)
-  
-  #############
-  # GO Pathways
-  if(curr_cell_line == "K562"){
-    y_label <- "GO Pathways"
-  }
-  
-  go_gsea <- gseGO(geneList     = ranks,
-                   OrgDb        = org.Hs.eg.db,
-                   ont          = "BP",
-                   minGSSize    = 100,
-                   maxGSSize    = 500,
-                   pvalueCutoff = 0.01,
-                   verbose      = FALSE,
-                   keyType = "SYMBOL")
-  
-  
-  
-  all_results[[curr_cell_line]] <- list(hallmarks_gsea,mp_gsea,go_gsea)
-  
 }
 
-
-titles <- list("Cancer Hallmarks","ITH Meta-programs","GO Pathways")
-all_plots <- list()
-i <- 1
-for(i in 1:3){
-  
-  # For each type of enrichment, create heatmap
-  curr_results <- list(all_results[["A549"]][[i]],all_results[["K562"]][[i]],all_results[["MCF7"]][[i]])
-  names(curr_results) <- cell_lines
-  
-  heatmap <- create_enrichment_heatmap(curr_results, titles[i])
-  
-  # Add heatmap to curr cell line list of heatmaps
-  all_plots <- append(all_plots, heatmap)
-}
+cor_heatmap <- cor(heatmap, method = "spearman")
 
 
-
-
-curr_title <- paste0("Global RAC Signatures Enrichment")
-
-ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(0, 70, 0, 0), "mm")))
-ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(0, 60, 0, 0), "mm")))
-ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(0, 70, 0, 0), "mm")))
+ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, cluster_columns = T,
+              column_title = "", column_title_side = "bottom",
+              row_title_side = "left", row_title_gp = gpar(fontsize=20),
+              column_names_rot = 45, 
+              row_names_gp = gpar(fontsize=20),
+              column_names_gp = gpar(fontsize=18),
+              heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(6, "cm"), grid_width=unit(2,"cm"),
+                                          labels_gp = gpar(fontsize = 16)))
 
 
 png(paste0(plotDirectory, "figure_2b.png"),
-    width=30, height=10, units= "in", res = 300)
+    width = 20,height=20, units = 'in',res = 300)
 
-grid.newpage()
-
-top.vp <- viewport(layout=grid.layout(2, 3,
-                                      widths=unit(c(1, 1, 1), c("null", "null", "null")),
-                                      heights=unit(c(.5,5), c("null", "null", "null"))))
-
-title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
-plot1 <- viewport(layout.pos.col = 1, layout.pos.row = 2, name = "plot1")
-plot2 <- viewport(layout.pos.col = 2, layout.pos.row = 2, name = "plot2")
-plot3 <- viewport(layout.pos.col = 3, layout.pos.row = 2, name = "plot3")
-
-splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3))
-
-pushViewport(splot)
-
-seekViewport("plot1")
-grid.draw(ht_grob1)
-
-seekViewport("plot2")
-grid.draw(ht_grob2)
-
-seekViewport("plot3")
-grid.draw(ht_grob3)
-
-seekViewport("title1")
-grid.text(curr_title, gp = gpar(fontsize = 40))
+draw(ht, column_title="Correlations of RACs Differential Mean Expression of Most Variable Genes",
+     column_title_gp = gpar(fontsize = 30, fontface = "bold"),  padding = unit(c(6, 20, 10, 2), "mm"),
+     heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T)
 
 dev.off()
 
 
 
+
+clustered_heatmap <-  hclust(dist(cor_heatmap, method = "euclidean"), method="complete") 
+
+cluster_groups <- cutree(clustered_heatmap, k=6)
+
+corr_values <- as.vector(cor_heatmap)
+
+corr_values <- corr_values[corr_values<1]
+
+corr_threshold <- quantile(corr_values, probs = 0.90)
+
+supercluster_components <- list()
+for(i in unique(cluster_groups)){
+  curr_clusters <- names(cluster_groups[cluster_groups == i])
+  
+  if(sum(cor_heatmap[curr_clusters,curr_clusters] > corr_threshold) == 9){
+    
+    curr_names <- curr_clusters
+    
+    curr_clusters <- as.numeric(sapply(curr_clusters, FUN = function(x) gsub("[A-Z|0-9]*_","",x)))
+    names(curr_clusters) <- sapply(curr_names, FUN = function(x) gsub("_[0-9]*","",x))
+    
+    
+    supercluster_components <- append(supercluster_components, list(curr_clusters))
+  }
+}
+
+names(supercluster_components) <- paste0("supercluster", 1:length(supercluster_components))
+
+
+saveRDS(supercluster_components, paste0(dataDirectory, "processed_data/supercluster_components.rds"))

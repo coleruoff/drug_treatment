@@ -72,7 +72,7 @@ p <- ggplot(final_df)+
   ylab("Percentage")
 
 
-png(paste0(plotDirectory, "figure_3c.png"),
+png(paste0(plotDirectory, "figure_2d.png"),
     width = 10,height=5, units = 'in',res = 300)
 
 print(p)

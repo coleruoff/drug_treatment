@@ -1,4 +1,13 @@
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+args = commandArgs(trailingOnly=TRUE)
+dataDirectory <- paste0(args[1],"final_data/")
+plotDirectory <- paste0(args[1],"final_figures/")
+setwd(args[1])
+source("final_scripts/drug_treatment_functions.R")
+
+# source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+
+#################################################################################
 
 top_tfs <- readRDS(paste0(dataDirectory, "genesets/all_cluster_top_tfs.rds"))
 

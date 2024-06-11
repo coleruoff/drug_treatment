@@ -7,6 +7,7 @@ library(Seurat)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
+library(tidyverse)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
@@ -32,7 +33,7 @@ for(curr_cell_line in cell_lines){
   
   scores <- readRDS(paste0(dataDirectory, "aucell_score_objects/",curr_cell_line,"_processed_filtered_",organism_to_use,"_human_orthologs_up_aucell_scores.rds"))
   # scores <- scale(scores)
-  data <- AddMetaData(data, scores)
+  data <- AddMetaData(data, scores[,1], col.name = colnames(scores))
   
   # Supercluster 1
   curr_scores <- data@meta.data %>% 

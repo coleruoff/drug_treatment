@@ -7,10 +7,11 @@ library(Seurat)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
+library(tidyverse)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
@@ -27,12 +28,14 @@ df <- list()
 for(curr_cell_line in cell_lines){
   data <- all_data[[curr_cell_line]]
   
-  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[1]][[curr_cell_line]], 1,0), "supercluster1")
-  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[2]][[curr_cell_line]], 1,0), "supercluster2")
+  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[1]][[curr_cell_line]], 1,0), col.name = "supercluster1")
+  data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[2]][[curr_cell_line]], 1,0), col.name = "supercluster2")
   
   scores <- readRDS(paste0(dataDirectory, "aucell_score_objects/",curr_cell_line,"_processed_filtered_",organism_to_use,"_human_orthologs_up_aucell_scores.rds"))
+  
   # scores <- scale(scores)
-  data <- AddMetaData(data, scores)
+ 
+  data <- AddMetaData(data, scores[,1], col.name = colnames(scores))
   
   # Supercluster 1
   curr_scores <- data@meta.data %>% 

@@ -112,7 +112,7 @@ for(curr_cell_line in cell_lines){
 
 all_heatmaps <- heatmap_list[[1]] + heatmap_list[[2]] + heatmap_list[[3]]
 
-png(paste0(plotDirectory, "figure_3d.png"),
+png(paste0(plotDirectory, "figure_2e.png"),
     width=24, height=10, units= "in", res = 300)
 
 draw(all_heatmaps,column_title="RACs Cell Count Fold Change After Drug Treatment",

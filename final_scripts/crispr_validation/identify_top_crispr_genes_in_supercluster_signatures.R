@@ -63,7 +63,7 @@ final_df <- readRDS(paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ran
 
 top_genes <- list()
 list_names <- c()
-for(experiment_number in 1:6){
+for(experiment_number in 5){
   if(experiment_number %in% c(2,3)){
     sc_to_use <- "Supercluster 1"
   } else {

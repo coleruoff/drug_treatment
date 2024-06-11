@@ -2,131 +2,80 @@ args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
 plotDirectory <- paste0(args[1],"final_figures/")
 setwd(args[1])
-library(Seurat)
-library(ComplexHeatmap)
+library(readxl)
 library(tidyverse)
-set.seed(42)
+library(ggpubr)
+library(decoupleR)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-# dataDirectory <- "//hpcdrive.nih.gov/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
-#################################################################################
-
-cell_lines <- c("A549", "K562", "MCF7")
-
-all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
-
-A549.data <- all_data[["A549"]]
-K562.data <- all_data[["K562"]]
-MCF7.data <- all_data[["MCF7"]]
-
-A549.data <- A549.data[,A549.data$rac == "rac"]
-
-K562.data <- K562.data[,K562.data$rac == "rac"]
-
-MCF7.data <- MCF7.data[,MCF7.data$rac == "rac"]
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
 #################################################################################
-# Cluster based on mean expression of variable genes
-#################################################################################
 
-A549.data <- FindVariableFeatures(A549.data)
-A549_variable_genes <- VariableFeatures(A549.data)
+treatment_title <- "OVCAR8 IC50 Prexasertib 20 days"
 
-K562.data <- FindVariableFeatures(K562.data)
-K562_variable_genes <- VariableFeatures(K562.data)
+# net <- get_collectri(organism='human', split_complexes=FALSE)
+# full_tf_list <- unique(net$source)
 
-MCF7.data <- FindVariableFeatures(MCF7.data)
-MCF7_variable_genes <- VariableFeatures(MCF7.data)
+supercluster_top_tfs <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_top_tf_list.rds"))
+supercluster_bottom_tfs <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_bottom_tf_list.rds"))
 
-all_variable_genes <- unique(c(A549_variable_genes, K562_variable_genes, MCF7_variable_genes))
+# supercluster_top_tfs <- readRDS(paste0(dataDirectory, "genesets/supercluster_ranks_top_tfs.rds"))
+# supercluster_bottom_tfs <- readRDS(paste0(dataDirectory, "genesets/supercluster_ranks_bottom_tfs.rds"))
 
-all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(A549.data)]
-all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(K562.data)]
-all_variable_genes <- all_variable_genes[all_variable_genes %in% rownames(MCF7.data)]
+final_df <- list()
 
-length(all_variable_genes)
-################################################################################
+crispr_ko_data <- read_xlsx(paste0(dataDirectory, "gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx"), sheet = 5)
 
-num_cols <- nlevels(A549.data)+nlevels(K562.data)+nlevels(MCF7.data)
-
-heatmap <- matrix(NA, ncol=num_cols, nrow=length(all_variable_genes))
-colnames(heatmap) <- rep("", num_cols)
-
-j <- 1
-for(cell_line in cell_lines){
+for(j in 1:2){
+  crispr_ko_ranks <- crispr_ko_data %>% 
+    arrange(`neg|fdr`) %>% 
+    dplyr::select(id,`neg|rank`) 
   
-  cat(cell_line,"\n")
-  data <- eval(parse(text=paste0(cell_line, ".data")))
+  crispr_ko_ranks$ranks <- 1:nrow(crispr_ko_ranks)
   
-  clusters <- unique(data$Cluster)
+  up_ranks <- crispr_ko_ranks %>% 
+    filter(id %in% (supercluster_top_tfs[[j]])) %>% 
+    pull(ranks)
   
-  for(curr_cluster in clusters){
-    cat(curr_cluster,"\n")
-    
-    cluster_mean <- rowMeans(data[["RNA"]]@data[all_variable_genes, data$Cluster == curr_cluster])
-    
-    total_mean <- rowMeans(data[["RNA"]]@data[all_variable_genes, data$Cluster != curr_cluster])
-    
-    heatmap[,j] <- total_mean-cluster_mean
-    colnames(heatmap)[j] <- paste0(cell_line,"_",curr_cluster)
-    
-    j <- j + 1
-  }
+  down_ranks <- crispr_ko_ranks %>%
+    filter(id %in% (supercluster_bottom_tfs[[j]])) %>%
+    pull(ranks)
+  
+  
+  final_df[["rank"]] <- append(final_df[["rank"]], c(up_ranks,down_ranks))
+  final_df[["top"]] <- append(final_df[["top"]], c(rep("Top",length(up_ranks)),rep("Bottom",length(down_ranks))))
+  final_df[["geneset"]] <- append(final_df[["geneset"]], rep(paste0("Supercluster ", j),length(c(up_ranks,down_ranks))))
+  
 }
 
-cor_heatmap <- cor(heatmap, method = "spearman")
+
+final_df <- data.frame(final_df)
+
+final_df$top <- factor(final_df$top,levels = c("Top","Bottom"))
+
+saveRDS(final_df, paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
+
+p <- ggboxplot(final_df, x = "geneset", y = "rank",
+               fill = "top", short.panel.labs = T, ncol=1)
+
+p <-p + stat_compare_means(aes(group = top), label = "p.format")+
+  scale_y_reverse()+
+  scale_fill_discrete(name = "TFs")+
+  ylab("Gene Rank")+
+  xlab("")+
+  ggtitle("Supercluster Top/Bottom TFs Ranks in CRISPR Screen", subtitle = "(OVCAR8 IC50 Prexasertib 20 days)")+
+  theme(axis.text.x = element_text(angle=0, vjust = 1, hjust=.5),
+        strip.text = element_text(size=20),
+        legend.position = "right",
+        legend.title = element_text(size=26),
+        legend.text = element_text(size=20),
+        plot.title = element_text(size=30))
 
 
-ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, cluster_columns = T,
-              column_title = "", column_title_side = "bottom",
-              row_title_side = "left", row_title_gp = gpar(fontsize=20),
-              column_names_rot = 45, 
-              row_names_gp = gpar(fontsize=20),
-              column_names_gp = gpar(fontsize=18),
-              heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(6, "cm"), grid_width=unit(2,"cm"),
-                                          labels_gp = gpar(fontsize = 16)))
+png(paste0(plotDirectory,"figure_3a.png"),
+    width=30,height=12, units = "in", res = 300)
 
-
-png(paste0(plotDirectory, "figure_3a.png"),
-    width = 20,height=20, units = 'in',res = 300)
-
-draw(ht, column_title="Correlations of RACs Differential Mean Expression of Most Variable Genes",
-     column_title_gp = gpar(fontsize = 30, fontface = "bold"),  padding = unit(c(6, 20, 10, 2), "mm"),
-     heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T)
+print(p)
 
 dev.off()
 
-
-
-
-clustered_heatmap <-  hclust(dist(cor_heatmap, method = "euclidean"), method="complete") 
-
-cluster_groups <- cutree(clustered_heatmap, k=6)
-
-corr_values <- as.vector(cor_heatmap)
-
-corr_values <- corr_values[corr_values<1]
-
-corr_threshold <- quantile(corr_values, probs = 0.90)
-
-supercluster_components <- list()
-for(i in unique(cluster_groups)){
-  curr_clusters <- names(cluster_groups[cluster_groups == i])
-  
-  if(sum(cor_heatmap[curr_clusters,curr_clusters] > corr_threshold) == 9){
-    
-    curr_names <- curr_clusters
-    
-    curr_clusters <- as.numeric(sapply(curr_clusters, FUN = function(x) gsub("[A-Z|0-9]*_","",x)))
-    names(curr_clusters) <- sapply(curr_names, FUN = function(x) gsub("_[0-9]*","",x))
-    
-    
-    supercluster_components <- append(supercluster_components, list(curr_clusters))
-  }
-}
-
-names(supercluster_components) <- paste0("supercluster", 1:length(supercluster_components))
-
-
-saveRDS(supercluster_components, paste0(dataDirectory, "processed_data/supercluster_components.rds"))

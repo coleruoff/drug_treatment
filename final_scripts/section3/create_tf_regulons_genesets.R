@@ -1,4 +1,7 @@
-setwd("/data/ruoffcj/projects/drug_treatment/")
+args = commandArgs(trailingOnly=TRUE)
+dataDirectory <- paste0(args[1],"final_data/")
+plotDirectory <- paste0(args[1],"final_figures/")
+setwd(args[1])
 library(tidyverse)
 library(decoupleR)
 library(OmnipathR)
@@ -6,6 +9,8 @@ library(OmnipathR)
 remotes::install_github('saezlab/decoupleR')
 
 dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+
+#################################################################################
 
 net <- get_collectri(organism='human', split_complexes=FALSE)
 
@@ -24,10 +29,9 @@ for(curr_tf in all_tfs){
   
 }
 
-
+names(regulons) <- paste0(all_tfs,"_regulon")
 
 saveRDS(regulons, paste0(dataDirectory, "genesets/tf_regulons.rds"))
 
 
-regulons <- readRDS(paste0(dataDirectory, "genesets/tf_regulons.rds"))
-names(regulons) <- paste0(all_tfs,"_regulon")
+

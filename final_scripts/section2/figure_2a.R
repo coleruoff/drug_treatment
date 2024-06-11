@@ -2,7 +2,6 @@ args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
 plotDirectory <- paste0(args[1],"final_figures/")
 setwd(args[1])
-
 library(ComplexHeatmap)
 library(matrixStats)
 library(circlize)
@@ -116,7 +115,7 @@ draw(hallmarks_ht, column_title = "Cancer Hallmarks Mean AUCell Score",
 dev.off()
 
 
-png(paste0(plotDirectory,"supplementary_figure_2a.png"),
+png(paste0(plotDirectory,"figure_S2a.png"),
     width=30,height=12, units = "in", res = 300)
 
 mps_ht <- mp_heatmaps[[1]] + mp_heatmaps[[2]] + mp_heatmaps[[3]]
