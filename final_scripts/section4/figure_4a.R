@@ -284,9 +284,9 @@ names(all_plots) <- cell_lines
 
 final_plot <- ggarrange(plotlist = all_plots, ncol = 3,nrow=1, common.legend = F)
 
-final_title <- "Global RAC Signatures - Overall Survival"
 
-final_plot <- annotate_figure(final_plot, top = text_grob(final_title, face = "bold", size = 60),
+
+final_plot <- annotate_figure(final_plot,
                               left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),
                               bottom = text_grob("Time", size=45, face="bold"))
 

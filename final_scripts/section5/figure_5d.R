@@ -10,7 +10,8 @@ library(tidyverse)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
 
 ################################################################################
@@ -114,29 +115,28 @@ go_enrichment_results <- enrichGO(gene          = curr_geneset,
                                   universe = universe_to_use)
 
 
-p1 <- dotplot(hallmark_enrichment_results)
-p2 <- dotplot(mp_enrichment_results)
-p3 <- dotplot(go_enrichment_results)
+p1 <- dotplot(hallmark_enrichment_results, font.size=20)
+p2 <- dotplot(mp_enrichment_results, font.size=20)
+p3 <- dotplot(go_enrichment_results, font.size=20)
 
-p3+theme(axis.text.y = element_text(size=8))
+# p3+theme(axis.text.y = element_text(size=8))
 
 plots <- list(p1,p3)
 
 
 figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T,legend=c("right"))
 
-p <- annotate_figure(figure,
-                     top=text_grob("Shared Genes Between E. coli Resistance Orthologs and Supercluster 2 Signature Enrichment", size=14, face="bold"))
+p <- annotate_figure(figure)
 
 
 png(paste0(plotDirectory, "figure_5d.png"),
-    width = 12,height=6, units = 'in',res = 300)
+    width = 24,height=10, units = 'in',res = 300)
 
 print(p)
 
 dev.off()
 
-
+sort(curr_geneset)
 # all_results[[paste0("sc",1)]] <- list(hallmark_enrichment_results,
 #                                             mp_enrichment_results,
 #                                             go_enrichment_results)

@@ -92,8 +92,7 @@ for(curr_cell_line in cell_lines){
 figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=35, face="bold"),
-                bottom = text_grob("Clusters", size=35, face="bold"),
-                top=text_grob("Resistant Active/Inactive Odds Ratio", size=40, face="bold"))
+                bottom = text_grob("Clusters", size=35, face="bold"))
 
 png(paste0(plotDirectory,"figure_1c.png"),
      width=20, height=20, units= "in", res=300)

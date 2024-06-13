@@ -75,11 +75,11 @@ wm983b_early_drug_genes <- wm983b_nodrug_vs_drug_de %>%
 wm983b_resistant_genes_refined <- wm983b_resistant_genes[!wm983b_resistant_genes %in% wm983b_early_drug_genes]
 
 # Get intersection of all upregulated genes
-common_resistance_genes <- intersect(intersect(wm9_resistant_genes_refined,wm983b_resistant_genes_refined),intersect(breast_resistant_genes,melanoma_resistant_genes))
+initial_resistance_genes <- intersect(intersect(wm9_resistant_genes_refined,wm983b_resistant_genes_refined),intersect(breast_resistant_genes,melanoma_resistant_genes))
 
-common_resistance_signature <- list("common_resistance_signature" = common_resistance_genes)
+initial_resistance_signature <- list("initial_resistance_signature" = initial_resistance_genes)
 
-saveRDS(common_resistance_signature, paste0(dataDirectory,"genesets/common_resistance_signature.rds"))
+saveRDS(initial_resistance_signature, paste0(dataDirectory,"genesets/initial_resistance_signature.rds"))
 
 ################################################################################
 # Add Oren 2021 day 14 genes to resistance signature
@@ -91,7 +91,7 @@ watermelon_day14_genes <- watermelon_de %>%
   arrange(desc(avg_log2FC)) %>% 
   pull(gene)
 
-all_resistant_genes <- intersect(common_resistance_genes, watermelon_day14_genes)
+all_resistant_genes <- intersect(initial_resistance_genes, watermelon_day14_genes)
 
 all_resistant_genes <- list("raj_watermelon_resistance_signature" = all_resistant_genes)
 

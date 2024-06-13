@@ -54,8 +54,7 @@ for(curr_cell_line in cell_lines){
 figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = textGrob("Score", rot = 90, vjust = 1, gp = gpar(fontsize=35, fontface="bold")),
-                bottom = textGrob("Clusters", gp = gpar(fontsize=35, fontface="bold")),
-                top=textGrob("Resistance Signature AUCell Scores in Cell Line Clusters", gp = gpar(fontsize=40, fontface="bold")))
+                bottom = textGrob("Clusters", gp = gpar(fontsize=35, fontface="bold")))
 
 png(paste0(plotDirectory,"figure_1b.png"),
     width=20, height=20, units = "in", res = 300)

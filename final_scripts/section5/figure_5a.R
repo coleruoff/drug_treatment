@@ -77,14 +77,10 @@ my_comparisons <- list(c("Supercluster 1","Non-RAC"),c("Supercluster 2","Non-RAC
 # p <- ggboxplot(df, x="sc",y="scores",fill="sc", facet.by = "cell_line")
 p <- ggboxplot(df, x="sc",y="scores",fill="sc")
 
-plot_title <- ifelse(organism_to_use == "ecoli", "E. coli Antimicrobial Resistance Human Ortholog Scores","Yeast Antifungal Resistance Human Ortholog Scores")
-
 p <- p + stat_compare_means(comparisons = my_comparisons,label = "p.signif", method = "wilcox", label.x = 2.2, size=8, method.args = list(alternative = "greater"))+
-  ggtitle(plot_title)+
   xlab("")+
   ylab("AUCell Score")+
   theme(legend.position="right",
-        title = element_text(size=40, face = "bold"),
         axis.text = element_text(size=25),
         axis.text.x = element_text(size=30),
         axis.title = element_text(size=28),

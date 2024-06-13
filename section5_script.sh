@@ -25,16 +25,16 @@ echo "MCF7 scoring"
 #Rscript --vanilla ${source_directory}../AUCell_precompute.R $working_directory "sciPlex_data/MCF7_processed_filtered" "RNA" "ecoli_human_orthologs_up" $SLURM_CPUS_PER_TASK
 
 echo "figure 5a"
-#Rscript --vanilla ${source_directory}figure_5a.R $working_directory
+Rscript --vanilla ${source_directory}figure_5a.R $working_directory
 
 echo "figure 5b"
 Rscript --vanilla ${source_directory}figure_5b.R $working_directory
 
 echo "figure 5c"
-#Rscript --vanilla ${source_directory}figure_5c.R $working_directory
+Rscript --vanilla ${source_directory}figure_5c.R $working_directory
 
 echo "figure 5d"
 Rscript --vanilla ${source_directory}figure_5d.R $working_directory
 
 echo "create_supercluster_gene_spreadsheet"
-Rscript --vanilla ${source_directory}create_supercluster_gene_spreadsheet.R $working_directory
+Rscript --vanilla ${source_directory}table_S5.R $working_directory

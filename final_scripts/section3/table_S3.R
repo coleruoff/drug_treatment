@@ -2,6 +2,9 @@ args = commandArgs(trailingOnly=TRUE)
 dataDirectory <- paste0(args[1],"final_data/")
 plotDirectory <- paste0(args[1],"final_figures/")
 setwd(args[1])
+library(readxl)
+library(xlsx)
+library(tidyverse)
 
 
 crispr_ko_data <- read_xlsx("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx", sheet = 5)
@@ -40,4 +43,4 @@ top_genes <- lapply(top_genes, FUN = function(x) append(x,rep("",max_len-length(
 
 top_genes <- data.frame(top_genes)
 
-write.xlsx(top_genes, file=paste0(dataDirectory, "supplementary_data/supplementary_table3.xlsx"), sheetName="supercluster_top_tfs", row.names=FALSE)
+write.xlsx(top_genes, file=paste0(dataDirectory, "supplementary_tables/table_S3.xlsx"), sheetName="supercluster_top_tfs", row.names=FALSE)

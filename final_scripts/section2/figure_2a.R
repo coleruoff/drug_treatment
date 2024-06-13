@@ -7,8 +7,8 @@ library(matrixStats)
 library(circlize)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -85,7 +85,7 @@ for(curr_cell_line in cell_lines){
   
   hallmark_ht <- Heatmap(curr_hallmark_heatmap, name="Z-Score", cluster_rows = F, cluster_columns = T,
                 bottom_annotation = rac_ha, column_title = curr_cell_line, column_title_side = "top",
-                row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=20),
+                row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=30),
                 heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
                                             labels_gp = gpar(fontsize = 14)))
   
@@ -93,7 +93,7 @@ for(curr_cell_line in cell_lines){
   
   mp_ht <- Heatmap(curr_mp_heatmap, name="Z-Score", cluster_rows = F, cluster_columns = T,
                          bottom_annotation = rac_ha, column_title = curr_cell_line, column_title_side = "top",
-                         row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=20),
+                         row_title = "", column_names_rot = 45, column_title_gp = gpar(fontsize=30),
                          heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
                                                      labels_gp = gpar(fontsize = 14)))
   
@@ -107,8 +107,7 @@ hallmarks_ht <- hallmark_heatmaps[[1]] + hallmark_heatmaps[[2]] + hallmark_heatm
 
 png(paste0(plotDirectory,"figure_2a.png"),width=30,height=12, units = "in", res = 300)
 
-draw(hallmarks_ht, column_title = "Cancer Hallmarks Mean AUCell Score", 
-     column_title_gp = gpar(fontsize = 36),  padding = unit(c(2, 2, 2, 60), "mm"),
+draw(hallmarks_ht, padding = unit(c(2, 2, 2, 60), "mm"),
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T,
      ht_gap = unit(1, "cm"))
 
@@ -120,8 +119,7 @@ png(paste0(plotDirectory,"figure_S2a.png"),
 
 mps_ht <- mp_heatmaps[[1]] + mp_heatmaps[[2]] + mp_heatmaps[[3]]
 
-draw(mps_ht, column_title = "Cancer Meta-Programs Mean AUCell Score", 
-     column_title_gp = gpar(fontsize = 36),  padding = unit(c(2, 2, 2, 60), "mm"),
+draw(mps_ht,  padding = unit(c(2, 2, 2, 60), "mm"),
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T,
      ht_gap = unit(1, "cm"))
 

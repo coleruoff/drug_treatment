@@ -67,9 +67,14 @@ final_df <- rbind(total_sc1_counts,total_sc2_counts)
 p <- ggplot(final_df)+
   geom_col(aes(x=Phase,y=n,fill=Phase), position = "dodge")+
   facet_wrap(~supercluster)+
-  ggtitle("Superclusters Cell Cycle Phase Percentages")+
   xlab("Phase")+
-  ylab("Percentage")
+  ylab("Percentage")+
+  theme(strip.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 16))
+
 
 
 png(paste0(plotDirectory, "figure_2d.png"),

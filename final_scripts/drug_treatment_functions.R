@@ -22,7 +22,8 @@ create_GSEA_matrix <- function(genesets_with_ranks, genesets2){
     fgseaRes <- fgsea(pathways = genesets2, 
                       stats    = genesets_with_ranks[[i]],
                       minSize  = 10,
-                      maxSize  = max(lengths(genesets2))+1)
+                      maxSize  = max(lengths(genesets2))+1,
+                      nPermSimple = 100)
     
     gsea_results <- append(gsea_results, list(fgseaRes))
     
@@ -87,16 +88,11 @@ watermelon_validation <- function(curr_signature, plot_title=NULL){
   # Run GSEA
   result <- create_GSEA_matrix(genesets_with_ranks, curr_signature)
   
-  gsea_matrix <- result[[1]]
+  gsea_results <- do.call(rbind,result[[2]])
   
-  colnames(gsea_matrix) <- paste0("Day ", time_points)
+  gsea_results[["day"]] <- time_points
   
-  if(nrow(gsea_matrix) == 1){
-    rownames(gsea_matrix) <- ""  
-  }
-  
-  
-  return(gsea_matrix)
+  return(gsea_results)
 }
 
 find_consensus_geneset <- function(genesets, n){

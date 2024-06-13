@@ -1,15 +1,18 @@
 library(Seurat)
 
-watermelon_pooled.count_matrix <- read.csv("/data/CDSL_hannenhalli/Cole/data/watermelon_data/GSE150949_pooled_watermelon.count.matrix.csv")
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
-watermelon_pooled.metadata <-  read.csv("/data/CDSL_hannenhalli/Cole/data/watermelon_data/GSE150949_pooled_watermelon.metadata.matrix.csv", row.names = 1)
+################################################################################
+
+watermelon_pooled.count_matrix <- read.csv(paste0(dataDirectory, "raw_data/watermelon_data/GSE150949_pooled_watermelon.count.matrix.csv"))
+
+watermelon_pooled.metadata <-  read.csv(paste0(dataDirectory, "raw_data/watermelon_data/GSE150949_pooled_watermelon.metadata.matrix.csv", row.names = 1))
 
 colnames(watermelon_pooled.count_matrix) <- gsub("\\.","-",colnames(watermelon_pooled.count_matrix))
 
 all(rownames(watermelon_pooled.metadata) == colnames(watermelon_pooled.count_matrix))
 
 cell_lines <- unique(watermelon_pooled.metadata$cell_line)
-
 
 watermelon_pooled.metadata %>% 
   count(cell_line)
@@ -44,7 +47,7 @@ for(curr_cell_line in cell_lines){
   
   # DimPlot(watermelon_pooled, reduction = "umap", group.by = "experiment")
   
-  file_name <- paste0("/data/CDSL_hannenhalli/Cole/drug_treatment/processed_data/watermelon_data/", curr_cell_line, "_processed.rds")
+  file_name <- paste0(dataDirectory,"processed_data/watermelon_data/", curr_cell_line, "_processed.rds")
   
   saveRDS(watermelon_pooled, file_name)
 }

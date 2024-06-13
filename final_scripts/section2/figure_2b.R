@@ -91,8 +91,7 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
 png(paste0(plotDirectory, "figure_2b.png"),
     width = 20,height=20, units = 'in',res = 300)
 
-draw(ht, column_title="Correlations of RACs Differential Mean Expression of Most Variable Genes",
-     column_title_gp = gpar(fontsize = 30, fontface = "bold"),  padding = unit(c(6, 20, 10, 2), "mm"),
+draw(ht, padding = unit(c(6, 20, 10, 2), "mm"),
      heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T)
 
 dev.off()

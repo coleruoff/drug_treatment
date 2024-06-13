@@ -105,14 +105,12 @@ for(i in 1:3){
 
 
 
-curr_title <- paste0("Global RAC Signatures Enrichment")
-
 ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(0, 70, 0, 0), "mm")))
 ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(0, 60, 0, 0), "mm")))
 ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(0, 70, 0, 0), "mm")))
 
 
-png(paste0(plotDirectory, "figure_2b.png"),
+png(paste0(plotDirectory, "figure_S2b.png"),
     width=30, height=10, units= "in", res = 300)
 
 grid.newpage()
@@ -139,8 +137,6 @@ grid.draw(ht_grob2)
 seekViewport("plot3")
 grid.draw(ht_grob3)
 
-seekViewport("title1")
-grid.text(curr_title, gp = gpar(fontsize = 40))
 
 dev.off()
 

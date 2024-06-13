@@ -6,6 +6,7 @@ library(readxl)
 library(tidyverse)
 library(ggpubr)
 library(decoupleR)
+library(poolr)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
@@ -24,7 +25,7 @@ supercluster_bottom_tfs <- readRDS(paste0(dataDirectory, "genesets/rac_superclus
 
 final_df <- list()
 
-crispr_ko_data <- read_xlsx(paste0(dataDirectory, "gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx"), sheet = 5)
+crispr_ko_data <- read_xlsx("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx", sheet = 5)
 
 for(j in 1:2){
   crispr_ko_ranks <- crispr_ko_data %>% 
@@ -63,19 +64,23 @@ p <-p + stat_compare_means(aes(group = top), label = "p.format")+
   scale_fill_discrete(name = "TFs")+
   ylab("Gene Rank")+
   xlab("")+
-  ggtitle("Supercluster Top/Bottom TFs Ranks in CRISPR Screen", subtitle = "(OVCAR8 IC50 Prexasertib 20 days)")+
   theme(axis.text.x = element_text(angle=0, vjust = 1, hjust=.5),
         strip.text = element_text(size=20),
         legend.position = "right",
         legend.title = element_text(size=26),
         legend.text = element_text(size=20),
-        plot.title = element_text(size=30))
+        axis.title = element_text(size=20),
+        axis.text = element_text(size=16))
 
 
 png(paste0(plotDirectory,"figure_3a.png"),
-    width=30,height=12, units = "in", res = 300)
+    width=14,height=8, units = "in", res = 300)
 
 print(p)
 
 dev.off()
+
+
+fisher(c(.705,.012))
+
 

@@ -8,7 +8,7 @@ library(OmnipathR)
 
 remotes::install_github('saezlab/decoupleR')
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
 #################################################################################
 

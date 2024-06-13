@@ -7,7 +7,7 @@ library(ggpubr)
 library(clusterProfiler)
 library(msigdbr)
 library(org.Hs.eg.db)
-source("source/final_scripts/drug_treatment_functions.R")
+source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
 
@@ -183,7 +183,7 @@ pushViewport(splot)
 # Plot heatmaps for each supercluster
 for(curr_sc in 1:2){
   
-  curr_title <- paste0("Supercluster ", curr_sc, " Components Enrichment")
+  curr_title <- paste0("Supercluster ", curr_sc)
   
   ht_grob1 = grid.grabExpr(draw(all_plots[[curr_sc]][[1]], padding = unit(c(0, 70, 0, 0), "mm")))
   ht_grob2 = grid.grabExpr(draw(all_plots[[curr_sc]][[2]], padding = unit(c(0, 60, 0, 0), "mm")))
@@ -200,7 +200,7 @@ for(curr_sc in 1:2){
     grid.draw(ht_grob3)
     
     seekViewport("title1")
-    grid.text(curr_title, gp = gpar(fontsize = 40))
+    grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
   } else {
     seekViewport("plot4")
     grid.draw(ht_grob1)
@@ -212,7 +212,7 @@ for(curr_sc in 1:2){
     grid.draw(ht_grob3)
     
     seekViewport("title2")
-    grid.text(curr_title, gp = gpar(fontsize = 40))
+    grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
   }
 }
 

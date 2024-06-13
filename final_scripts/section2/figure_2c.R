@@ -92,8 +92,6 @@ for(i in 1:3){
 
 
 
-curr_title <- paste0("Supercluster Signatures Enrichment")
-
 ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(25, 70, 0, 0), "mm")))
 ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(25, 60, 0, 0), "mm")))
 ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(25, 70, 0, 0), "mm")))
@@ -126,9 +124,6 @@ grid.draw(ht_grob2)
 
 seekViewport("plot3")
 grid.draw(ht_grob3)
-
-seekViewport("title1")
-grid.text(curr_title, gp = gpar(fontsize = 40))
 
 dev.off()
 

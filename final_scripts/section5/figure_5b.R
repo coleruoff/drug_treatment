@@ -136,18 +136,17 @@ go_enrichment_results <- enrichGO(gene          = curr_geneset,
                                   universe = universe_to_use)
 
 
-p1 <- dotplot(hallmark_enrichment_results)
-p2 <- dotplot(mp_enrichment_results)
-p3 <- dotplot(go_enrichment_results)
+p1 <- dotplot(hallmark_enrichment_results, font.size=20)
+p2 <- dotplot(mp_enrichment_results, font.size=20)
+p3 <- dotplot(go_enrichment_results, font.size=20)
 
 # plots <- list(p1,p2,p3)
 plots <- list(p1,p2,p3)
 
 
-figure <- ggarrange(plotlist = plots, ncol=3, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=3, widths = c(2,1,2),common.legend = T,legend=c("right"))
 
-p <- annotate_figure(figure,
-                     top=text_grob("Shared Genes Between Yeast Resistance Orthologs and Supercluster 2 Signature Enrichment", size=28, face="bold"))
+p <- annotate_figure(figure)
 
 
 png(paste0(plotDirectory, "figure_5b.png"),

@@ -15,11 +15,14 @@ cell_lines <- c("A549","K562","MCF7")
 
 RACs <- readRDS(paste0(dataDirectory, "processed_data/all_RACs.rds"))
 
+supercluster_componenets <- readRDS(paste0(dataDirectory, "processed_data/supercluster_components.rds"))
+
 all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
 
 curr_cell_line <- cell_lines[2]
 
 plots <- list()
+all_plot_data <- list()
 for(curr_cell_line in cell_lines){
   data <- all_data[[curr_cell_line]]
   
@@ -28,7 +31,8 @@ for(curr_cell_line in cell_lines){
   drug_classes <- drug_classes[-which(drug_classes == "Other")]
   drug_classes <- sort(drug_classes)
   
-  clusters <- as.numeric(levels(data))
+  # clusters <- as.numeric(levels(data))
+  clusters <- c(supercluster_componenets[[1]][[curr_cell_line]],supercluster_componenets[[2]][[curr_cell_line]])
   
   doses <- sort(unique(data$dose))
   #########################################################
@@ -75,10 +79,13 @@ for(curr_cell_line in cell_lines){
         
         value <- curr_num/dose_total
         
+        curr_sc <- which(curr_cluster == clusters)
+        
         df[["drug_class"]] <- append(df[["drug_class"]], curr_drug_class)
-        df[["cluster"]] <- append(df[["cluster"]], curr_cluster)
+        df[["cluster"]] <- append(df[["cluster"]], curr_cell_line)
         df[["dose"]] <- append(df[["dose"]], curr_dose)
         df[["value"]] <- append(df[["value"]], value)
+        df[["supercluster"]] <- append(df[["supercluster"]], curr_sc)
         
       }
     }
@@ -86,40 +93,83 @@ for(curr_cell_line in cell_lines){
   
   plot_df <- data.frame(df)
   
-  plot_df$dose <- factor(plot_df$dose)
+  all_plot_data <- append(all_plot_data, list(plot_df))
   
-  plot_df <- plot_df %>% 
-    filter(cluster %in% RACs[[curr_cell_line]])
-  
-  cluster_order <- sort(unique(plot_df$cluster))
-  plot_df$cluster <- paste0("Cluster ", plot_df$cluster)
-  plot_df$cluster <- factor(plot_df$cluster, levels = paste0("Cluster ", cluster_order))
-  
-  plot_title <- curr_cell_line
-  
-  p <- ggplot(plot_df)+
-    geom_point(aes(x=dose,y=value))+
-    geom_line(aes(x=dose,y=value,group=1))+
-    facet_grid(cluster~drug_class)+
-    ggtitle(plot_title)+
-    xlab("")+
-    ylab("")+
-    theme(plot.title = element_text(size=30, face="bold"),
-          axis.text.x = element_text(size=10))
-  
-  
-  plots <- append(plots, list(p))
+  # plot_df$dose <- factor(plot_df$dose)
+  # 
+  # plot_df <- plot_df %>% 
+  #   filter(cluster %in% RACs[[curr_cell_line]])
+  # 
+  # cluster_order <- sort(unique(plot_df$cluster))
+  # plot_df$cluster <- paste0("Cluster ", plot_df$cluster)
+  # plot_df$cluster <- factor(plot_df$cluster, levels = paste0("Cluster ", cluster_order))
+  # 
+  # plot_title <- curr_cell_line
+  # 
+  # p <- ggplot(plot_df)+
+  #   geom_point(aes(x=dose,y=value))+
+  #   geom_line(aes(x=dose,y=value,group=1))+
+  #   facet_grid(cluster~drug_class)+
+  #   ggtitle(plot_title)+
+  #   xlab("")+
+  #   ylab("")+
+  #   theme(plot.title = element_text(size=30, face="bold"),
+  #         axis.text.x = element_text(size=10))
+  # 
+  # 
+  # plots <- append(plots, list(p))
 }
 
-figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
+
+
+all_plot_data <- do.call(rbind, all_plot_data)
+
+plots <- list()
+for(curr_sc in 1:2){
+  
+  df <- all_plot_data %>% 
+    filter(supercluster == curr_sc)
+  
+  plot_title <- paste0("Supercluster ", curr_sc)
+  
+  df$dose <- factor(df$dose)
+
+  
+  p <- ggplot(df)+
+      geom_point(aes(x=dose,y=value))+
+      geom_line(aes(x=dose,y=value,group=1))+
+      facet_grid(drug_class~cluster)+
+      ggtitle(plot_title)+
+      xlab("")+
+      ylab("")+
+      theme(plot.title = element_text(size=30, face="bold"),
+            axis.text.x = element_text(size=10),
+            strip.text.x.top = element_text(size=20))
+  
+  
+  if(curr_sc == 1){
+    p <- p+theme(strip.text.y.right  = element_blank())
+  } else{ 
+    p <- p+theme(strip.text.y.right  = element_text(size=16, angle = 0))
+  }
+  
+  plots <- append(plots, list(p))
+  
+}
+
+
+
+figure <- ggarrange(plotlist = plots, widths = c(1,1.5),ncol=2, common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure, left = text_grob("Percentage", rot = 90, vjust = 1, size=35, face="bold"),
-                     bottom = text_grob("Dose", size=35, face="bold"),
-                     top=text_grob("RACs Cell Proportions Across Drug Doses", size=48, face="bold"))
+                     bottom = text_grob("Dose", size=35, face="bold"))
 
 
-png(paste0(plotDirectory, "figure_3e.png"),
-    width = 32,height=30, units = 'in',res = 300)
+
+p
+
+png(paste0(plotDirectory, "figure_S2d.png"),
+    width = 20,height=20, units = 'in',res = 300)
 
 print(p)
 

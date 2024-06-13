@@ -22,7 +22,7 @@ df <- lapply(df, FUN = function(x) append(x,rep("",max_len-length(x))))
 
 df <- data.frame(df)
 
-write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/supplementary_table_5.xlsx"), sheetName="ortholog_genesets", row.names=FALSE)
+write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/table_S5.xlsx"), sheetName="ortholog_genesets", row.names=FALSE)
 
 #################################################################################
 df <- list()
@@ -45,4 +45,4 @@ df <- lapply(df, FUN = function(x) append(x,rep("",max_len-length(x))))
 
 df <- data.frame(df)
 
-write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/supplementary_table5.xlsx"), sheetName="supercluster_ortholog_overlap", append=T, row.names=FALSE)
+write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/table_S5.xlsx"), sheetName="supercluster_ortholog_overlap", append=T, row.names=FALSE)
