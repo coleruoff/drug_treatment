@@ -10,14 +10,19 @@ library(ggpubr)
 library(tidyverse)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
+plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
 # Hallmarks term2gene list
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>% 
   dplyr::select(gs_name, human_gene_symbol)
+
+new_geneset_names <- sapply(m_t2g$gs_name, FUN = function(x) gsub("HALLMARK_", "", x))
+new_geneset_names <- sapply(new_geneset_names, FUN = function(x) gsub("_", " ", x))
+m_t2g$gs_name <- new_geneset_names
 
 # ITH Meta-programs term2gene list
 mp_t2g <- readRDS(paste0(dataDirectory, "genesets/ith_meta_programs_t2g.rds"))
@@ -76,30 +81,60 @@ for(curr_sc in 1:2){
 titles <- list("Cancer Hallmarks","ITH Meta-programs","GO Pathways")
 all_plots <- list()
 
+all_min_max <- list()
 for(i in 1:3){
   
   # For each type of enrichment, create heatmap
   curr_results <- list(all_results[["sc1"]][[i]],all_results[["sc2"]][[i]])
   names(curr_results) <- c("Supercluster 1","Supercluster 2")
   
-  heatmap <- create_enrichment_heatmap(curr_results, titles[i])
+  fun_results <- create_enrichment_heatmap(curr_results, titles[i])
   
-  heatmap@column_names_param$gp$fontsize <- 20
+  heatmap <- fun_results[[1]]
   
+  all_min_max <- append(all_min_max, list(fun_results[[2]]))
+  
+  heatmap@row_names_param$gp$fontsize <- 30
+  heatmap@column_names_param$gp$fontsize <- 30
+  heatmap@column_title_param$gp$fontsize <- 40
+
+    
   # Add heatmap to curr cell line list of heatmaps
   all_plots <- append(all_plots, heatmap)
 }
 
+total_min <- 0
+total_max <- 0
+for(i in length(all_min_max)){
+  
+  if(all_min_max[[i]][1] < total_min){
+    total_min <- all_min_max[[i]][1] 
+  }
+  
+  if(all_min_max[[i]][2] > total_max){
+    total_max <- all_min_max[[i]][2] 
+  }
+  
+}
 
 
-ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(25, 70, 0, 0), "mm")))
+col_fun = colorRamp2(c(0,total_max), c("white", "red1"))
+
+all_plots[[1]]@matrix_color_mapping@col_fun <- col_fun
+all_plots[[2]]@matrix_color_mapping@col_fun <- col_fun
+all_plots[[3]]@matrix_color_mapping@col_fun <- col_fun
+
+
+all_plots[[3]]@heatmap_param$show_heatmap_legend <- T
+
+ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(25, 80, 0, 0), "mm")))
 ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(25, 60, 0, 0), "mm")))
-ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(25, 70, 0, 0), "mm")))
+ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(25, 80, 0, 0), "mm")))
 
 
 
 png(paste0(plotDirectory, "figure_2c.png"),
-    width=30, height=15, units= "in", res = 300)
+    width=30, height=20, units= "in", res = 300)
 
 grid.newpage()
 

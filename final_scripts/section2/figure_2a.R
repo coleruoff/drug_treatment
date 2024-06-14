@@ -77,25 +77,31 @@ for(curr_cell_line in cell_lines){
   
   rac_ha <- HeatmapAnnotation(RAC = c(ifelse(colnames(curr_hallmark_heatmap) %in% clusters_of_interest,"RAC","Non-RAC")),
                               col = list(RAC = c("RAC" = "orange", "Non-RAC" = "lightblue")), show_annotation_name = F,
-                              annotation_legend_param = list(title_gp=gpar(fontsize=22), grid_height=unit(1,"cm"),grid_width=unit(1,"cm"),
-                                                             title="Cluster Type", labels_gp = gpar(fontsize = 14)))
+                              annotation_legend_param = list(title_gp=gpar(fontsize=30), grid_height=unit(1,"cm"),grid_width=unit(1,"cm"),
+                                                             title="Cluster Type", labels_gp = gpar(fontsize = 20)))
 
     
+  
+  new_rownames <- sapply(rownames(curr_hallmark_heatmap), FUN = function(x) gsub("HALLMARK_", "", x))
+  new_rownames <- sapply(new_rownames, FUN = function(x) gsub("_", " ", x))
+  rownames(curr_hallmark_heatmap) <- new_rownames
   
   
   hallmark_ht <- Heatmap(curr_hallmark_heatmap, name="Z-Score", cluster_rows = F, cluster_columns = T,
                 bottom_annotation = rac_ha, column_title = curr_cell_line, column_title_side = "top",
-                row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=30),
-                heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                            labels_gp = gpar(fontsize = 14)))
+                row_title = "", column_names_rot = 45,column_title_gp = gpar(fontsize=46),
+                column_names_gp = gpar(fontsize=20),row_names_gp = gpar(fontsize=20),
+                heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
+                                            labels_gp = gpar(fontsize = 20)))
   
   
   
   mp_ht <- Heatmap(curr_mp_heatmap, name="Z-Score", cluster_rows = F, cluster_columns = T,
                          bottom_annotation = rac_ha, column_title = curr_cell_line, column_title_side = "top",
-                         row_title = "", column_names_rot = 45, column_title_gp = gpar(fontsize=30),
-                         heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                                     labels_gp = gpar(fontsize = 14)))
+                         row_title = "", column_names_rot = 45, column_title_gp = gpar(fontsize=46),
+                          column_names_gp = gpar(fontsize=20),row_names_gp = gpar(fontsize=20),
+                         heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
+                                                     labels_gp = gpar(fontsize = 20)))
   
   
   hallmark_heatmaps <- append(hallmark_heatmaps,hallmark_ht)
@@ -105,9 +111,10 @@ for(curr_cell_line in cell_lines){
 
 hallmarks_ht <- hallmark_heatmaps[[1]] + hallmark_heatmaps[[2]] + hallmark_heatmaps[[3]]
 
-png(paste0(plotDirectory,"figure_2a.png"),width=30,height=12, units = "in", res = 300)
+png(paste0(plotDirectory,"figure_2a.png"),
+    width=30,height=16, units = "in", res = 300)
 
-draw(hallmarks_ht, padding = unit(c(2, 2, 2, 60), "mm"),
+draw(hallmarks_ht, padding = unit(c(2, 2, 2, 80), "mm"),
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T,
      ht_gap = unit(1, "cm"))
 
@@ -115,7 +122,7 @@ dev.off()
 
 
 png(paste0(plotDirectory,"figure_S2a.png"),
-    width=30,height=12, units = "in", res = 300)
+    width=30,height=16, units = "in", res = 300)
 
 mps_ht <- mp_heatmaps[[1]] + mp_heatmaps[[2]] + mp_heatmaps[[3]]
 

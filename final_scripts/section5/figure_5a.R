@@ -8,6 +8,7 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
 library(tidyverse)
+library(rstatix)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
@@ -77,7 +78,15 @@ my_comparisons <- list(c("Supercluster 1","Non-RAC"),c("Supercluster 2","Non-RAC
 # p <- ggboxplot(df, x="sc",y="scores",fill="sc", facet.by = "cell_line")
 p <- ggboxplot(df, x="sc",y="scores",fill="sc")
 
-p <- p + stat_compare_means(comparisons = my_comparisons,label = "p.signif", method = "wilcox", label.x = 2.2, size=8, method.args = list(alternative = "greater"))+
+stat.test <- compare_means(
+  scores ~ sc, data = df,
+  method = "wilcox.test",
+  alternative = "less")
+
+stat.test <- stat.test[-1,]
+stat.test$p.format[1] <- "ns"
+
+p <- p + stat_pvalue_manual(stat.test, label = "p.format", y.position = c(.25,.22), size=8)+
   xlab("")+
   ylab("AUCell Score")+
   theme(legend.position="right",
@@ -91,8 +100,22 @@ p <- p + stat_compare_means(comparisons = my_comparisons,label = "p.signif", met
   NoLegend()
 
 
+# p <- p + stat_compare_means(comparisons = my_comparisons,label = "p.signif", method = "wilcox", label.x = 2.2, size=8, method.args = list(alternative = "greater"))+
+#   xlab("")+
+#   ylab("AUCell Score")+
+#   theme(legend.position="right",
+#         axis.text = element_text(size=25),
+#         axis.text.x = element_text(size=30),
+#         axis.title = element_text(size=28),
+#         legend.text = element_text(size=24),
+#         legend.title = element_text(size=26),
+#         legend.key.height = unit(1.5,"cm"),
+#         legend.key.width = unit(1.5,"cm"))+
+#   NoLegend()
+
+
 png(paste0(plotDirectory,"figure_5a.png"),
-    width=20, height=12, units="in",res = 300)
+    width=12, height=8, units="in",res = 300)
 
 print(p)
 

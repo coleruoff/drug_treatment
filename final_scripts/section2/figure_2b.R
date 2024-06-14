@@ -82,10 +82,10 @@ ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, clust
               column_title = "", column_title_side = "bottom",
               row_title_side = "left", row_title_gp = gpar(fontsize=20),
               column_names_rot = 45, 
-              row_names_gp = gpar(fontsize=20),
-              column_names_gp = gpar(fontsize=18),
+              row_names_gp = gpar(fontsize=30),
+              column_names_gp = gpar(fontsize=30),
               heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(6, "cm"), grid_width=unit(2,"cm"),
-                                          labels_gp = gpar(fontsize = 16)))
+                                          labels_gp = gpar(fontsize = 20)))
 
 
 png(paste0(plotDirectory, "figure_2b.png"),

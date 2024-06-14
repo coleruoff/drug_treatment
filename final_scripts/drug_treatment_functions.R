@@ -427,7 +427,10 @@ create_enrichment_heatmap <- function(results, title){
       
       
       heatmap_df[["cluster"]] <- append(heatmap_df[["cluster"]], rep(curr_cluster,nrow(curr_result)))
+      
+      curr_result$Description <- sapply(curr_result$Description, FUN = function(x) paste(strwrap(x, 20),collapse="\n"))
       heatmap_df[["pathway"]] <- append(heatmap_df[["pathway"]], curr_result$Description)
+      
       heatmap_df[["value"]] <- append(heatmap_df[["value"]], curr_result$value)
     }
     
@@ -447,14 +450,9 @@ create_enrichment_heatmap <- function(results, title){
   min_value <- min(heatmap_df[!is.na(heatmap_df)])
   max_value <- max(heatmap_df[!is.na(heatmap_df)])
   
-  if(min_value > 0){
-    col_fun = colorRamp2(c(0,max_value), c("white", "red1"))  
-  } else if(max_value < 0){
-    col_fun = colorRamp2(c(min_value,0), c("royalblue", "white"))
-  } else{
-    col_fun = colorRamp2(c(min_value,0, max_value), c("royalblue", "white", "red1"))
-  }
-  
+  # col_fun = colorRamp2(c(min_value,0, max_value), c("royalblue", "white", "red1"))
+  min_max <- c(min_value,max_value)
+ 
   
   
   curr_title <- paste0(title)
@@ -464,13 +462,12 @@ create_enrichment_heatmap <- function(results, title){
                      column_names_gp = gpar(fontsize=15),row_names_gp = gpar(fontsize=20),
                      column_title_gp = gpar(fontsize=22),
                      row_names_max_width = max_text_width(rownames(heatmap_df)),
-                     row_names_side = "left",
-                     heatmap_legend_param = list(title_gp = gpar(fontsize = 22),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                                 labels_gp = gpar(fontsize = 14)))
+                     row_names_side = "left",show_heatmap_legend = FALSE,
+                     heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
+                                                 labels_gp = gpar(fontsize = 20)))
   
-  # curr_ht <- draw(curr_ht, heatmap_legend_side  = "left")
   
-  return(curr_ht)
+  return(list(curr_ht, min_max))
 }
 
 

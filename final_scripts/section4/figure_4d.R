@@ -189,9 +189,10 @@ p <- ggplot(df)+
   xlab("Mean Responder Score")+
   ylab("Mean Non-Responder Score")+
   guides(color=guide_legend(title="Cohort"))+
-  geom_label(x=.65,y=.2,label=TeX("logit(NonResponder) ~ $\\beta_{0} + \\beta_{1}SignatureScore + \\beta_{2}Cohort"))+
+  geom_label(x=.575,y=.2,size=3,label=TeX("logit(NonResponder) ~ $\\beta_{0} + \\beta_{1}SignatureScore + \\beta_{2}Cohort"))+
   theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20))
+        axis.title = element_text(size = 20),
+        plot.margin = margin(1,1,1,1, "cm"))
   
 
 
@@ -199,7 +200,7 @@ p
 # scale_color_manual(values=colors_to_use)+
 
 png(paste0(plotDirectory,"figure_4d.png"),
-    width=14, height = 10, units="in",res=300)
+    width=8, height = 6, units="in",res=300)
 
 
 print(p)

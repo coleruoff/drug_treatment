@@ -7,6 +7,7 @@ library(tidyverse)
 library(ggpubr)
 library(decoupleR)
 library(poolr)
+library(rstatix) 
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
@@ -56,22 +57,49 @@ final_df$top <- factor(final_df$top,levels = c("Top","Bottom"))
 
 saveRDS(final_df, paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
 
-p <- ggboxplot(final_df, x = "geneset", y = "rank",
-               fill = "top", short.panel.labs = T, ncol=1)
+p <- ggboxplot(final_df, x = "top", y = "rank",
+               fill = "top", short.panel.labs = T, ncol=1)+
+  facet_wrap(~geneset, strip.position = "bottom")
 
-p <-p + stat_compare_means(aes(group = top), label = "p.format")+
+
+stat.test <- final_df %>%
+  group_by(geneset) %>%
+  wilcox_test(rank ~ top) %>%
+  adjust_pvalue() %>%
+  add_significance()
+
+stat.test$p.adj[1] <- "ns"
+
+p <- p + stat_pvalue_manual(stat.test, label = "p.adj", y.position = 1000,size=8)+
   scale_y_reverse()+
   scale_fill_discrete(name = "TFs")+
   ylab("Gene Rank")+
   xlab("")+
-  theme(axis.text.x = element_text(angle=0, vjust = 1, hjust=.5),
-        strip.text = element_text(size=20),
+  theme(strip.text = element_text(size=20),
+        strip.background = element_rect(color="black", fill="white", size=1, linetype="solid"),
         legend.position = "right",
         legend.title = element_text(size=26),
         legend.text = element_text(size=20),
-        axis.title = element_text(size=20),
-        axis.text = element_text(size=16))
+        axis.title = element_text(size=30),
+        axis.text = element_text(size=20),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
 
+# p <- p + stat_compare_means(aes(group = top), label = "p.format", size=10) +
+#   scale_y_reverse()+
+#   scale_fill_discrete(name = "TFs")+
+#   ylab("Gene Rank")+
+#   xlab("")+
+#   theme(axis.text.x = element_text(angle=0, vjust = 1, hjust=.5),
+#         strip.text = element_text(size=20),
+#         legend.position = "right",
+#         legend.title = element_text(size=26),
+#         legend.text = element_text(size=20),
+#         axis.title = element_text(size=30),
+#         axis.text = element_text(size=20))
+# 
+# 
+# p
 
 png(paste0(plotDirectory,"figure_3a.png"),
     width=14,height=8, units = "in", res = 300)

@@ -18,6 +18,11 @@ set.seed(42)
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>% 
   dplyr::select(gs_name, human_gene_symbol)
 
+new_geneset_names <- sapply(m_t2g$gs_name, FUN = function(x) gsub("HALLMARK_", "", x))
+new_geneset_names <- sapply(new_geneset_names, FUN = function(x) gsub("_", " ", x))
+m_t2g$gs_name <- new_geneset_names
+
+
 mp_t2g <- readRDS(paste0(dataDirectory, "genesets/ith_meta_programs_t2g.rds"))
 
 specifc_mps <- c("MP39 Metal-response","MP31 Alveolar","MP29 NPC/OPC","MP28 Oligo normal","MP27 Oligo Progenitor","MP38 Glutathione","MP41 Unassigned","MP35 Hemato-related-I","MP37 Hemato-related-II","MP32 Skin-pigmentation","MP36 IG","MP16 MES (glioma)","MP15 EMT IV")
@@ -136,21 +141,31 @@ go_enrichment_results <- enrichGO(gene          = curr_geneset,
                                   universe = universe_to_use)
 
 
-p1 <- dotplot(hallmark_enrichment_results, font.size=20)
-p2 <- dotplot(mp_enrichment_results, font.size=20)
-p3 <- dotplot(go_enrichment_results, font.size=20)
+p1 <- dotplot(hallmark_enrichment_results, font.size=20)+
+  theme(legend.text = element_text(size=16),
+        legend.title = element_text(size=24))
+
+p2 <- dotplot(mp_enrichment_results, font.size=20)+
+  theme(legend.text = element_text(size=16),
+        legend.title = element_text(size=24))
+
+p3 <- dotplot(go_enrichment_results, font.size=20)+
+  theme(legend.text = element_text(size=16),
+        legend.title = element_text(size=24))
+
+
 
 # plots <- list(p1,p2,p3)
 plots <- list(p1,p2,p3)
 
 
-figure <- ggarrange(plotlist = plots, ncol=3, widths = c(2,1,2),common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=3, widths = c(1,.8,1),common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure)
 
 
 png(paste0(plotDirectory, "figure_5b.png"),
-    width = 24,height=10, units = 'in',res = 300)
+    width = 24,height=8, units = 'in',res = 300)
 
 print(p)
 
