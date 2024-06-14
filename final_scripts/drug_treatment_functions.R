@@ -392,6 +392,8 @@ get_clinical_data <- function(project){
 }
 
 
+
+
 #results = list of enrichment results that will be the columns in the heatmap
 create_enrichment_heatmap <- function(results, title){
   
@@ -429,7 +431,7 @@ create_enrichment_heatmap <- function(results, title){
       heatmap_df[["cluster"]] <- append(heatmap_df[["cluster"]], rep(curr_cluster,nrow(curr_result)))
       
       curr_result$Description <- sapply(curr_result$Description, FUN = function(x) paste(strwrap(x, 20),collapse="\n"))
-      heatmap_df[["pathway"]] <- append(heatmap_df[["pathway"]], curr_result$Description)
+      heatmap_df[["pathway"]] <- append(heatmap_df[["pathway"]], unlist(curr_result$Description))
       
       heatmap_df[["value"]] <- append(heatmap_df[["value"]], curr_result$value)
     }
@@ -437,7 +439,6 @@ create_enrichment_heatmap <- function(results, title){
     
     
   }
-  
   
   heatmap_df <- data.frame(heatmap_df)  
   
@@ -457,12 +458,12 @@ create_enrichment_heatmap <- function(results, title){
   
   curr_title <- paste0(title)
   
-  curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F, col = col_fun,
+  curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F,
                      name=legend_title, column_names_rot = 45, column_title = curr_title,
                      column_names_gp = gpar(fontsize=15),row_names_gp = gpar(fontsize=20),
                      column_title_gp = gpar(fontsize=22),
                      row_names_max_width = max_text_width(rownames(heatmap_df)),
-                     row_names_side = "left",show_heatmap_legend = FALSE,
+                     row_names_side = "left", show_heatmap_legend = FALSE,
                      heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
                                                  labels_gp = gpar(fontsize = 20)))
   

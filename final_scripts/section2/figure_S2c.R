@@ -18,6 +18,10 @@ set.seed(42)
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>%
   dplyr::select(gs_name, human_gene_symbol)
 
+new_geneset_names <- sapply(m_t2g$gs_name, FUN = function(x) gsub("HALLMARK_", "", x))
+new_geneset_names <- sapply(new_geneset_names, FUN = function(x) gsub("_", " ", x))
+m_t2g$gs_name <- new_geneset_names
+
 # ITH Meta-programs term2gene list
 mp_t2g <- readRDS(paste0(dataDirectory, "genesets/ith_meta_programs_t2g.rds"))
 
@@ -134,6 +138,7 @@ for(curr_sc in 1:2){
 # Create heatmaps for each supercluster
 titles <- list("Cancer Hallmarks","ITH Meta-programs","GO Pathways")
 all_plots <- list()
+all_min_max <- list()
 
 for(curr_sc in 1:2){ #Superclusters
   
@@ -145,9 +150,20 @@ for(curr_sc in 1:2){ #Superclusters
       curr_results <- append(curr_results, all_results[[curr_sc]][[j]][[i]])
     }
     
-    names(curr_results) <- names(all_results[[curr_sc]])
+    names(curr_results) <- cell_lines#names(all_results[[curr_sc]])
     
-    heatmap <- create_enrichment_heatmap(curr_results, titles[i])
+    fun_results <- create_enrichment_heatmap(curr_results, titles[i])
+    
+    heatmap <- fun_results[[1]]
+    
+    all_min_max <- append(all_min_max, list(fun_results[[2]]))
+    
+    heatmap@row_names_param$gp$fontsize <- 30
+    heatmap@column_names_param$gp$fontsize <- 30
+    heatmap@column_title_param$gp$fontsize <- 40
+    heatmap@matrix_legend_param$title_gp$fontsize <- 34
+    heatmap@matrix_legend_param$labels_gp$fontsize <- 30
+    
     
     # Add heatmap to curr cell line list of heatmaps
     curr_sc_plots <- append(curr_sc_plots, heatmap)
