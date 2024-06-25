@@ -1,7 +1,7 @@
-args = commandArgs(trailingOnly=TRUE)
-dataDirectory <- paste0(args[1],"final_data/")
-plotDirectory <- paste0(args[1],"final_figures/")
-setwd(args[1])
+# args = commandArgs(trailingOnly=TRUE)
+# dataDirectory <- paste0(args[1],"final_data/")
+# plotDirectory <- paste0(args[1],"final_figures/")
+# setwd(args[1])
 library(foreach)
 library(doParallel)
 library(doMC)
@@ -9,10 +9,14 @@ set.seed(42)
 
 registerDoMC(cores=future::availableCores())
 
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+
 #################################################################################
 
 cell_lines <- c("A549","K562","MCF7")
 
+
+RACs <- readRDS(paste0(dataDirectory, "processed_data/all_RACs.rds"))
 all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
 
 cluster_numbers <- c(19,12,18)
@@ -21,6 +25,8 @@ names(cluster_numbers) <- cell_lines
 for(curr_cell_line in cell_lines){
   
   data <- all_data[[curr_cell_line]]
+  
+  # data <- data[,data$pathway_level_1 == "DNA damage & DNA repair"]
   
   num_clusters <- cluster_numbers[[curr_cell_line]]
   
@@ -38,13 +44,19 @@ for(curr_cell_line in cell_lines){
     cat(curr_regulon, "\n")
     
     curr_row <- c()
-    for(curr_cluster in 1:num_clusters){
+    for(curr_cluster in RACs[[curr_cell_line]]){
       
       curr_cluster_names <- colnames(data)[data$Cluster == curr_cluster]
-      rest_names <- colnames(data)[!data$Cluster %in% all_RACs[[curr_cell_line]] ]
+      if(length(curr_cluster_names) == 0){
+        curr_value <- 0
+      } else{
+        
+        rest_names <- colnames(data)[!data$Cluster %in% all_RACs[[curr_cell_line]] ]
+        
+        # Mean score OR for each cluster compared to all non-RACs
+        curr_value <- mean(scores[curr_cluster_names,all_regulons[curr_regulon]])/mean(scores[rest_names,all_regulons[curr_regulon]])
+      }
       
-      # Mean score OR for each cluster
-      curr_value <- mean(scores[curr_cluster_names,all_regulons[curr_regulon]])/mean(scores[rest_names,all_regulons[curr_regulon]])
       
       curr_row <- append(curr_row,curr_value)
       # tf_heatmap[curr_regulon,curr_cluster] <- curr_value
@@ -54,7 +66,7 @@ for(curr_cell_line in cell_lines){
   }
   
   
-  colnames(tf_heatmap) <- 1:num_clusters
+  colnames(tf_heatmap) <- RACs[[curr_cell_line]]
   rownames(tf_heatmap) <- gsub("_regulon", "", all_regulons)
   
   dim(tf_heatmap)

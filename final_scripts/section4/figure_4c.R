@@ -13,7 +13,7 @@ library(ggpubr)
 library(matrixStats)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
 
 ################################################################################

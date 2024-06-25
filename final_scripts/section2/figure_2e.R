@@ -13,7 +13,7 @@ plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figu
 
 cell_lines <- c("A549","K562","MCF7")
 
-supercluster_componenets <- readRDS(paste0(dataDirectory, "processed_data/supercluster_components.rds"))
+supercluster_components <- readRDS(paste0(dataDirectory, "processed_data/supercluster_components.rds"))
 
 all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
 
@@ -31,7 +31,7 @@ for(curr_cell_line in cell_lines){
   drug_classes <- drug_classes[-which(drug_classes == "Other")]
   drug_classes <- sort(drug_classes)
   
-  clusters <- c(supercluster_componenets[[1]][[curr_cell_line]],supercluster_componenets[[2]][[curr_cell_line]])
+  clusters <- c(supercluster_components[[1]][[curr_cell_line]],supercluster_components[[2]][[curr_cell_line]])
   ##############################################################################
    
   heatmap <- matrix(NA, ncol=length(clusters),nrow=length(drug_classes))
@@ -67,7 +67,7 @@ for(curr_cell_line in cell_lines){
 
 sc_heatmap_list <- list()
 for(i in 1:2){
-  curr_sc_heatmap <- cbind(heatmap_list[[1]][,i],heatmap_list[[1]][,i],heatmap_list[[3]][,i])
+  curr_sc_heatmap <- cbind(heatmap_list[[1]][,i],heatmap_list[[2]][,i],heatmap_list[[3]][,i])
   
   curr_sc_heatmap[curr_sc_heatmap == 0] <- NA
   
@@ -78,7 +78,7 @@ for(i in 1:2){
   ht <- Heatmap(log(curr_sc_heatmap), name="log(OR)", cluster_rows = F,cluster_columns = F,
                               column_title = heatmap_title,  column_names_rot = 45,column_names_gp = gpar(fontsize= 30),
                               rect_gp = gpar(col = "gray", lwd = .5),column_title_gp = gpar(fontsize=46),
-                row_names_gp = gpar(fontsize = 28),
+                              row_names_gp = gpar(fontsize = 28),
                               heatmap_legend_param = list(title_gp = gpar(fontsize = 20),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
                                                           labels_gp = gpar(fontsize = 14)))
   

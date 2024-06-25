@@ -6,36 +6,38 @@ library(readxl)
 library(xlsx)
 library(tidyverse)
 
+supercluster_top_tf_list <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_top_tf_list.rds"))
+supercluster_bottom_tf_list <- readRDS(paste0(dataDirectory, "genesets/rac_supercluster_bottom_tf_list.rds"))
 
-crispr_ko_data <- read_xlsx("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx", sheet = 5)
-
-crispr_ko_ranks <- crispr_ko_data %>% 
-  arrange(`neg|fdr`) %>% 
-  mutate(ranks = 1:nrow(.)) %>% 
-  mutate(adj_p_value = `neg|fdr`) %>% 
-  dplyr::select(id,ranks,adj_p_value)
-
-
-final_df <- readRDS(paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
-
-top_genes <- list()
-list_names <- c()
-
-for(sc_to_use in paste0("Supercluster ", 1:2)){
-  curr_ranks <- final_df %>% 
-    filter(geneset == sc_to_use & top == "Top") %>% 
-    pull(rank)
+df <- list()
+for(i in 1:2){
+  df[[paste0("supercluster",i,"_top_tfs")]] <- supercluster_top_tf_list[[i]]
+  df[[paste0("supercluster",i,"_bottom_tfs")]] <- supercluster_bottom_tf_list[[i]]
   
-  curr_genes <- crispr_ko_ranks %>% 
-    filter(ranks %in% curr_ranks & adj_p_value < 0.05) %>%
-    arrange(ranks) %>%
-    pull(id) 
-  
-  top_genes <- append(top_genes, list(curr_genes))
 }
 
+max_len <- max(lengths(df))
 
-names(top_genes) <- paste0("Supercluster ", 1:2)
+df <- lapply(df, FUN = function(x) append(x,rep("",max_len-length(x))))
+
+df <- data.frame(df)
+
+write.xlsx(df, file=paste0(dataDirectory, "supplementary_tables/table_S3.xlsx"), sheetName="supercluster_tfs", row.names=FALSE)
+
+################################################################################
+crispr_ko_data <- read_xlsx("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx", sheet = 5)
+
+top_genes <- list()
+for(j in 1:2){
+  
+  curr_top_tfs <- crispr_ko_data %>% 
+    filter(`neg|score` < quantile(crispr_ko_data$`neg|score`, probs = .25) & id %in% supercluster_top_tfs[[j]]) %>% 
+    pull(id)
+  
+  top_genes <- append(top_genes, list(curr_top_tfs))
+}
+
+names(top_genes) <- paste0("supercluster", 1:2)
 
 max_len <- max(lengths(top_genes))
 
@@ -43,4 +45,4 @@ top_genes <- lapply(top_genes, FUN = function(x) append(x,rep("",max_len-length(
 
 top_genes <- data.frame(top_genes)
 
-write.xlsx(top_genes, file=paste0(dataDirectory, "supplementary_tables/table_S3.xlsx"), sheetName="supercluster_top_tfs", row.names=FALSE)
+write.xlsx(top_genes, file=paste0(dataDirectory, "supplementary_tables/table_S3.xlsx"), sheetName="supercluster_CRISPR_top_tfs", row.names=FALSE, append=T)

@@ -12,6 +12,8 @@ library(ggpubr)
 
 cell_lines <- c("A549","K562","MCF7")
 
+RACs <- readRDS(paste0(dataDirectory, "processed_data/all_RACs.rds"))
+
 plots <- list()
 for(curr_cell_line in cell_lines){
   
@@ -75,6 +77,11 @@ for(curr_cell_line in cell_lines){
   total_df$cluster <- paste0("Cluster ", total_df$cluster)
   all_clusters <- paste0("Cluster ", all_clusters)
   
+  # Filter to only highlight the RACs in current cell line
+  total_df <- total_df %>% 
+    filter(cluster %in% paste0("Cluster ", RACs[[curr_cell_line]]))
+  
+  
   plot_title <- curr_cell_line
   p <- ggplot(total_df,aes(x=dose, y=OR, group=1))+
     geom_line()+
@@ -83,7 +90,7 @@ for(curr_cell_line in cell_lines){
     xlab("")+
     ylab("")+
     ggtitle(plot_title)+
-    facet_wrap(~factor(cluster, levels=paste0("Cluster ", 1:19)))+
+    facet_wrap(~factor(cluster, levels=paste0("Cluster ", 1:19)),nrow=1)+
     theme(axis.text.x = element_text(size=14,angle=45, hjust=1),
           legend.position="right",
           title = element_text(size=28, face="bold"),
@@ -95,13 +102,13 @@ for(curr_cell_line in cell_lines){
   plots <- append(plots,list(p))
 }
 
-figure <- ggarrange(plotlist = plots, ncol=3, nrow=1,common.legend = F)
+figure <- ggarrange(plotlist = plots, ncol=1, nrow=3,common.legend = F)
 
 p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=35, face="bold"),
                      bottom = text_grob("Dose", size=35, face="bold"))
 
 png(paste0(plotDirectory, "figure_1d.png"),
-    width=30, height=12, units = "in", res=300)
+    width=14, height=10, units = "in", res=300)
 
 print(p)
 

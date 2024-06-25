@@ -25,32 +25,56 @@ gsea_results <- watermelon_validation(initial_resistance_signature)
 
 # Plot NES of resistance signature at each time point as line plot
 df <- as.data.frame(gsea_results)
-colnames(df) <- c("day","value")
+# colnames(df) <- c("day","value")
 
 
 
 # df$value <- as.numeric(df$value)
 df$day <- factor(df$day, levels = df$day)
-df$dot_color <- ifelse(df$value > 0, "pos","neg")
 
-p <- ggplot(df, aes(x=day,y=NES))+
-  geom_line(aes(group=1), linewidth=2)+
-  geom_point(aes(color=dot_color),size=5)+
-  scale_color_manual(values=c("pos" = "red","neg" ="blue"))+
+
+df <- df %>% 
+  filter(day %in% c(0,14))
+
+df$dot_color <- ifelse(df$NES > 0, "pos","neg")
+
+p <- ggplot(df, aes(x=day, y=NES, fill=dot_color)) + 
+  geom_bar(stat = "identity",color="black",linewidth=.5)+
+  scale_fill_manual(values=c("pos" = "red","neg" ="blue"))+
   xlab("Time Point")+
   ylab("NES")+
+  geom_hline(yintercept = 0,color="black")+
   theme(axis.title = element_text(size=20),
         axis.text = element_text(size=15),
         plot.title = element_text(size=30,face="bold"))+
   NoLegend()+
   geom_errorbar(aes(ymin=NES-log2err, ymax=NES+log2err), width=.2,
-                position=position_dodge(.9)) 
+                position=position_dodge(.9)) +
+  scale_y_continuous(name="NES", limits=c(-3, 3))
+
+
+
+
+
+
+# p <- ggplot(df, aes(x=day,y=NES))+
+#   geom_line(aes(group=1), linewidth=2)+
+#   geom_point(aes(color=dot_color),size=5)+
+#   scale_color_manual(values=c("pos" = "red","neg" ="blue"))+
+#   xlab("Time Point")+
+#   ylab("NES")+
+#   theme(axis.title = element_text(size=20),
+#         axis.text = element_text(size=15),
+#         plot.title = element_text(size=30,face="bold"))+
+#   NoLegend()+
+#   geom_errorbar(aes(ymin=NES-log2err, ymax=NES+log2err), width=.2,
+#                 position=position_dodge(.9)) 
 
 
 p
 
 
-png(paste0(plotDirectory,"figure_1a.png"),width=12,height=5, units = "in", res = 300)
+png(paste0(plotDirectory,"figure_1a.png"),width=6,height=8, units = "in", res = 300)
 
 print(p)
 

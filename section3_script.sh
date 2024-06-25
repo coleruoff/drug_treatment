@@ -18,14 +18,15 @@ echo "score all cells for regulon activity"
 echo "calculate cluster TF activity"
 #Rscript --vanilla ${source_directory}calculate_cluster_tf_activity.R $working_directory
 
-echo "create top cluster TF lists"
-#Rscript --vanilla ${source_directory}create_all_cluster_tf_lists.R $working_directory
+echo "create supercluster TFs"
+#Rscript --vanilla ${source_directory}create_supercluster_tf_lists.R $working_directory
 
-echo "create supercluster consensus TFs"
-#Rscript --vanilla ${source_directory}create_supercluster_consensus_tf_lists.R $working_directory
+#echo "figure 3a"
+# Rscript --vanilla ${source_directory}figure_3a.R $working_directory
 
-echo "figure 3a"
-Rscript --vanilla ${source_directory}figure_3a.R $working_directory
+echo "calculate supercluster CRISPR odds ratio"
+# Rscript --vanilla ${source_directory}calculate_tf_CRISPR_odds_ratio.R $working_directory
+
 
 echo "create TF gene spreadsheet"
 Rscript --vanilla ${source_directory}table_S3.R $working_directory

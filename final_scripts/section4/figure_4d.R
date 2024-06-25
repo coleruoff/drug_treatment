@@ -5,6 +5,7 @@ setwd(args[1])
 library(DESeq2)
 library(tidyverse)
 library(ggpubr)
+BiocManager::install("GSVA")
 library(GSVA)
 library(scales)
 library(latex2exp)
@@ -37,22 +38,12 @@ enlight_response_data <- read.csv(paste0(dataDirectory, "raw_data/enlight_data/d
 
 rna_seq_datasets <- c("Trastuzumab_5","Bevacizumab_3", "Selinexor", "Vismodegib", "MGH_Ribociclib", "MGH_Alpelisib", "BRAFi_1", "Anti-PD1", "Anti-PD1_2", "Anti-PD1_5")
 
-
-# enlight_response_data <- enlight_response_data %>%
-#   filter(Dataset %in% rna_seq_datasets)#!Dataset %in% drug_classes$immunotherapy)
-
 enlight_response_data <- enlight_response_data %>%
   filter(Dataset %in% drug_classes$small_molecules)
 
 all_drugs <- unique(enlight_response_data$Dataset)
 
-if("Anti-PD1 +- Anti-CTLA4" %in% all_drugs){
-  all_drugs <- all_drugs[-which(all_drugs == "Anti-PD1 +- Anti-CTLA4")]  
-}
-
 all_sample_scores <- matrix(NA,nrow=0,ncol=(length(all_signatures)+1))
-
-
 
 drug_class_df <- drug_class_df %>% 
   filter(Dataset %in% all_drugs)
@@ -100,7 +91,6 @@ for(curr_drug in all_drugs){
   ssgsea_res <- t(apply(ssgsea_res, MARGIN = 1, FUN = function(X) (X - min(X))/diff(range(X))))
   # ssgsea_res <- t(scale(t(ssgsea_res)))
   
-  
   colnames(ssgsea_res) <- colnames(curr_data)
   temp <- data.frame(t(ssgsea_res)) %>% 
     rownames_to_column()
@@ -138,6 +128,9 @@ df$drug <- sapply(df$Dataset, function(x) strsplit(x, "_[0-9]")[[1]][1])
 
 regression_df <- df
 
+saveRDS(df, paste0(dataDirectory, "dinstag_data_scores.rds"))
+
+
 R_df <- df %>% 
   dplyr::select(cancer_type, drug,geneset,score, Response,drug_class) %>% 
   mutate(cohort = paste0(cancer_type, " + ", drug), cancer_type=NULL, drug=NULL) %>% 
@@ -165,19 +158,6 @@ df <- df %>%
 
 df <- merge(df,R_df, by=c("cohort","geneset","drug_class"))
 df <- merge(df,NR_df, by=c("cohort","geneset","drug_class"))
-
-
-
-# library(RColorBrewer)
-# n <- length(unique(df$cohort))
-# qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
-# col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-# pie(rep(1,n), col=sample(col_vector, n))
-# 
-# 
-# colors_to_use <- sample(col_vector,n)
-
-saveRDS(df, paste0(dataDirectory, "enlight_scatter_df.rds"))
 
 
 p <- ggplot(df)+

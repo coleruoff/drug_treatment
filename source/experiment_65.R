@@ -9,12 +9,9 @@ library(decoupleR)
 library(poolr)
 library(rstatix) 
 set.seed(42)
-
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 
 #################################################################################
-
 
 # net <- get_collectri(organism='human', split_complexes=FALSE)
 # full_tf_list <- unique(net$source)
@@ -28,32 +25,28 @@ supercluster_bottom_tfs <- readRDS(paste0(dataDirectory, "genesets/rac_superclus
 final_df <- list()
 
 crispr_ko_data <- read_xlsx("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/gottesman_crispr_data/CRISPR_KO_summary_negative.xlsx", sheet = 5)
-
-crispr_ko_data[,5]
-
+j <- 1
 for(j in 1:2){
   crispr_ko_ranks <- crispr_ko_data %>% 
-    arrange(`neg|score`) %>% 
-    dplyr::select(id,`neg|score`) %>% 
-    mutate(ranks = 1:nrow(.))  
+    arrange(`neg|fdr`) %>% 
+    dplyr::select(id,`neg|rank`) 
+  
+  crispr_ko_ranks$ranks <- 1:nrow(crispr_ko_ranks)
+  
+  top_ranks <- crispr_ko_ranks %>% 
+    filter(id %in% (supercluster_top_tfs[[j]])) %>% 
+    pull(ranks)
   
   
-  top_ranks <- crispr_ko_ranks %>%
-    filter(id %in% supercluster_top_tfs[[j]]) %>%
-    pull(`neg|score`)
+  # down_ranks <- crispr_ko_ranks %>%
+  #   filter(id %in% (supercluster_bottom_tfs[[j]])) %>%
+  #   pull(ranks)
   
   rest_ranks <- crispr_ko_ranks %>%
-    filter(id %in% supercluster_bottom_tfs[[j]]) %>%
-    pull(`neg|score`)
+    filter(!id %in% (supercluster_top_tfs[[j]])) %>%
+    pull(ranks)
+  
 
-  # rest_ranks <- crispr_ko_ranks %>%
-  #   filter(id %in% full_tf_list & !id %in% supercluster_top_tfs[[j]]) %>%
-  #   pull(`neg|score`)
-  
-  # rest_ranks <- crispr_ko_ranks %>%
-  #   filter(!id %in% supercluster_top_tfs[[j]]) %>%
-  #   pull(`neg|score`)
-  
   
   final_df[["rank"]] <- append(final_df[["rank"]], c(top_ranks,rest_ranks))
   final_df[["top"]] <- append(final_df[["top"]], c(rep("Top",length(top_ranks)),rep("Bottom",length(rest_ranks))))
@@ -62,35 +55,36 @@ for(j in 1:2){
 }
 
 
+crispr_ko_ranks$id[crispr_ko_ranks$id %in% (supercluster_top_tfs[[j]])]
+crispr_ko_ranks$id[!crispr_ko_ranks$id %in% (supercluster_top_tfs[[j]])]
+
+sort(top_ranks)[1:10]
+sort(rest_ranks)[1:10]
+
+
 final_df <- data.frame(final_df)
 
 final_df$top <- factor(final_df$top,levels = c("Top","Bottom"))
 
-# saveRDS(final_df, paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
-# 
+saveRDS(final_df, paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
 
-
-p <- ggviolin(final_df, x = "top", y = "rank",
-               fill = "top", short.panel.labs = T, ncol=1,
-              add="boxplot")+
+p <- ggboxplot(final_df, x = "top", y = "rank",
+               fill = "top", short.panel.labs = T, ncol=1)+
   facet_wrap(~geneset, strip.position = "bottom")
 
 
 stat.test <- final_df %>%
   group_by(geneset) %>%
-  wilcox_test(rank ~ top, alternative = "less") %>%
+  wilcox_test(rank ~ top) %>%
   adjust_pvalue() %>%
   add_significance()
 
-# stat.test$p.adj <- paste0("p = ", sprintf("%.2f", stat.test$p.adj))
-# stat.test$p.adj[2] <- "ns"
+# stat.test$p.adj[1] <- "ns"
 
-
-p <- p + stat_pvalue_manual(stat.test, label = "p.adj", y.position = 0, size=8,vjust = -3,label.y = 1100)+
-  scale_y_continuous(breaks=c(-.5,0,.5,1))+
+p <- p + stat_pvalue_manual(stat.test, label = "p.adj", y.position = 1000,size=8)+
   scale_y_reverse()+
   scale_fill_discrete(name = "TFs")+
-  ylab("CRISPR Score")+
+  ylab("Gene Rank")+
   xlab("")+
   theme(strip.text = element_text(size=20),
         strip.background = element_rect(color="black", fill="white", size=1, linetype="solid"),
@@ -102,16 +96,10 @@ p <- p + stat_pvalue_manual(stat.test, label = "p.adj", y.position = 0, size=8,v
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank())
 
-
 p
 
-# png(paste0(plotDirectory,"figure_3a.png"),
-#     width=10,height=6, units = "in", res = 300)
-# 
-# print(p)
-# 
-# dev.off()
 
+print(p)
 
 
 

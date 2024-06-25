@@ -29,13 +29,13 @@ for(curr_cell_line in cell_lines){
   top_tfs <- list()
   bottom_tfs <- list()
   
-  for(i in 1:num_clusters){
+  for(i in RACs[[curr_cell_line]]){
     
-    bottom_thresh <- quantile(tf_heatmap[,i], .5)
-    top_thresh <- quantile(tf_heatmap[,i], .5)
+    top_thresh <- quantile(tf_heatmap[,as.character(i)], .5)
+    bottom_thresh <- quantile(tf_heatmap[,as.character(i)], .5)
 
-    curr_top <- tf_heatmap[tf_heatmap[,i] > top_thresh,i]
-    curr_bottom <- tf_heatmap[tf_heatmap[,i] < bottom_thresh,i]
+    curr_top <- tf_heatmap[tf_heatmap[,as.character(i)] > top_thresh,as.character(i)]
+    curr_bottom <- tf_heatmap[tf_heatmap[,as.character(i)] < bottom_thresh,as.character(i)]
     
     # curr_top <- tf_heatmap[tf_heatmap[,i] > 1.2,i]
     # curr_bottom <- tf_heatmap[tf_heatmap[,i] < .8,i]
@@ -52,8 +52,8 @@ for(curr_cell_line in cell_lines){
     
   }
   
-  names(top_tfs) <- 1:num_clusters
-  names(bottom_tfs) <- 1:num_clusters
+  names(top_tfs) <- RACs[[curr_cell_line]] #1:num_clusters
+  names(bottom_tfs) <- RACs[[curr_cell_line]] #1:num_clusters
   
   all_top_tfs <- append(all_top_tfs, list(top_tfs))
   all_bottom_tfs <- append(all_bottom_tfs, list(bottom_tfs))

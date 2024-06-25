@@ -23,7 +23,7 @@ create_GSEA_matrix <- function(genesets_with_ranks, genesets2){
                       stats    = genesets_with_ranks[[i]],
                       minSize  = 10,
                       maxSize  = max(lengths(genesets2))+1,
-                      nPermSimple = 100)
+                      nPermSimple = 10000)
     
     gsea_results <- append(gsea_results, list(fgseaRes))
     
@@ -391,9 +391,6 @@ get_clinical_data <- function(project){
   return(clinical_data)
 }
 
-
-
-
 #results = list of enrichment results that will be the columns in the heatmap
 create_enrichment_heatmap <- function(results, title){
   
@@ -425,7 +422,7 @@ create_enrichment_heatmap <- function(results, title){
       
       if(nrow(curr_result) > 5){
         curr_result <- curr_result[1:5,]
-      }    
+      } 
       
       
       heatmap_df[["cluster"]] <- append(heatmap_df[["cluster"]], rep(curr_cluster,nrow(curr_result)))
@@ -450,27 +447,34 @@ create_enrichment_heatmap <- function(results, title){
   
   min_value <- min(heatmap_df[!is.na(heatmap_df)])
   max_value <- max(heatmap_df[!is.na(heatmap_df)])
-  
-  # col_fun = colorRamp2(c(min_value,0, max_value), c("royalblue", "white", "red1"))
   min_max <- c(min_value,max_value)
  
   
-  
   curr_title <- paste0(title)
   
-  curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F,
-                     name=legend_title, column_names_rot = 45, column_title = curr_title,
-                     column_names_gp = gpar(fontsize=15),row_names_gp = gpar(fontsize=20),
-                     column_title_gp = gpar(fontsize=22),
-                     row_names_max_width = max_text_width(rownames(heatmap_df)),
-                     row_names_side = "left", show_heatmap_legend = FALSE,
-                     heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
-                                                 labels_gp = gpar(fontsize = 20)))
-  
+  if(nrow(as.matrix(heatmap_df)) == 1){
+    curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F, col = "red",
+                       name=legend_title, column_names_rot = 45, column_title = curr_title,
+                       column_names_gp = gpar(fontsize=15), row_names_gp = gpar(fontsize=20),
+                       column_title_gp = gpar(fontsize=22),
+                       row_names_max_width = max_text_width(rownames(heatmap_df)),
+                       row_names_side = "left", show_heatmap_legend = FALSE,
+                       heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
+                                                   labels_gp = gpar(fontsize = 20)))
+    
+  } else {
+    curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F,
+                       name=legend_title, column_names_rot = 45, column_title = curr_title,
+                       column_names_gp = gpar(fontsize=15), row_names_gp = gpar(fontsize=20),
+                       column_title_gp = gpar(fontsize=22),
+                       row_names_max_width = max_text_width(rownames(heatmap_df)),
+                       row_names_side = "left", show_heatmap_legend = FALSE,
+                       heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
+                                                   labels_gp = gpar(fontsize = 20)))
+  }
   
   return(list(curr_ht, min_max))
 }
-
 
 create_consensus_ranks <- function(ranks_list){
   
@@ -510,3 +514,14 @@ create_consensus_ranks <- function(ranks_list){
   
   return(consensus_ranks)
 }
+
+
+
+
+
+
+
+
+
+
+

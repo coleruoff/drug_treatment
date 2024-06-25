@@ -10,9 +10,10 @@ library(org.Hs.eg.db)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
+source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 # Hallmarks term2gene list
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>%
@@ -140,8 +141,12 @@ titles <- list("Cancer Hallmarks","ITH Meta-programs","GO Pathways")
 all_plots <- list()
 all_min_max <- list()
 
+curr_sc <- 1
+
 for(curr_sc in 1:2){ #Superclusters
   
+  
+  i <- 2
   curr_sc_plots <- list()
   for(i in 1:3){ #Enrichment Type
     curr_results <- list()
@@ -151,6 +156,10 @@ for(curr_sc in 1:2){ #Superclusters
     }
     
     names(curr_results) <- cell_lines#names(all_results[[curr_sc]])
+    
+    
+    
+    nrow(curr_results$MCF7)
     
     fun_results <- create_enrichment_heatmap(curr_results, titles[i])
     
@@ -173,8 +182,24 @@ for(curr_sc in 1:2){ #Superclusters
   all_plots[[curr_sc]] <- curr_sc_plots
 }
 
+total_min <- 0
+total_max <- 0
+for(i in length(all_min_max)){
+  
+  if(all_min_max[[i]][1] < total_min){
+    total_min <- all_min_max[[i]][1] 
+  }
+  
+  if(all_min_max[[i]][2] > total_max){
+    total_max <- all_min_max[[i]][2] 
+  }
+  
+}
+
+col_fun <- colorRamp2(c(0,total_max), c("white", "red1"))
+
 png(paste0(plotDirectory, "figure_S2c.png"),
-    width=36, height=24, units= "in", res = 300)
+    width=36, height=30, units= "in", res = 300)
 
 
 grid.newpage()
@@ -197,13 +222,27 @@ splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3, title2, plot4, plot5
 pushViewport(splot)
 
 # Plot heatmaps for each supercluster
+
+curr_sc <- 1
 for(curr_sc in 1:2){
+  
+  all_plots[[curr_sc]][[1]]@matrix_color_mapping@col_fun <- col_fun
+
+  all_plots[[curr_sc]][[2]]@matrix_color_mapping@col_fun <- col_fun
+
+  all_plots[[curr_sc]][[3]]@matrix_color_mapping@col_fun <- col_fun
   
   curr_title <- paste0("Supercluster ", curr_sc)
   
-  ht_grob1 = grid.grabExpr(draw(all_plots[[curr_sc]][[1]], padding = unit(c(0, 70, 0, 0), "mm")))
-  ht_grob2 = grid.grabExpr(draw(all_plots[[curr_sc]][[2]], padding = unit(c(0, 60, 0, 0), "mm")))
-  ht_grob3 = grid.grabExpr(draw(all_plots[[curr_sc]][[3]], padding = unit(c(0, 70, 0, 0), "mm")))
+  
+  all_plots[[curr_sc]][[1]]@heatmap_param$show_heatmap_legend <- T
+  all_plots[[curr_sc]][[2]]@heatmap_param$show_heatmap_legend <- T
+  all_plots[[curr_sc]][[3]]@heatmap_param$show_heatmap_legend <- T
+  
+  ht_grob1 = grid.grabExpr(draw(all_plots[[curr_sc]][[1]], padding = unit(c(10, 70, 10, 0), "mm")))
+  ht_grob2 = grid.grabExpr(draw(all_plots[[curr_sc]][[2]], padding = unit(c(10, 60, 10, 0), "mm")))
+  ht_grob3 = grid.grabExpr(draw(all_plots[[curr_sc]][[3]], padding = unit(c(10, 70, 10, 10), "mm")))
+  
   
   if(curr_sc == 1){
     seekViewport("plot1")
