@@ -254,25 +254,25 @@ genesets_characterization <- function(genesets_to_use, universe_to_use, num_path
     
     if(nrow(hallmark_enrichment_results) > 0){
       p <- barplot(hallmark_enrichment_results,
-                   showCategory = num_pathways, font.size=20) + 
+                   showCategory = num_pathways, font.size=10) + 
         ggtitle(paste0("", curr_cluster))+
-        theme(plot.title = element_text(size=20))
+        theme(plot.title = element_text(size=10))
       
       hallmarks_dotplots <- append(hallmarks_dotplots, list(p))
     }
     if(!is.null(mp_enrichment_results) && nrow(mp_enrichment_results) > 0){
       p <- barplot(mp_enrichment_results,
-                   showCategory = num_pathways, font.size=20)+
+                   showCategory = num_pathways, font.size=10)+
         ggtitle(paste0("", curr_cluster))+
-        theme(plot.title = element_text(size=20))
+        theme(plot.title = element_text(size=10))
       
       mps_dotplots <- append(mps_dotplots, list(p))
     }
     if(nrow(ego) > 0){
       p <- barplot(ego,
-                   showCategory = num_pathways, font.size=20) + 
+                   showCategory = num_pathways, font.size=10) + 
         ggtitle(paste0("", curr_cluster))+
-        theme(plot.title = element_text(size=20))
+        theme(plot.title = element_text(size=10))
       
       go_dotplots <- append(go_dotplots, list(p))
     }
@@ -455,22 +455,22 @@ create_enrichment_heatmap <- function(results, title){
   if(nrow(as.matrix(heatmap_df)) == 1){
     curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F, col = "red",
                        name=legend_title, column_names_rot = 45, column_title = curr_title,
-                       column_names_gp = gpar(fontsize=15), row_names_gp = gpar(fontsize=20),
-                       column_title_gp = gpar(fontsize=22),
+                       column_names_gp = gpar(fontsize=10), row_names_gp = gpar(fontsize=10),
+                       column_title_gp = gpar(fontsize=12),
                        row_names_max_width = max_text_width(rownames(heatmap_df)),
                        row_names_side = "left", show_heatmap_legend = FALSE,
-                       heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
-                                                   labels_gp = gpar(fontsize = 20)))
+                       heatmap_legend_param = list(title_gp = gpar(fontsize = 10),legend_height = unit(5, "mm"), grid_width=unit(1.5,"mm"),
+                                                   labels_gp = gpar(fontsize = 8)))
     
   } else {
     curr_ht <- Heatmap(as.matrix(heatmap_df),cluster_rows = F,cluster_columns = F,
                        name=legend_title, column_names_rot = 45, column_title = curr_title,
-                       column_names_gp = gpar(fontsize=15), row_names_gp = gpar(fontsize=20),
-                       column_title_gp = gpar(fontsize=22),
+                       column_names_gp = gpar(fontsize=10), row_names_gp = gpar(fontsize=10),
+                       column_title_gp = gpar(fontsize=12),
                        row_names_max_width = max_text_width(rownames(heatmap_df)),
                        row_names_side = "left", show_heatmap_legend = FALSE,
-                       heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(4, "cm"), grid_width=unit(1.5,"cm"),
-                                                   labels_gp = gpar(fontsize = 20)))
+                       heatmap_legend_param = list(title_gp = gpar(fontsize = 10),legend_height = unit(5, "mm"), grid_width=unit(1.5,"mm"),
+                                                   labels_gp = gpar(fontsize = 8)))
   }
   
   return(list(curr_ht, min_max))

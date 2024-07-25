@@ -26,6 +26,8 @@ for(curr_cell_line in cell_lines){
   data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[1]][[curr_cell_line]], 1,0), "supercluster1")
   data <- AddMetaData(data, ifelse(data$Cluster == supercluster_components[[2]][[curr_cell_line]], 1,0), "supercluster2")
   
+  data <- data[,data$treatment_stage=="post"]
+  
   df <- data@meta.data
   
   curr_sc1 <- df %>% 
@@ -69,20 +71,27 @@ p <- ggplot(final_df)+
   facet_wrap(~supercluster)+
   xlab("Phase")+
   ylab("Percentage")+
-  theme(strip.text = element_text(size = 20),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 16),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 16))
+  theme(strip.text = element_text(size = 8),
+        axis.title = element_text(size = 10),
+        axis.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.key.height = unit(5,"mm"),
+        legend.key.width = unit(5,"mm"))
 
 
-
-png(paste0(plotDirectory, "figure_2d.png"),
-    width = 10,height=5, units = 'in',res = 300)
+tiff(paste0(plotDirectory,"figure_2d.tiff"), width=90, height = 40, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_2d.png"),
+#     width = 10,height=5, units = 'in',res = 300)
+# 
+# print(p)
+# 
+# dev.off()
 
 
 

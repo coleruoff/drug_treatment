@@ -8,6 +8,7 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggpubr)
 library(tidyverse)
+library(cowplot)
 set.seed(42)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
@@ -107,11 +108,11 @@ for(i in 1:3){
   
   all_min_max <- append(all_min_max, list(fun_results[[2]]))
   
-  heatmap@row_names_param$gp$fontsize <- 30
-  heatmap@column_names_param$gp$fontsize <- 30
-  heatmap@column_title_param$gp$fontsize <- 40
-  heatmap@matrix_legend_param$title_gp$fontsize <- 34
-  heatmap@matrix_legend_param$labels_gp$fontsize <- 30
+  heatmap@row_names_param$gp$fontsize <- 10
+  heatmap@column_names_param$gp$fontsize <- 10
+  heatmap@column_title_param$gp$fontsize <- 10
+  heatmap@matrix_legend_param$title_gp$fontsize <- 10
+  heatmap@matrix_legend_param$labels_gp$fontsize <- 10
   
   # Add heatmap to curr cell line list of heatmaps
   all_plots <- append(all_plots, heatmap)
@@ -141,41 +142,53 @@ all_plots[[3]]@matrix_color_mapping@col_fun <- col_fun
 
 all_plots[[3]]@heatmap_param$show_heatmap_legend <- T
 
-ht_grob1 = grid.grabExpr(draw(all_plots[[1]], padding = unit(c(25, 80, 0, 0), "mm")))
-ht_grob2 = grid.grabExpr(draw(all_plots[[2]], padding = unit(c(25, 60, 0, 0), "mm")))
-ht_grob3 = grid.grabExpr(draw(all_plots[[3]], padding = unit(c(25, 80, 0, 10), "mm")))
+ht_grob1 = grid.grabExpr(draw(all_plots[[1]]))
+ht_grob2 = grid.grabExpr(draw(all_plots[[2]]))
+ht_grob3 = grid.grabExpr(draw(all_plots[[3]]))
 
 
+p <- plot_grid(ht_grob1,ht_grob2, ht_grob3, nrow=1, rel_widths = c(2, 2, 2))
 
-png(paste0(plotDirectory, "figure_S2b.png"),
-    width=30, height=20, units= "in", res = 300)
 
-grid.newpage()
+p
+# png(paste0(plotDirectory, "figure_2c.png"),
+#     width=30, height=20, units= "in", res = 300)
 
-top.vp <- viewport(layout=grid.layout(2, 3,
-                                      widths=unit(c(1, 1, 1), c("null", "null", "null")),
-                                      heights=unit(c(.5,5), c("null", "null", "null"))))
+tiff(paste0(plotDirectory,"figure_S2b.tiff"), width=190, height = 150, units = "mm", res = 1000)
 
-title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
-plot1 <- viewport(layout.pos.col = 1, layout.pos.row = 2, name = "plot1")
-plot2 <- viewport(layout.pos.col = 2, layout.pos.row = 2, name = "plot2")
-plot3 <- viewport(layout.pos.col = 3, layout.pos.row = 2, name = "plot3")
-
-splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3))
-
-pushViewport(splot)
-
-seekViewport("plot1")
-grid.draw(ht_grob1)
-
-seekViewport("plot2")
-grid.draw(ht_grob2)
-
-seekViewport("plot3")
-grid.draw(ht_grob3)
-
+print(p)
 
 dev.off()
+# 
+# png(paste0(plotDirectory, "figure_S2b.png"),
+#     width=30, height=20, units= "in", res = 300)
+# 
+# grid.newpage()
+# 
+# top.vp <- viewport(layout=grid.layout(2, 3,
+#                                       widths=unit(c(1, 1, 1), c("null", "null", "null")),
+#                                       heights=unit(c(.5,5), c("null", "null", "null"))))
+# 
+# title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
+# plot1 <- viewport(layout.pos.col = 1, layout.pos.row = 2, name = "plot1")
+# plot2 <- viewport(layout.pos.col = 2, layout.pos.row = 2, name = "plot2")
+# plot3 <- viewport(layout.pos.col = 3, layout.pos.row = 2, name = "plot3")
+# 
+# splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3))
+# 
+# pushViewport(splot)
+# 
+# seekViewport("plot1")
+# grid.draw(ht_grob1)
+# 
+# seekViewport("plot2")
+# grid.draw(ht_grob2)
+# 
+# seekViewport("plot3")
+# grid.draw(ht_grob3)
+# 
+# 
+# dev.off()
 
 
 

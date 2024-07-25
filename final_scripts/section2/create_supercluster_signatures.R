@@ -4,10 +4,11 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 library(tidyverse)
 library(Seurat)
+library(xlsx)
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-# source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 
 #################################################################################
 
@@ -64,7 +65,6 @@ lengths(supercluster_signatures)
 
 saveRDS(supercluster_signatures, paste0(dataDirectory, "genesets/rac_supercluster_signatures.rds"))
 
-################################################################################
 ################################################################################
 # Downregulated genes
 

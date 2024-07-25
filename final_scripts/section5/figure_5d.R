@@ -119,39 +119,72 @@ go_enrichment_results <- enrichGO(gene          = curr_geneset,
                                   keyType = "SYMBOL",
                                   universe = universe_to_use)
 
+p1 <- dotplot(hallmark_enrichment_results, font.size=3)+
+  theme(axis.text.x = element_text(size = 5),
+        legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm"))+ 
+  scale_size_area(max_size = 3)
 
-p1 <- dotplot(hallmark_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
+p2 <- dotplot(mp_enrichment_results, font.size=5)+
+  theme(legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm")) + 
+  scale_size_area(max_size = 3)
 
-p2 <- dotplot(mp_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
+p3 <- dotplot(go_enrichment_results, font.size=5)+
+  theme(legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm"))+ 
+  scale_size_area(max_size = 3)
 
-p3 <- dotplot(go_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
-
-
-
-# p3+theme(axis.text.y = element_text(size=8))
 
 plots <- list(p1,p3)
 
 
-figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T,legend=c("right"))
+figure <- ggarrange(plotlist = plots, ncol=2, widths = c(1,1),common.legend = T,legend=c("right"))
 
 p <- annotate_figure(figure)
 
-
-png(paste0(plotDirectory, "figure_5d.png"),
-    width = 16,height=8, units = 'in',res = 300)
+p
+tiff(paste0(plotDirectory,"figure_5d.tiff"), width=120, height = 80, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
-
-sort(curr_geneset)
+# 
+# p1 <- dotplot(hallmark_enrichment_results, font.size=20)+
+#   theme(legend.text = element_text(size=16),
+#         legend.title = element_text(size=24))
+# 
+# p2 <- dotplot(mp_enrichment_results, font.size=20)+
+#   theme(legend.text = element_text(size=16),
+#         legend.title = element_text(size=24))
+# 
+# p3 <- dotplot(go_enrichment_results, font.size=20)+
+#   theme(legend.text = element_text(size=16),
+#         legend.title = element_text(size=24))
+# 
+# 
+# 
+# # p3+theme(axis.text.y = element_text(size=8))
+# 
+# plots <- list(p1,p3)
+# 
+# 
+# figure <- ggarrange(plotlist = plots, ncol=2, common.legend = T,legend=c("right"))
+# 
+# p <- annotate_figure(figure)
+# 
+# 
+# png(paste0(plotDirectory, "figure_5d.png"),
+#     width = 16,height=8, units = 'in',res = 300)
+# 
+# print(p)
+# 
+# dev.off()
+# 
+# sort(curr_geneset)
 # all_results[[paste0("sc",1)]] <- list(hallmark_enrichment_results,
 #                                             mp_enrichment_results,
 #                                             go_enrichment_results)

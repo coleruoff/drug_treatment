@@ -14,7 +14,6 @@ library(ggpubr)
 
 cell_lines <- c("A549","K562","MCF7")
 
-
 plots <- list()
 for(curr_cell_line in cell_lines){
   
@@ -58,8 +57,6 @@ for(curr_cell_line in cell_lines){
     pvals <- append(pvals, res$p.value)
   }
   
-  
-  
   df <- data.frame(cbind(paste0("", all_clusters),ORs))
   colnames(df) <- c("cluster","or")
   df$cluster <- factor(df$cluster, levels = all_clusters)
@@ -69,14 +66,6 @@ for(curr_cell_line in cell_lines){
   
   plot_title <- curr_cell_line
   
-  # if(use_pre){
-  #   png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/active_inactive_or_figures/",curr_cell_line,"_barplots_pre.png"),
-  #       width=1000, height = 500)
-  # } else {
-  #   png(paste0("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/active_inactive_or_figures/",curr_cell_line,"_barplots.png"),
-  #       width=1000, height = 500)
-  # }
-  
   p <- ggplot(df)+
     geom_col(aes(x=cluster, y=or, fill=color))+
     scale_fill_manual(name="Cluster Type",values=c("lightblue","orange"))+
@@ -85,27 +74,33 @@ for(curr_cell_line in cell_lines){
     ylab("")+
     ggtitle(plot_title)+
     theme(legend.position="right",
-          title = element_text(size=28, face="bold"),
-          axis.text = element_text(size=30),
-          legend.text = element_text(size=24),
-          legend.title = element_text(size=26),
-          legend.key.height = unit(1.5,"cm"),
-          legend.key.width = unit(1.5,"cm"))
+          axis.text = element_text(size=12),
+          legend.text = element_text(size=10),
+          legend.title = element_text(size=10),
+          legend.key.height = unit(5,"mm"),
+          legend.key.width = unit(5,"mm"))
   
   plots <- append(plots,list(p))
 }
 
 figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 
-p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=35, face="bold"),
-                     bottom = text_grob("Clusters", size=35, face="bold"))
+p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=20, face="bold"),
+                     bottom = text_grob("Clusters", size=20, face="bold"))
 
 
-png(paste0(plotDirectory,"figure_S1a.png"),
-    width=20, height=20, units= "in", res=300)
+tiff(paste0(plotDirectory,"figure_S1a.tiff"), width=140, height = 180, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+
+# png(paste0(plotDirectory,"figure_S1a.png"),
+#     width=20, height=20, units= "in", res=300)
+# 
+# print(p)
+# 
+# dev.off()
 
 

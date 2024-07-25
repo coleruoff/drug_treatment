@@ -12,6 +12,7 @@ set.seed(42)
 
 # dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/data/"
 # plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
+source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 
 ################################################################################
 
@@ -141,17 +142,24 @@ go_enrichment_results <- enrichGO(gene          = curr_geneset,
                                   universe = universe_to_use)
 
 
-p1 <- dotplot(hallmark_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
+p1 <- dotplot(hallmark_enrichment_results, font.size=3)+
+  theme(axis.text.x = element_text(size = 5),
+        legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm"))+ 
+  scale_size_area(max_size = 3)
 
-p2 <- dotplot(mp_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
+p2 <- dotplot(mp_enrichment_results, font.size=5)+
+  theme(legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm")) + 
+      scale_size_area(max_size = 3)
 
-p3 <- dotplot(go_enrichment_results, font.size=20)+
-  theme(legend.text = element_text(size=16),
-        legend.title = element_text(size=24))
+p3 <- dotplot(go_enrichment_results, font.size=5)+
+  theme(legend.text = element_text(size=3),
+        legend.title = element_text(size=5),
+        legend.key.size = unit(5, "mm"))+ 
+  scale_size_area(max_size = 3)
 
 
 
@@ -163,13 +171,19 @@ figure <- ggarrange(plotlist = plots, ncol=3, widths = c(1,.8,1),common.legend =
 
 p <- annotate_figure(figure)
 
-
-png(paste0(plotDirectory, "figure_5b.png"),
-    width = 24,height=8, units = 'in',res = 300)
+p
+tiff(paste0(plotDirectory,"figure_5b.tiff"), width=140, height = 80, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+# 
+# png(paste0(plotDirectory, "figure_5b.png"),
+#     width = 24,height=8, units = 'in',res = 300)
+# 
+# print(p)
+# 
+# dev.off()
 
 # 
 # all_results[[paste0("sc",1)]] <- list(hallmark_enrichment_results,

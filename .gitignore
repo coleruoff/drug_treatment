@@ -5,3 +5,7 @@ final_data/
 *.out
 
 renv/
+
+final_figures/*.tiff
+
+

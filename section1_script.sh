@@ -21,7 +21,7 @@ echo "create_resistance_signature"
 #Rscript --vanilla ${source_directory}create_resistance_signature.R $working_directory
 
 echo "create_supp_table1"
-#Rscript --vanilla ${source_directory}create_supp_table1.R $working_directory
+#Rscript --vanilla ${source_directory}table_S1.R $working_directory
 
 echo "figure_1a"
 Rscript --vanilla ${source_directory}figure_1a.R $working_directory 

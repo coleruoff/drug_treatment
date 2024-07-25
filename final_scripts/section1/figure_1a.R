@@ -44,9 +44,8 @@ p <- ggplot(df, aes(x=day, y=NES, fill=dot_color)) +
   xlab("Time Point")+
   ylab("NES")+
   geom_hline(yintercept = 0,color="black")+
-  theme(axis.title = element_text(size=20),
-        axis.text = element_text(size=15),
-        plot.title = element_text(size=30,face="bold"))+
+  theme(axis.title = element_text(size=15),
+        axis.text = element_text(size=12))+
   NoLegend()+
   geom_errorbar(aes(ymin=NES-log2err, ymax=NES+log2err), width=.2,
                 position=position_dodge(.9)) +
@@ -54,7 +53,14 @@ p <- ggplot(df, aes(x=day, y=NES, fill=dot_color)) +
 
 
 
+p
 
+
+tiff(paste0(plotDirectory,"figure_1a.tiff"),width=90, height = 60, units = "mm", res = 1000)
+
+print(p)
+
+dev.off()
 
 
 # p <- ggplot(df, aes(x=day,y=NES))+
@@ -71,13 +77,10 @@ p <- ggplot(df, aes(x=day, y=NES, fill=dot_color)) +
 #                 position=position_dodge(.9)) 
 
 
-p
-
-
-png(paste0(plotDirectory,"figure_1a.png"),width=6,height=8, units = "in", res = 300)
-
-print(p)
-
-dev.off()
+# png(paste0(plotDirectory,"figure_1a.png"),width=6,height=8, units = "in", res = 300)
+# 
+# print(p)
+# 
+# dev.off()
 
 

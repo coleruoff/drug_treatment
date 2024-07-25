@@ -20,6 +20,8 @@ for(curr_cell_line in cell_lines) {
   #Read in cell line data
   data <- all_data[[curr_cell_line]]
   
+  data <- data[,data$treatment_stage=="post"]
+  
   Idents(data) <- data$rac
   
   de_res <- FindAllMarkers(data)

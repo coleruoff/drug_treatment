@@ -12,8 +12,8 @@ library(rstatix)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-# plotDirectory <- "/data/ruoffcj/projects/drug_treatment/final_figures/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 all_data <- readRDS(paste0(dataDirectory, "processed_data/sciPlex_data/all_cell_lines_data.rds"))
@@ -40,7 +40,7 @@ for(curr_cell_line in cell_lines){
   
   # Supercluster 1
   curr_scores <- data@meta.data %>% 
-    filter(supercluster1 == 1) %>% 
+    filter(supercluster1 == 1 & treatment_stage == "post") %>% 
     pull(paste0(organism_to_use,"_human_orthologs_up"))
   
   df[["scores"]] <- append(df[["scores"]],curr_scores)
@@ -49,7 +49,7 @@ for(curr_cell_line in cell_lines){
   
   # Supercluster 2
   curr_scores <- data@meta.data %>% 
-    filter(supercluster2 == 1) %>% 
+    filter(supercluster2 == 1 & treatment_stage == "post") %>% 
     pull(paste0(organism_to_use,"_human_orthologs_up"))
   
   df[["scores"]] <- append(df[["scores"]],curr_scores)
@@ -58,7 +58,7 @@ for(curr_cell_line in cell_lines){
   
   # Non-RACs
   curr_scores <- data@meta.data %>% 
-    filter(rac == "nonrac") %>% 
+    filter(rac == "nonrac" & treatment_stage == "post") %>% 
     pull(paste0(organism_to_use,"_human_orthologs_up"))
   
   df[["scores"]] <- append(df[["scores"]],curr_scores)
@@ -86,17 +86,18 @@ stat.test <- compare_means(
 stat.test <- stat.test[-1,]
 stat.test$p.format[1] <- "ns"
 
-p <- p + stat_pvalue_manual(stat.test, label = "p.format", y.position = c(.25,.22), size=8)+
+p <- p + stat_pvalue_manual(stat.test, label = "p.format", y.position = c(.25,.22), size=5)+
   xlab("")+
   ylab("AUCell Score")+
+  ylim(0,.28)+
   theme(legend.position="right",
-        axis.text = element_text(size=25),
-        axis.text.x = element_text(size=30),
-        axis.title = element_text(size=28),
-        legend.text = element_text(size=24),
-        legend.title = element_text(size=26),
-        legend.key.height = unit(1.5,"cm"),
-        legend.key.width = unit(1.5,"cm"))+
+        axis.text = element_text(size=8),
+        axis.text.x = element_text(size=10),
+        axis.title = element_text(size=10),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.height = unit(1.5,"mm"),
+        legend.key.width = unit(1.5,"mm"))+
   NoLegend()
 
 
@@ -114,10 +115,16 @@ p <- p + stat_pvalue_manual(stat.test, label = "p.format", y.position = c(.25,.2
 #   NoLegend()
 
 
-png(paste0(plotDirectory,"figure_5a.png"),
-    width=12, height=8, units="in",res = 300)
+tiff(paste0(plotDirectory,"figure_5a.tiff"), width=100, height = 80, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory,"figure_5a.png"),
+#     width=12, height=8, units="in",res = 300)
+# 
+# print(p)
+# 
+# dev.off()
 

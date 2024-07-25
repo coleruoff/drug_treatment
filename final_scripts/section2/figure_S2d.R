@@ -136,21 +136,23 @@ for(curr_sc in 1:2){
 
   
   p <- ggplot(df)+
-      geom_point(aes(x=dose,y=value))+
+      geom_point(aes(x=dose,y=value), size = .8)+
       geom_line(aes(x=dose,y=value,group=1))+
       facet_grid(drug_class~cluster)+
       ggtitle(plot_title)+
       xlab("")+
       ylab("")+
-      theme(plot.title = element_text(size=30, face="bold"),
-            axis.text.x = element_text(size=10),
-            strip.text.x.top = element_text(size=20))
+      theme(plot.title = element_text(size=10, face="bold"),
+            axis.text.y = element_text(size=6),
+            axis.text.x = element_text(size=6, angle=45,hjust=1),
+            strip.text.x.top = element_text(size=10),
+            strip.text.y.right = element_text(size=8))
   
   
   if(curr_sc == 1){
     p <- p+theme(strip.text.y.right  = element_blank())
   } else{ 
-    p <- p+theme(strip.text.y.right  = element_text(size=16, angle = 0))
+    p <- p+theme(strip.text.y.right  = element_text(size=6, angle = 0))
   }
   
   plots <- append(plots, list(p))
@@ -161,16 +163,19 @@ for(curr_sc in 1:2){
 
 figure <- ggarrange(plotlist = plots, widths = c(1,1.5),ncol=2, common.legend = T,legend=c("right"))
 
-p <- annotate_figure(figure, left = text_grob("Percentage", rot = 90, vjust = 1, size=35, face="bold"),
-                     bottom = text_grob("Dose", size=35, face="bold"))
+p <- annotate_figure(figure, left = text_grob("Percentage", rot = 90, vjust = 1, size=20, face="bold"),
+                     bottom = text_grob("Dose", size=20, face="bold"))
 
 
-
-p
-
-png(paste0(plotDirectory, "figure_S2d.png"),
-    width = 20,height=20, units = 'in',res = 300)
+tiff(paste0(plotDirectory,"figure_S2d.tiff"), width=190, height = 200, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_S2d.png"),
+#     width = 20,height=20, units = 'in',res = 300)
+# 
+# print(p)
+# 
+# dev.off()

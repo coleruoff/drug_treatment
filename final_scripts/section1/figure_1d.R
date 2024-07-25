@@ -91,25 +91,29 @@ for(curr_cell_line in cell_lines){
     ylab("")+
     ggtitle(plot_title)+
     facet_wrap(~factor(cluster, levels=paste0("Cluster ", 1:19)),nrow=1)+
-    theme(axis.text.x = element_text(size=14,angle=45, hjust=1),
+    theme(axis.text.x = element_text(size=8,angle=45, hjust=1),
           legend.position="right",
-          title = element_text(size=28, face="bold"),
-          axis.text.y = element_text(size=18),
-          legend.text = element_text(size=14),
-          legend.title = element_text(size=12),
-          strip.text = element_text(size=20))
+          axis.text.y = element_text(size=8),
+          strip.text = element_text(size=10))
   
   plots <- append(plots,list(p))
 }
 
 figure <- ggarrange(plotlist = plots, ncol=1, nrow=3,common.legend = F)
 
-p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=35, face="bold"),
-                     bottom = text_grob("Dose", size=35, face="bold"))
+p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=20, face="bold"),
+                     bottom = text_grob("Dose", size=20, face="bold"))
 
-png(paste0(plotDirectory, "figure_1d.png"),
-    width=14, height=10, units = "in", res=300)
+
+tiff(paste0(plotDirectory,"figure_1d.tiff"),width=200, height = 140, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_1d.png"),
+#     width=14, height=10, units = "in", res=300)
+# 
+# print(p)
+# 
+# dev.off()

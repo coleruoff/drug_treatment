@@ -26,6 +26,8 @@ for(curr_cell_line in cell_lines){
   
   data <- all_data[[curr_cell_line]]
   
+  data <- data[,data$treatment_stage=="post"]
+  
   # data <- data[,data$pathway_level_1 == "DNA damage & DNA repair"]
   
   num_clusters <- cluster_numbers[[curr_cell_line]]

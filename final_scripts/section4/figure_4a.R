@@ -152,9 +152,9 @@ for(curr_cell_line in cell_lines){
                   pval = F,
                   legend.title="Expression Level:",
                   legend.labs= c("High", "Low"),
-                  font.tickslab = c(20),
-                  font.legend=c(50),
-                  font.caption=c(30),
+                  font.tickslab = c(10),
+                  font.legend=c(10),
+                  font.caption=c(10),
                   tables.theme = clean_theme())
   
   p <- p$plot
@@ -162,11 +162,12 @@ for(curr_cell_line in cell_lines){
   p <- p + ggtitle(curr_plot_title)+
     xlab("")+
     ylab("")+
-    theme(legend.text = element_text(size = 20, color = "black", face = "bold"),
-          legend.title = element_text(size = 20, color = "black", face = "bold"),
-          plot.title = element_text(size=40),
-          axis.text = element_text(size=20))+
+    theme(legend.text = element_text(size = 10, color = "black", face = "bold"),
+          legend.title = element_text(size = 10, color = "black", face = "bold"),
+          plot.title = element_text(size=12),
+          axis.text = element_text(size=6))+
     NoLegend()
+  
   
   #Add cox regression HR and p-value
   cox_hr <- hazard_ratio_df %>% 
@@ -189,24 +190,30 @@ for(curr_cell_line in cell_lines){
     x = Inf, y = Inf,
     vjust = 1.5, hjust = 1,
     label = paste0("Cox Regression:\nHR = ", cox_hr, "\n ",cox_pval),
-    size = 10)
+    size = 3)
   
   all_plots <- append(all_plots, list(p))
 }
 
 names(all_plots) <- cell_lines
 
-final_plot <- ggarrange(plotlist = all_plots, ncol = 3,nrow=1, common.legend = F)
+final_plot <- ggarrange(plotlist = all_plots, ncol = 3, nrow=1, common.legend = F)
 
 
 
 final_plot <- annotate_figure(final_plot,
-                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=45, face="bold"),
-                              bottom = text_grob("Time", size=45, face="bold"))
+                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=12, face="bold"),
+                              bottom = text_grob("Time", size=10, face="bold"))
 
-png(paste0(plotDirectory,"figure_4a.png"),
-    width=30, height=10, units= "in", res = 300)
+tiff(paste0(plotDirectory,"figure_4a.tiff"), width=190, height = 80, units = "mm", res = 1000)
 
 print(final_plot)
 
 dev.off()
+
+# png(paste0(plotDirectory,"figure_4a.png"),
+#     width=30, height=10, units= "in", res = 300)
+# 
+# print(final_plot)
+# 
+# dev.off()

@@ -6,8 +6,8 @@ library(ComplexHeatmap)
 library(circlize)
 set.seed(42)
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -76,11 +76,11 @@ for(i in 1:2){
   heatmap_title <- paste0("Supercluster ", i)
   
   ht <- Heatmap(log(curr_sc_heatmap), name="log(OR)", cluster_rows = F,cluster_columns = F,
-                              column_title = heatmap_title,  column_names_rot = 45,column_names_gp = gpar(fontsize= 30),
-                              rect_gp = gpar(col = "gray", lwd = .5),column_title_gp = gpar(fontsize=46),
-                              row_names_gp = gpar(fontsize = 28),
-                              heatmap_legend_param = list(title_gp = gpar(fontsize = 20),legend_height = unit(3, "cm"), grid_width=unit(1,"cm"),
-                                                          labels_gp = gpar(fontsize = 14)))
+                              column_title = heatmap_title,  column_names_rot = 45,column_names_gp = gpar(fontsize= 6),
+                              rect_gp = gpar(col = "gray", lwd = .5),column_title_gp = gpar(fontsize=6),
+                              row_names_gp = gpar(fontsize = 4),
+                              heatmap_legend_param = list(title_gp = gpar(fontsize = 8),legend_height = unit(5, "mm"), grid_width=unit(1,"mm"),
+                                                          labels_gp = gpar(fontsize = 6)))
   
   sc_heatmap_list <- append(sc_heatmap_list, list(ht))
 }
@@ -89,13 +89,21 @@ for(i in 1:2){
 
 all_heatmaps <- sc_heatmap_list[[1]] + sc_heatmap_list[[2]]
 
-png(paste0(plotDirectory, "figure_2e.png"),
-    width=20, height=10, units= "in", res = 300)
+tiff(paste0(plotDirectory,"figure_2e.tiff"), width=90, height = 40, units = "mm", res = 1000)
 
-draw(all_heatmaps,padding = unit(c(6, 20, 10, 100), "mm"),
+draw(all_heatmaps,
      heatmap_legend_side = "left",merge_legend=T,
-     ht_gap = unit(1, "cm"))
-
+     ht_gap = unit(1, "mm"))
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_2e.png"),
+#     width=20, height=10, units= "in", res = 300)
+# 
+# draw(all_heatmaps,padding = unit(c(6, 20, 10, 100), "mm"),
+#      heatmap_legend_side = "left",merge_legend=T,
+#      ht_gap = unit(1, "cm"))
+# 
+# 
+# dev.off()
 

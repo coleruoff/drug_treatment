@@ -38,18 +38,17 @@ for(i in 1:length(unique(df$signature))){
   
   
   p <- ggplot(curr_df, aes(x=hazard_ratio,y=reorder(project,hazard_ratio,mean),color=signature))+
-    geom_point(position = position_dodge(width = 1),size=3)+
-    geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=1, size=2,position = "dodge") +
+    geom_point(position = position_dodge(width = ,5),size=.5)+
+    geom_errorbar(aes(xmin=hazard_ratio.low, xmax=hazard_ratio.high), width=.5, size=.5, position = "dodge") +
     scale_color_manual(name="",values=c(color_to_use))+
     geom_vline(xintercept = 0, linetype="dashed")+
     labs(x="",y="")+
     facet_wrap(~signature)+
     theme_classic()+
     theme(legend.position="none",
-          strip.text = element_text(size=30),
-          axis.text.x = element_text(size=28),
-          axis.text.y = element_text(size=18),
-          plot.margin = unit(c(1,1,1,1), "cm"))
+          strip.text = element_text(size=10),
+          axis.text.x = element_text(size=6),
+          axis.text.y = element_text(size=6))
   
   plots <- append(plots, list(p))
   
@@ -59,18 +58,22 @@ final_plot <- ggarrange(plotlist = plots)
   
 
 p <- annotate_figure(final_plot, 
-                left = textGrob("TCGA Project", rot = 90, vjust = 1, gp = gpar(fontsize = 32)),
-                bottom = textGrob("Log(Hazard Ratio)\n", gp = gpar(fontsize = 32)))
+                left = textGrob("TCGA Project", rot = 90, vjust = 1, gp = gpar(fontsize = 12)),
+                bottom = textGrob("Log(Hazard Ratio)", gp = gpar(fontsize = 12)))
 
 
-
-
-png(paste0(plotDirectory, "figure_4b.png"),
-    width=26, height = 16, units="in",res=300)
+tiff(paste0(plotDirectory,"figure_4b.tiff"), width=140, height = 100, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_4b.png"),
+#     width=26, height = 16, units="in",res=300)
+# 
+# print(p)
+# 
+# dev.off()
 
 
 # count projects with at least one significant and positive log(HR)s 

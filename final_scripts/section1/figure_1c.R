@@ -7,7 +7,7 @@ library(tidyverse)
 library(Seurat)
 library(ggpubr)
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
@@ -79,27 +79,32 @@ for(curr_cell_line in cell_lines){
     ylab("")+
     ggtitle(plot_title)+
     theme(legend.position="right",
-          title = element_text(size=28, face="bold"),
-          axis.text = element_text(size=30),
-          legend.text = element_text(size=24),
-          legend.title = element_text(size=26),
-          legend.key.height = unit(1.5,"cm"),
-          legend.key.width = unit(1.5,"cm"))
+          axis.text = element_text(size=10),
+          legend.text = element_text(size=10),
+          legend.title = element_text(size=10),
+          legend.key.height = unit(5,"mm"),
+          legend.key.width = unit(5,"mm"))
   
   plots <- append(plots,list(p))
 }
 
 figure <- ggarrange(plotlist = plots, nrow=3, common.legend = T,legend=c("right"))
 
-p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=35, face="bold"),
-                bottom = text_grob("Clusters", size=35, face="bold"))
+p <- annotate_figure(figure, left = text_grob("Odds Ratio", rot = 90, vjust = 1, size=20, face="bold"),
+                bottom = text_grob("Clusters", size=20, face="bold"))
 
-png(paste0(plotDirectory,"figure_1c.png"),
-     width=20, height=20, units= "in", res=300)
+tiff(paste0(plotDirectory,"figure_1c.tiff"),width=200, height = 140, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+
+# png(paste0(plotDirectory,"figure_1c.png"),
+#      width=20, height=20, units= "in", res=300)
+# 
+# print(p)
+# 
+# dev.off()
 
 saveRDS(all_RACs, paste0(dataDirectory, "processed_data/all_RACs.rds"))
 

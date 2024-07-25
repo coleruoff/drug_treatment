@@ -10,10 +10,10 @@ library(org.Hs.eg.db)
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
+# source("/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/drug_treatment_functions.R")
 
-dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
-plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 # Hallmarks term2gene list
 m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>%
@@ -167,11 +167,11 @@ for(curr_sc in 1:2){ #Superclusters
     
     all_min_max <- append(all_min_max, list(fun_results[[2]]))
     
-    heatmap@row_names_param$gp$fontsize <- 30
-    heatmap@column_names_param$gp$fontsize <- 30
-    heatmap@column_title_param$gp$fontsize <- 40
-    heatmap@matrix_legend_param$title_gp$fontsize <- 34
-    heatmap@matrix_legend_param$labels_gp$fontsize <- 30
+    heatmap@row_names_param$gp$fontsize <- 5
+    heatmap@column_names_param$gp$fontsize <- 8
+    heatmap@column_title_param$gp$fontsize <- 10
+    heatmap@matrix_legend_param$title_gp$fontsize <- 10
+    heatmap@matrix_legend_param$labels_gp$fontsize <- 10
     
     
     # Add heatmap to curr cell line list of heatmaps
@@ -198,31 +198,32 @@ for(i in length(all_min_max)){
 
 col_fun <- colorRamp2(c(0,total_max), c("white", "red1"))
 
-png(paste0(plotDirectory, "figure_S2c.png"),
-    width=36, height=30, units= "in", res = 300)
+# png(paste0(plotDirectory, "figure_S2c.png"),
+#     width=36, height=30, units= "in", res = 300)
 
 
-grid.newpage()
-
-top.vp <- viewport(layout=grid.layout(4, 3,
-                                      widths=unit(c(1, 1, 1), c("null", "null", "null")),
-                                      heights=unit(c(.5,5,.5,5), c("null", "null", "null"))))
-
-title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
-plot1 <- viewport(layout.pos.col = 1, layout.pos.row = 2, name = "plot1")
-plot2 <- viewport(layout.pos.col = 2, layout.pos.row = 2, name = "plot2")
-plot3 <- viewport(layout.pos.col = 3, layout.pos.row = 2, name = "plot3")
-title2 <- viewport(layout.pos.col = 2, layout.pos.row = 3, name = "title2")
-plot4 <- viewport(layout.pos.col = 1, layout.pos.row = 4, name = "plot4")
-plot5 <- viewport(layout.pos.col = 2, layout.pos.row = 4, name = "plot5")
-plot6 <- viewport(layout.pos.col = 3, layout.pos.row = 4, name = "plot6")
-
-splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3, title2, plot4, plot5, plot6))
-
-pushViewport(splot)
+# grid.newpage()
+# 
+# top.vp <- viewport(layout=grid.layout(4, 3,
+#                                       widths=unit(c(1, 1, 1), c("null", "null", "null")),
+#                                       heights=unit(c(.5,5,.5,5), c("null", "null", "null"))))
+# 
+# title1 <- viewport(layout.pos.col = 2, layout.pos.row = 1, name = "title1")
+# plot1 <- viewport(layout.pos.col = 1, layout.pos.row = 2, name = "plot1")
+# plot2 <- viewport(layout.pos.col = 2, layout.pos.row = 2, name = "plot2")
+# plot3 <- viewport(layout.pos.col = 3, layout.pos.row = 2, name = "plot3")
+# title2 <- viewport(layout.pos.col = 2, layout.pos.row = 3, name = "title2")
+# plot4 <- viewport(layout.pos.col = 1, layout.pos.row = 4, name = "plot4")
+# plot5 <- viewport(layout.pos.col = 2, layout.pos.row = 4, name = "plot5")
+# plot6 <- viewport(layout.pos.col = 3, layout.pos.row = 4, name = "plot6")
+# 
+# splot <- vpTree(top.vp, vpList(title1, plot1, plot2, plot3, title2, plot4, plot5, plot6))
+# 
+# pushViewport(splot)
 
 # Plot heatmaps for each supercluster
 
+plot_rows <- list()
 curr_sc <- 1
 for(curr_sc in 1:2){
   
@@ -239,38 +240,49 @@ for(curr_sc in 1:2){
   all_plots[[curr_sc]][[2]]@heatmap_param$show_heatmap_legend <- T
   all_plots[[curr_sc]][[3]]@heatmap_param$show_heatmap_legend <- T
   
-  ht_grob1 = grid.grabExpr(draw(all_plots[[curr_sc]][[1]], padding = unit(c(10, 70, 10, 0), "mm")))
-  ht_grob2 = grid.grabExpr(draw(all_plots[[curr_sc]][[2]], padding = unit(c(10, 60, 10, 0), "mm")))
-  ht_grob3 = grid.grabExpr(draw(all_plots[[curr_sc]][[3]], padding = unit(c(10, 70, 10, 10), "mm")))
+  ht_grob1 = grid.grabExpr(draw(all_plots[[curr_sc]][[1]]))
+  ht_grob2 = grid.grabExpr(draw(all_plots[[curr_sc]][[2]]))
+  ht_grob3 = grid.grabExpr(draw(all_plots[[curr_sc]][[3]]))
   
   
-  if(curr_sc == 1){
-    seekViewport("plot1")
-    grid.draw(ht_grob1)
-    
-    seekViewport("plot2")
-    grid.draw(ht_grob2)
-    
-    seekViewport("plot3")
-    grid.draw(ht_grob3)
-    
-    seekViewport("title1")
-    grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
-  } else {
-    seekViewport("plot4")
-    grid.draw(ht_grob1)
-    
-    seekViewport("plot5")
-    grid.draw(ht_grob2)
-    
-    seekViewport("plot6")
-    grid.draw(ht_grob3)
-    
-    seekViewport("title2")
-    grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
-  }
+  p <- plot_grid(ht_grob1,ht_grob2, ht_grob3, nrow=1, rel_widths = c(2, 2, 2))
+  
+  plot_rows <- append(plot_rows, list(p))
+  
+  # if(curr_sc == 1){
+  #   seekViewport("plot1")
+  #   grid.draw(ht_grob1)
+  #   
+  #   seekViewport("plot2")
+  #   grid.draw(ht_grob2)
+  #   
+  #   seekViewport("plot3")
+  #   grid.draw(ht_grob3)
+  #   
+  #   seekViewport("title1")
+  #   grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
+  # } else {
+  #   seekViewport("plot4")
+  #   grid.draw(ht_grob1)
+  #   
+  #   seekViewport("plot5")
+  #   grid.draw(ht_grob2)
+  #   
+  #   seekViewport("plot6")
+  #   grid.draw(ht_grob3)
+  #   
+  #   seekViewport("title2")
+  #   grid.text(curr_title, gp = gpar(fontsize = 40, fontface = "bold"))
+  # }
 }
 
+
+
+p <- plot_grid(plot_rows[[1]],plot_rows[[2]],nrow=2)
+
+tiff(paste0(plotDirectory,"figure_S2c.tiff"), width=190, height = 200, units = "mm", res = 1000)
+
+print(p)
 
 dev.off()
 

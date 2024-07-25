@@ -161,31 +161,40 @@ df <- merge(df,NR_df, by=c("cohort","geneset","drug_class"))
 
 
 p <- ggplot(df)+
-  geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=4)+
-  scale_shape_manual(values=c(15, 16,17), name="Signature")+
+  geom_point(aes(x=mean_R, y=mean_NR,color=cohort,shape=geneset), size=2)+
+  scale_shape_manual(values=c(15,16,17), name="Signature")+
   scale_x_continuous(expand=c(0,0),limits = c(0,1))+
   scale_y_continuous(expand=c(0,0),limits = c(0,1))+
   geom_abline(intercept = 0,slope = 1)+
   xlab("Mean Responder Score")+
   ylab("Mean Non-Responder Score")+
   guides(color=guide_legend(title="Cohort"))+
-  geom_label(x=.575,y=.2,size=3,label=TeX("logit(NonResponder) ~ $\\beta_{0} + \\beta_{1}SignatureScore + \\beta_{2}Cohort"))+
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        plot.margin = margin(1,1,1,1, "cm"))
+  geom_label(x=.575,y=.2,size=1,label=TeX("logit(NonResponder) ~ $\\beta_{0} + \\beta_{1}SignatureScore + \\beta_{2}Cohort"))+
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 8),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=4),
+        legend.key.height = unit(3,"mm"),
+        legend.key.width = unit(3,"mm"))
   
 
 
 p
 # scale_color_manual(values=colors_to_use)+
 
-png(paste0(plotDirectory,"figure_4d.png"),
-    width=8, height = 6, units="in",res=300)
-
+tiff(paste0(plotDirectory,"figure_4d.tiff"), width=110, height = 90, units = "mm", res = 1000)
 
 print(p)
 
 dev.off()
+# 
+# png(paste0(plotDirectory,"figure_4d.png"),
+#     width=8, height = 6, units="in",res=300)
+# 
+# 
+# print(p)
+# 
+# dev.off()
 
 df <-  regression_df %>% 
   dplyr::select(cancer_type, drug,geneset,score, Response) %>% 

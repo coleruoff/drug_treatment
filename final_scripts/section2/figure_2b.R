@@ -20,11 +20,11 @@ A549.data <- all_data[["A549"]]
 K562.data <- all_data[["K562"]]
 MCF7.data <- all_data[["MCF7"]]
 
-A549.data <- A549.data[,A549.data$rac == "rac"]
+A549.data <- A549.data[,A549.data$rac == "rac" & A549.data$treatment_stage == "post"]
 
-K562.data <- K562.data[,K562.data$rac == "rac"]
+K562.data <- K562.data[,K562.data$rac == "rac" & K562.data$treatment_stage == "post"]
 
-MCF7.data <- MCF7.data[,MCF7.data$rac == "rac"]
+MCF7.data <- MCF7.data[,MCF7.data$rac == "rac" & MCF7.data$treatment_stage == "post"]
 
 #################################################################################
 # Cluster based on mean expression of variable genes
@@ -81,20 +81,27 @@ cor_heatmap <- cor(heatmap, method = "spearman")
 ht <- Heatmap(cor_heatmap, name="Spearman\nCorrelation", cluster_rows = T, cluster_columns = T,
               column_title = "", column_title_side = "bottom",
               row_title_side = "left", row_title_gp = gpar(fontsize=20),
-              column_names_rot = 45, 
-              row_names_gp = gpar(fontsize=30),
-              column_names_gp = gpar(fontsize=30),
-              heatmap_legend_param = list(title_gp = gpar(fontsize = 30),legend_height = unit(6, "cm"), grid_width=unit(2,"cm"),
-                                          labels_gp = gpar(fontsize = 20)))
+              column_names_rot = 90, 
+              row_names_gp = gpar(fontsize=8),
+              column_names_gp = gpar(fontsize=8),
+              heatmap_legend_param = list(title_gp = gpar(fontsize = 8),legend_height = unit(4, "mm"), grid_width=unit(4,"mm"),
+                                          labels_gp = gpar(fontsize = 6)))
 
 
-png(paste0(plotDirectory, "figure_2b.png"),
-    width = 20,height=20, units = 'in',res = 300)
+tiff(paste0(plotDirectory,"figure_2b.tiff"), width=90, height = 90, units = "mm", res = 1000)
 
-draw(ht, padding = unit(c(6, 20, 10, 2), "mm"),
+draw(ht,
      heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T)
 
 dev.off()
+
+# png(paste0(plotDirectory, "figure_2b.png"),
+#     width = 20,height=20, units = 'in',res = 300)
+# 
+# draw(ht, padding = unit(c(6, 20, 10, 2), "mm"),
+#      heatmap_legend_side = "right", annotation_legend_side = "right",merge_legend=T)
+# 
+# dev.off()
 
 
 

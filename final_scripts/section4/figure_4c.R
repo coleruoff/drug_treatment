@@ -81,33 +81,39 @@ p <- ggboxplot(df %>%
 
 
 # Use only p.format as label. Remove method name.
-pre_plot <- p + stat_compare_means(label = "p.format", method = "wilcox", size=6,
+pre_plot <- p + stat_compare_means(label = "p.format", method = "wilcox", size=3,
                                    label.x = 1.2, 
-                                   label.y = 2.2)+
+                                   label.y = 2.15)+
   xlab("")+
   ylab("Score")+
+  ylim(1,2.2)+
   theme(legend.position="right",
-        strip.text = element_text(size=20),
-        title = element_text(size=20),
-        legend.text = element_text(size=24),
-        legend.title = element_text(size=26),
-        legend.key.height = unit(1.5,"cm"),
-        legend.key.width = unit(1.5,"cm"),
+        strip.text.x.top = element_text(size=6),
+        title = element_text(size=10),
+        legend.text = element_text(size=8),
+        legend.title = element_text(size=10),
+        legend.key.height = unit(5,"mm"),
+        legend.key.width = unit(5,"mm"),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.text.y = element_text(size=16))
+        axis.text.y = element_text(size=10))
 
 
 pre_plot
 
-
-
-png(paste0(plotDirectory,"figure_4c.png"),
-    width=16, height = 6, units="in",res=300)
-
+tiff(paste0(plotDirectory,"figure_4c.tiff"), width=140, height = 80, units = "mm", res = 1000)
 
 print(pre_plot)
 
 dev.off()
+
+
+# png(paste0(plotDirectory,"figure_4c.png"),
+#     width=16, height = 6, units="in",res=300)
+# 
+# 
+# print(pre_plot)
+# 
+# dev.off()
 
 
