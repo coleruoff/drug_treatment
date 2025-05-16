@@ -2,11 +2,12 @@ data/
 
 final_data/
 
+revision_data/
+
 *.out
 
 renv/
 
 final_figures/*.tiff
-
 
 .Rproj.user
