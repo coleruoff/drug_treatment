@@ -3,7 +3,7 @@
 module load R/4.4
 
 working_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/"
-source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_scripts/section1/"
+source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/section1/"
 
 #process oren data
 Rscript --vanilla ${source_directory}oren_pooled_processing.R $working_directory

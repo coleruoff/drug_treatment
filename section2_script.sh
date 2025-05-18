@@ -3,7 +3,7 @@
 module load R/4.4
 
 working_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/"
-source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_scripts/section2/"
+source_directory="/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_scripts/section2/"
 
 
 echo "create ITH MP term2gene"
