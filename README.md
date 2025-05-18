@@ -9,6 +9,6 @@
 
 ## File locations: 
 
-raw data: final_data/raw_data
-analysis code: final_scripts
-plot output: final_figures
+###### raw data: final_data/raw_data
+###### analysis code: final_scripts
+###### plot output: final_figures
