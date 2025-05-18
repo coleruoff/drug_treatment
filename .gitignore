@@ -11,3 +11,18 @@ renv/
 final_figures/*.tiff
 
 .Rproj.user
+
+.DS_Store
+
+._.DS_Store
+
+.Rproj.user
+
+omnipathr-log/
+
+.Renviron
+
+.Rhistory
+
+Rplots.pdf
+
