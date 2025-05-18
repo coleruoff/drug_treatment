@@ -1,10 +1,11 @@
 # Resistance Signatures Manifested in Early Drug Response in Cancer and Across Species
 
 ## Run the following scripts to reproduce results:
-section1_script.sh\n
-section2_script.sh\n
-section3_script.sh\n
-section4_script.sh\n
+
+# section1_script.sh
+# section2_script.sh
+# section3_script.sh
+# section4_script.sh
 
 ### File locations: 
 
