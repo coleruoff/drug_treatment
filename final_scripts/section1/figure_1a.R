@@ -5,8 +5,8 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 ################################################################################
 
 create_GSEA_matrix <- function(genesets_with_ranks, genesets2){
@@ -151,7 +151,7 @@ p <- ggplot(df, aes(x=day, y=NES, fill=dot_color)) +
 
 p
 
-jpeg(paste0(plotDirectory,"figure_1a.jpg"),width=80, height = 60, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_1a.jpg"),width=80, height = 60, units = "mm", res = 600)
 print(p)
 dev.off()
 

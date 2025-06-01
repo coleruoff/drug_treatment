@@ -6,8 +6,8 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 all_data <- readRDS(paste0(dataDirectory, "processed_data/sciplex_data/all_cell_lines_data.rds"))
@@ -98,7 +98,7 @@ p <- ggboxplot(df, x="sc",y="scores",fill="sc", outlier.shape = NA, size = .2)+
 
 p
 
-jpeg(paste0(plotDirectory,"figure_4a.jpg"), width=80, height = 60, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_4a.jpg"), width=80, height = 60, units = "mm", res = 600)
 print(p)
 dev.off()
 

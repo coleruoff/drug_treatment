@@ -5,8 +5,8 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ###################################################################################
 
@@ -82,7 +82,7 @@ p <- annotate_figure(figure, left = textGrob("Score", rot = 90, vjust = 1, gp = 
 
 
 
-jpeg(paste0(plotDirectory,"figure_1b.jpg"), width=100, height=120, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_1b.jpg"), width=100, height=120, units = "mm", res = 600)
 print(p)
 dev.off()
 

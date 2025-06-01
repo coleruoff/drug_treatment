@@ -7,8 +7,8 @@ source("final_scripts/drug_treatment_functions.R")
 
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 #################################################################################
 
@@ -90,11 +90,7 @@ for(curr_drug in all_drugs){
   colnames(ssgsea_res) <- colnames(curr_data)
   temp <- data.frame(t(ssgsea_res)) %>% 
     rownames_to_column()
-  # cancer_gene_set_score_info <- compute_bulk_normalized_gene_set_scores(gene_exp_mat = curr_data, gene_sets = all_signatures, num_controls = 100, num_bins = 10, q_thresh=0.95, gene_universe=NULL, use_median=F)
-  #Subtract background geneset scores from foreground geneset scores
-  # normalized_gene_set_score_mat <- cancer_gene_set_score_info$fg - cancer_gene_set_score_info$bg
-  # temp <- data.frame(t(normalized_gene_set_score_mat)) %>% 
-  #   rownames_to_column()
+  
   
   dim(all_sample_scores)
   
@@ -180,7 +176,7 @@ p <- ggplot(df)+
 p
 
 
-jpeg(paste0(plotDirectory,"figure_3e.jpg"), width=100, height = 80, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_3e.jpg"), width=100, height = 80, units = "mm", res = 600)
 print(p)
 dev.off()
 

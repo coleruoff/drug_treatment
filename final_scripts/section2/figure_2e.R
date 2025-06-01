@@ -7,8 +7,8 @@ source("final_scripts/drug_treatment_functions.R")
 
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 #################################################################################
 
@@ -36,13 +36,6 @@ for(j in 1:length(supercluster_up_genes)){
     filter(id %in% supercluster_down_genes[[j]]) %>%
     pull(ranks)
   
-  # rest_ranks <- crispr_ko_ranks %>%
-  #   filter(id %in% full_tf_list & !id %in% supercluster_top_tfs[[j]]) %>%
-  #   pull(`neg|score`)
-
-  # rest_ranks <- crispr_ko_ranks %>%
-  #   filter(!id %in% supercluster_top_tfs[[j]]) %>%
-  #   pull(`neg|score`)
   
   
   final_df[["rank"]] <- append(final_df[["rank"]], c(top_ranks,rest_ranks))
@@ -57,7 +50,6 @@ final_df <- data.frame(final_df)
 final_df$top <- factor(final_df$top,levels = c("Upregulated","Downregulated"))
 
 # saveRDS(final_df, paste0(dataDirectory, "supercluster_tf_top_bottom_crispr_ranks_data.rds"))
-# 
 
 
 p <- ggviolin(final_df, x = "top", y = "rank",
@@ -99,7 +91,7 @@ p <- p + stat_pvalue_manual(stat.test, label = "p.adj", y.position = 0, size=1, 
 
 p
 
-jpeg(paste0(plotDirectory,"figure_2e.jpg"), width=100, height = 60, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_2e.jpg"), width=100, height = 60, units = "mm", res = 600)
 print(p)
 dev.off()
 

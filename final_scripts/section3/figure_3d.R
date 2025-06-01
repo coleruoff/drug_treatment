@@ -6,12 +6,10 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
-# data <- readRDS(paste0(dataDirectory, "breast_premalignancy_data/datasets_for_boxplot_fisheroverlap.Rds"))
-# data <- readRDS(paste0(dataDirectory, "breast_premalignancy_data/datasets_for_boxplot_newSignatures.Rds"))
 data <- readRDS(paste0(dataDirectory, "breast_premalignancy_data/datasets_for_boxplot_fisheroverlap_newSignatures.Rds"))
                 
 plot_data <- data[[1]]
@@ -43,7 +41,7 @@ p <- ggboxplot(plot_data,x = "Progression", y="value", facet.by = "variable", sc
 p
 
 
-jpeg(paste0(plotDirectory,"figure_3d.jpg"), width=120, height = 50, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_3d.jpg"), width=120, height = 50, units = "mm", res = 600)
 print(p)
 dev.off()
 

@@ -6,8 +6,8 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 data <- readRDS(paste0(dataDirectory, "breast_premalignancy_data/datasets_for_boxplot_fisheroverlap_newSignatures.Rds"))
@@ -54,7 +54,7 @@ ht <- Heatmap(log_odd_ht, name="log(Odds)", cluster_rows = F,cluster_columns = F
                 }})
 
 
-jpeg(paste0(plotDirectory,"figure_S2c.jpg"), width=120, height = 80, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_S2c.jpg"), width=120, height = 80, units = "mm", res = 600)
 draw(ht,heatmap_legend_side = "left")
 dev.off()
 

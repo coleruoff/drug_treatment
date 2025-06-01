@@ -6,8 +6,8 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -147,7 +147,7 @@ for(i in 1:3){
 
 hallmarks_ht <- hallmark_plots[[1]] + hallmark_plots[[2]] + hallmark_plots[[3]]
 
-jpeg(paste0(plotDirectory,"figure_1d.jpg"), width=150, height = 100, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_1d.jpg"), width=150, height = 100, units = "mm", res = 600)
 
 draw(hallmarks_ht,
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T,
@@ -158,7 +158,7 @@ dev.off()
 
 mps_ht <- mp_plots[[1]] + mp_plots[[2]] + mp_plots[[3]]
 
-jpeg(paste0(plotDirectory,"figure_S1c.jpg"), width=150, height = 100, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_S1c.jpg"), width=150, height = 100, units = "mm", res = 600)
 
 draw(mps_ht,
      heatmap_legend_side = "left", annotation_legend_side = "left", merge_legend=T,

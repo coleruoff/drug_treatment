@@ -7,8 +7,8 @@ source("final_scripts/drug_treatment_functions.R")
 
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 # Plotting for Global RAC enrichment
@@ -17,7 +17,7 @@ all_signatures <- readRDS(paste0(dataDirectory, "genesets/global_rac_signatures.
 
 final_plot <- plot_enrichment_ora(all_signatures)
 
-jpeg(paste0(plotDirectory,"figure_S1d.jpg"), width=350, height = 200, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_S1d.jpg"), width=350, height = 200, units = "mm", res = 600)
 print(final_plot)
 dev.off()
 

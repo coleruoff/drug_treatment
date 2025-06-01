@@ -5,8 +5,8 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -97,7 +97,7 @@ sil_data <- fviz_nbclust(cor_heatmap, kmeans, method = "silhouette")+
   labs(subtitle = "Silhouette method")
 
 
-jpeg(paste0(plotDirectory,"figure_S2a.jpg"), width=100, height = 80, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_S2a.jpg"), width=100, height = 80, units = "mm", res = 600)
 print(sil_data)
 dev.off()
 
@@ -132,7 +132,7 @@ ht <- draw(ht,heatmap_legend_side = "right", annotation_legend_side = "right",me
 
 
 
-jpeg(paste0(plotDirectory,"figure_2a.jpg"), width=100, height = 80, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_2a.jpg"), width=100, height = 80, units = "mm", res = 600)
 print(ht)
 dev.off()
 

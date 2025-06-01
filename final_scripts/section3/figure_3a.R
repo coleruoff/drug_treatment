@@ -5,8 +5,8 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 source("/data/CDSL_hannenhalli/Cole/projects/survival_analysis/score_gene_expression.R")
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 # Survival Analysis for each cell line in cancer type matched TCGA samples
@@ -135,7 +135,6 @@ hazard_ratio_df <- data.frame(hazard_ratio_df)
 # plot_data <- readRDS(paste0(dataDirectory,"figure_data/figure_3a_plot_data.rds"))
 
 all_plots <- list()
-curr_cell_line <- "MCF7"
 for(curr_cell_line in cell_lines){
   
   cat(curr_cell_line, "\n")
@@ -144,7 +143,7 @@ for(curr_cell_line in cell_lines){
   
   # KM plot
   p <- ggsurvplot(plot_data[[curr_cell_line]][["fit"]][[curr_cell_line]], data = plot_data[[curr_cell_line]][["data"]][[curr_cell_line]],
-                  pval = F,
+                  pval = T,
                   legend.title="Expression Level:",
                   legend.labs= c("High", "Low"),
                   font.tickslab = c(10),
@@ -159,8 +158,8 @@ for(curr_cell_line in cell_lines){
     ylab("")+
     theme(legend.text = element_text(size = 6, color = "black"),
           legend.title = element_text(size = 6, color = "black"),
-          plot.title = element_text(size=8),
-          axis.text = element_text(size=6))+
+          plot.title = element_text(size=18,hjust = 0.5),
+          axis.text = element_text(size=10))+
     NoLegend()
   
   
@@ -180,30 +179,29 @@ for(curr_cell_line in cell_lines){
     cox_pval <- paste0("p = ", sprintf("%.4f",cox_pval))
   }
   
-  p <- p+annotate(
-    "text",
-    x = Inf, y = Inf,
-    vjust = 1.5, hjust = 1,
-    label = paste0("Cox Regression:\nHR = ", cox_hr, "\n ",cox_pval),
-    size = 3)
+  # p <- p+annotate(
+  #   "text",
+  #   x = Inf, y = Inf,
+  #   vjust = 1.5, hjust = 1.5,
+  #   label = paste0("Cox Regression:\nHR = ", cox_hr, "\n    ",cox_pval),
+  #   size = 4)
   
   all_plots <- append(all_plots, list(p))
 }
 
 names(all_plots) <- cell_lines
 
-final_plot <- ggarrange(plotlist = all_plots, ncol = 3, nrow=1, common.legend = F)
-
+final_plot <- all_plots[[2]]
 
 final_plot <- annotate_figure(final_plot,
-                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=8),
-                              bottom = text_grob("Time", size=8))
+                              left = text_grob("Survival Probability", rot = 90, vjust = 1, size=12),
+                              bottom = text_grob("Time", size=12))
 
 
 
 final_plot
 
-jpeg(paste0(plotDirectory,"figure_3a.jpg"), width=200, height = 120, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_3a.jpg"), width=200, height = 120, units = "mm", res = 600)
 print(final_plot)
 dev.off()
 

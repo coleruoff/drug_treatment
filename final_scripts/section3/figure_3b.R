@@ -6,8 +6,8 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -70,7 +70,7 @@ p <- annotate_figure(final_plot,
 p
 
 
-jpeg(paste0(plotDirectory,"figure_3b.jpg"), width=180, height = 100, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_3b.jpg"), width=180, height = 100, units = "mm", res = 600)
 print(p)
 dev.off()
 
@@ -98,11 +98,6 @@ count <- 0
 for(curr_project in unique(hazard_ratio_df$project)){
   
   
-  # hr_values <- hazard_ratio_df %>% 
-  #   filter(project == curr_project) %>% 
-  #   pull(hazard_ratio)
-  # 
-  # count <- ifelse(sum(hr_values > 1) > 0, count+1,count)
   
   temp <- hazard_ratio_df %>% 
     filter(project == curr_project & hazard_ratio > 0 & p_value < 0.05) %>% 

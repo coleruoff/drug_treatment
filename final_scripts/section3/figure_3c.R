@@ -6,8 +6,8 @@ setwd(args[1])
 source("final_scripts/drug_treatment_functions.R")
 set.seed(42)
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
 
@@ -89,7 +89,7 @@ pre_plot
 
 
 
-jpeg(paste0(plotDirectory,"figure_3c.jpg"), width=120, height = 50, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_3c.jpg"), width=120, height = 50, units = "mm", res = 600)
 print(pre_plot)
 dev.off()
 

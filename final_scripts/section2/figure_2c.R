@@ -5,8 +5,8 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
+# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 #################################################################################
 
@@ -57,16 +57,6 @@ for(curr_cell_line in cell_lines){
     filter(supercluster3 == 1) %>%
     dplyr::select(cell, Phase)
   
-  # curr_sc4<- df %>%
-  #   dplyr::count(supercluster4, Phase) %>%
-  #   filter(supercluster4 == 1)
-  # 
-  # total_sc4_counts[[curr_cell_line]] <- df %>%
-  #   filter(supercluster4 == 1) %>%
-  #   dplyr::select(cell, Phase)
-  
-  
-  
 }
 
 
@@ -85,19 +75,12 @@ total_sc3_counts <- total_sc3_counts %>%
   dplyr::count(Phase)
 total_sc3_counts$n <- total_sc3_counts$n/sum(total_sc3_counts$n)
 
-# total_sc4_counts <- do.call("rbind",total_sc4_counts)
-# total_sc4_counts <- total_sc4_counts %>%
-#   dplyr::count(Phase)
-# total_sc4_counts$n <- total_sc4_counts$n/sum(total_sc4_counts$n)
 
 total_sc1_counts$supercluster <- "Supercluster 1"
 total_sc2_counts$supercluster <- "Supercluster 2"
 total_sc3_counts$supercluster <- "Supercluster 3"
-# total_sc4_counts$supercluster <- "Supercluster 4"
 
-# final_df <- rbind(total_sc1_counts,total_sc2_counts,total_sc3_counts,total_sc4_counts)
 final_df <- rbind(total_sc1_counts,total_sc2_counts,total_sc3_counts)
-# final_df <- rbind(total_sc1_counts,total_sc2_counts)
 
 final_df$n <- final_df$n * 100
 
@@ -120,7 +103,7 @@ p <- ggplot(final_df)+
 
 p
 
-jpeg(paste0(plotDirectory,"figure_2c.jpg"), width=100, height = 60, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_2c.jpg"), width=100, height = 60, units = "mm", res = 600)
 print(p)
 dev.off()
 

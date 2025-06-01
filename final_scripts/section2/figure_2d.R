@@ -5,10 +5,7 @@ setwd(args[1])
 
 source("final_scripts/drug_treatment_functions.R")
 
-# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_data/"
-# plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/revision_figures/"
-
-################################################################################
+# dataDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_data/"
 # plotDirectory <- "/data/CDSL_hannenhalli/Cole/projects/drug_treatment/final_figures/"
 
 ################################################################################
@@ -88,7 +85,7 @@ ht <- Heatmap(log(heatmap), cluster_rows = F,cluster_columns = F, name="log(OR)"
 
 
 
-jpeg(paste0(plotDirectory,"figure_2d.jpg"), width=60, height = 60, units = "mm", res = 1000)
+jpeg(paste0(plotDirectory,"figure_2d.jpg"), width=60, height = 60, units = "mm", res = 600)
 draw(ht, heatmap_legend_side = "left")
 dev.off()
 
